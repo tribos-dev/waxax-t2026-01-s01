@@ -32,7 +32,7 @@ Pessoa -> Produto/Servico -> Operacao (Pedido) -> Financeiro -> Estoque -> Intel
 ### Requisitos
 
 - [Git](https://git-scm.com/downloads)
-- [Java 11](https://www.oracle.com/java/technologies/javase-jdk11-downloads.html)
+- [Java 17](https://www.oracle.com/java/technologies/javase-jdk11-downloads.html](https://www.oracle.com/java/technologies/javase/jdk17-archive-downloads.html )
 - [Lombok](https://projectlombok.org/download)
 - [Maven](https://maven.apache.org/download.cgi)
 
