@@ -86,3 +86,6 @@ Por padrao, a aplicacao usa:
 Com a aplicacao rodando:
 - Swagger UI: http://localhost:8080/wakax-ecommerce/api/swagger-ui.html
 - OpenAPI JSON: http://localhost:8080/wakax-ecommerce/api/v3/api-docs
+
+### Documentação Wiki
+- Wiki: https://github.com/tribos-dev/wakax-sprint-conquista/wiki
