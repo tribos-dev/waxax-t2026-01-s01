@@ -1,9 +1,11 @@
 package br.com.wakax.wakax_ecommerce.cliente.application.api;
 
+import java.util.List;
 import java.util.UUID;
 
 import javax.validation.Valid;
 
+import br.com.wakax.wakax_ecommerce.cliente.application.api.response.ClienteListAllResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,4 +22,7 @@ public interface ClienteApi {
 
   @GetMapping("/{idCliente}")
   ClienteResponse buscaClienteEspecifico(@PathVariable UUID idCliente);
+
+  @GetMapping("/{idCliente}/ListarClientes")
+  List<ClienteListAllResponse> buscarTodosOsClientes(UUID idCliente);
 }
