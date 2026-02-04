@@ -1,7 +1,9 @@
 package br.com.wakax.wakax_ecommerce.produto.api;
 
+import java.util.List;
 import java.util.UUID;
 
+import br.com.wakax.wakax_ecommerce.produto.api.response.ProdutoListagemResponse;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.com.wakax.wakax_ecommerce.produto.api.request.ProdutoRequest;
@@ -32,4 +34,13 @@ public class ProdutoController implements ProdutoAPI {
     log.debug("[finish] ProdutoController - buscaProdutoPorId");
     return response;
   }
+
+  @Override
+  public ProdutoListagemResponse listarTodosProdutos(int page, int size) {
+    log.debug("[start] ProdutoController - listarTodosProdutos");
+    ProdutoListagemResponse response = produtoService.listarTodosProdutos(page, size);
+    log.debug("[finish] ProdutoController - listarTodosProdutos");
+    return response;
+  }
+
 }
