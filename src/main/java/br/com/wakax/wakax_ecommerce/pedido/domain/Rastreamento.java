@@ -51,7 +51,7 @@ public class Rastreamento {
   @OneToMany(mappedBy = "rastreamento", cascade = CascadeType.ALL, orphanRemoval = true)
   @OrderBy("dataEvento DESC")
   @Builder.Default
-  private List<EventoRastreamento> eventos = new ArrayList<>();
+  private List<HistoricoRastreamento> eventos = new ArrayList<>();
 
   public Rastreamento(RastreamentoRequest request, Pedido pedido) {
     this.codigo = request.getCodigo();
@@ -62,14 +62,14 @@ public class Rastreamento {
     this.eventos = mapearEventos(request.getEventos());
   }
 
-  private List<EventoRastreamento> mapearEventos(
+  private List<HistoricoRastreamento> mapearEventos(
       List<HistoricoRastreamentoRequest> eventosRequest) {
     return Objects.requireNonNullElse(
             eventosRequest, Collections.<HistoricoRastreamentoRequest>emptyList())
         .stream()
         .map(
             evento ->
-                EventoRastreamento.builder()
+                HistoricoRastreamento.builder()
                     .rastreamento(this)
                     .dataEvento(evento.getDataEvento())
                     .local(evento.getLocal())

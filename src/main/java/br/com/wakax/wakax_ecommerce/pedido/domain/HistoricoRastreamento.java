@@ -13,12 +13,12 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "evento_rastreamento")
+@Table(name = "historico_rastreamento")
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class EventoRastreamento {
+public class HistoricoRastreamento {
   @Id @GeneratedValue private UUID id;
 
   @ManyToOne(fetch = FetchType.LAZY, optional = false)

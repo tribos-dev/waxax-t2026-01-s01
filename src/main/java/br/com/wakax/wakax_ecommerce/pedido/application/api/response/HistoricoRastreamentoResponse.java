@@ -2,7 +2,7 @@ package br.com.wakax.wakax_ecommerce.pedido.application.api.response;
 
 import java.time.LocalDateTime;
 
-import br.com.wakax.wakax_ecommerce.pedido.domain.EventoRastreamento;
+import br.com.wakax.wakax_ecommerce.pedido.domain.HistoricoRastreamento;
 import br.com.wakax.wakax_ecommerce.pedido.domain.StatusRastreamento;
 import lombok.Getter;
 
@@ -13,7 +13,7 @@ public class HistoricoRastreamentoResponse {
   private final String descricao;
   private final StatusRastreamento status;
 
-  public HistoricoRastreamentoResponse(EventoRastreamento evento) {
+  public HistoricoRastreamentoResponse(HistoricoRastreamento evento) {
     this.dataEvento = evento.getDataEvento();
     this.local = evento.getLocal();
     this.descricao = evento.getDescricao();
