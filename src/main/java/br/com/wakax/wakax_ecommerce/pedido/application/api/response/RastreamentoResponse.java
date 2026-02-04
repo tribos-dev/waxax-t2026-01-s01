@@ -15,7 +15,7 @@ public class RastreamentoResponse {
   private final String transportadora;
   private final StatusRastreamento statusAtual;
   private final LocalDate previsaoEntrega;
-  private final List<EventoRastreamentoResponse> historico;
+  private final List<HistoricoRastreamentoResponse> historico;
 
   public RastreamentoResponse(Rastreamento rastreamento) {
     this.codigo = rastreamento.getCodigo();
@@ -26,7 +26,7 @@ public class RastreamentoResponse {
         rastreamento.getEventos() == null
             ? Collections.emptyList()
             : rastreamento.getEventos().stream()
-                .map(EventoRastreamentoResponse::new)
+                .map(HistoricoRastreamentoResponse::new)
                 .collect(Collectors.toList());
   }
 }

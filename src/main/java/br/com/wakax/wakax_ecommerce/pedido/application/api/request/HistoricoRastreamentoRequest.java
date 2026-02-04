@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class EventoRastreamentoRequest {
+public class HistoricoRastreamentoRequest {
   @NotNull private LocalDateTime dataEvento;
 
   @NotBlank private String local;

@@ -20,7 +20,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 import br.com.wakax.wakax_ecommerce.handler.APIException;
 import br.com.wakax.wakax_ecommerce.handler.ErrorCode;
-import br.com.wakax.wakax_ecommerce.pedido.application.api.request.EventoRastreamentoRequest;
+import br.com.wakax.wakax_ecommerce.pedido.application.api.request.HistoricoRastreamentoRequest;
 import br.com.wakax.wakax_ecommerce.pedido.application.api.request.RastreamentoRequest;
 import br.com.wakax.wakax_ecommerce.pedido.application.api.response.RastreamentoResponse;
 import br.com.wakax.wakax_ecommerce.pedido.application.repository.PedidoRepository;
@@ -58,7 +58,7 @@ class RastreamentoApplicationServiceTest {
             StatusRastreamento.EM_TRANSITO,
             LocalDate.now().plusDays(3),
             List.of(
-                new EventoRastreamentoRequest(
+                new HistoricoRastreamentoRequest(
                     LocalDateTime.now(), "SP", "Objeto postado", StatusRastreamento.CRIADO)));
 
     RastreamentoResponse response =

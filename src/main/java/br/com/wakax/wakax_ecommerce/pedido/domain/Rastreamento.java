@@ -12,7 +12,7 @@ import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
-import br.com.wakax.wakax_ecommerce.pedido.application.api.request.EventoRastreamentoRequest;
+import br.com.wakax.wakax_ecommerce.pedido.application.api.request.HistoricoRastreamentoRequest;
 import br.com.wakax.wakax_ecommerce.pedido.application.api.request.RastreamentoRequest;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -62,9 +62,10 @@ public class Rastreamento {
     this.eventos = mapearEventos(request.getEventos());
   }
 
-  private List<EventoRastreamento> mapearEventos(List<EventoRastreamentoRequest> eventosRequest) {
+  private List<EventoRastreamento> mapearEventos(
+      List<HistoricoRastreamentoRequest> eventosRequest) {
     return Objects.requireNonNullElse(
-            eventosRequest, Collections.<EventoRastreamentoRequest>emptyList())
+            eventosRequest, Collections.<HistoricoRastreamentoRequest>emptyList())
         .stream()
         .map(
             evento ->

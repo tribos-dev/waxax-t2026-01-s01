@@ -21,6 +21,6 @@ public class ItemPedidoResponse {
     this.descricaoProduto = item.getProduto().getDescricao();
     this.quantidade = item.getQuantidade();
     this.valorUnitario = item.getValorUnitario();
-    this.valorTotal = item.getValorUnitario().multiply(BigDecimal.valueOf(item.getQuantidade()));
+    this.valorTotal = item.getValorTotal();
   }
 }
