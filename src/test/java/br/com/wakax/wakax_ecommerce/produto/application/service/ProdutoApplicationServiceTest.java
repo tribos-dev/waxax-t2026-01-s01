@@ -5,7 +5,14 @@ import static org.mockito.Mockito.*;
 
 import java.math.BigDecimal;
 import java.util.Collections;
+import java.util.List;
 import java.util.UUID;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -19,6 +26,7 @@ import br.com.wakax.wakax_ecommerce.handler.APIException;
 import br.com.wakax.wakax_ecommerce.handler.ErrorCode;
 import br.com.wakax.wakax_ecommerce.produto.api.request.ProdutoRequest;
 import br.com.wakax.wakax_ecommerce.produto.api.response.ProdutoListResponse;
+import br.com.wakax.wakax_ecommerce.produto.api.response.ProdutoListagemResponse;
 import br.com.wakax.wakax_ecommerce.produto.api.response.ProdutoResponse;
 import br.com.wakax.wakax_ecommerce.produto.application.repository.ProdutoRepository;
 import br.com.wakax.wakax_ecommerce.produto.domain.Produto;
@@ -189,5 +197,34 @@ class ProdutoApplicationServiceTest {
         });
 
     verify(produtoRepository, times(1)).salva(any(Produto.class));
+  }
+
+  @Test
+  void deveListarTodosProdutosComSucesso() {
+    Produto produto1 = new Produto(produtoRequest);
+    produto1.setId(UUID.randomUUID());
+    
+    ProdutoRequest produto2Request = ProdutoRequest.builder()
+            .descricao("Produto Teste 2")
+            .pesoLiquido(new BigDecimal("2.0"))
+            .pesoBruto(new BigDecimal("2.5"))
+            .preco(new BigDecimal("39.99"))
+            .precos(Collections.emptyList())
+            .build();
+    Produto produto2 = new Produto(produto2Request);
+    produto2.setId(UUID.randomUUID());
+    
+    List<Produto> produtos = List.of(produto1, produto2);
+    Pageable pageable = PageRequest.of(0, 10, Sort.by("descricao"));
+    Page<Produto> produtoPage = new PageImpl<>(produtos, pageable, produtos.size());
+    
+    when(produtoRepository.listarTodosProdutosPaginado(any(Pageable.class))).thenReturn(produtoPage);
+    
+    ProdutoListagemResponse response = produtoApplicationService.listarTodosProdutos(0, 10);
+    
+    assertNotNull(response);
+    assertEquals(2, response.getTotalProdutos());
+    assertEquals(2, response.getProdutos().size());
+    verify(produtoRepository, times(1)).listarTodosProdutosPaginado(any(Pageable.class));
   }
 }
