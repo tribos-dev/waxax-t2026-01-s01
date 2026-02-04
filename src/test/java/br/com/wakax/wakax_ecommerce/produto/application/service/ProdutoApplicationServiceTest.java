@@ -215,16 +215,18 @@ class ProdutoApplicationServiceTest {
     produto2.setId(UUID.randomUUID());
     
     List<Produto> produtos = List.of(produto1, produto2);
-    Pageable pageable = PageRequest.of(0, 10, Sort.by("descricao"));
-    Page<Produto> produtoPage = new PageImpl<>(produtos, pageable, produtos.size());
+    Pageable paginaEsperada = PageRequest.of(0, 10, Sort.by("descricao"));
+    Page<Produto> produtoPage = new PageImpl<>(produtos, paginaEsperada, produtos.size());
     
-    when(produtoRepository.listarTodosProdutosPaginado(any(Pageable.class))).thenReturn(produtoPage);
+    when(produtoRepository.listarTodosProdutosPaginado(paginaEsperada)).thenReturn(produtoPage);
     
     ProdutoListagemResponse response = produtoApplicationService.listarTodosProdutos(0, 10);
     
     assertNotNull(response);
     assertEquals(2, response.getTotalProdutos());
     assertEquals(2, response.getProdutos().size());
-    verify(produtoRepository, times(1)).listarTodosProdutosPaginado(any(Pageable.class));
+    assertEquals("Produto Teste", response.getProdutos().get(0).getDescricao());
+    assertEquals("Produto Teste 2", response.getProdutos().get(1).getDescricao());
+    verify(produtoRepository, times(1)).listarTodosProdutosPaginado(paginaEsperada);
   }
 }
