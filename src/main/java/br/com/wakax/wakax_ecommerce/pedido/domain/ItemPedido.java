@@ -36,4 +36,8 @@ public class ItemPedido {
   @JoinColumn(name = "pedido_id", nullable = false)
   @NotNull
   private Pedido pedido;
+
+  public BigDecimal getValorTotal() {
+    return this.valorUnitario.multiply(BigDecimal.valueOf(this.quantidade));
+  }
 }
