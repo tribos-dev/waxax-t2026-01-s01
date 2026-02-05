@@ -2,10 +2,12 @@ package br.com.wakax.wakax_ecommerce.cliente.application.api.response;
 
 import br.com.wakax.wakax_ecommerce.cliente.domain.Cliente;
 import br.com.wakax.wakax_ecommerce.pessoa.domain.StatusPessoa;
+import lombok.Getter;
+import lombok.ToString;
 
-import java.util.List;
-import java.util.stream.Collectors;
 
+@Getter
+@ToString
 public class ClienteListAllResponse {
 
     private String nome;
@@ -22,10 +24,6 @@ public class ClienteListAllResponse {
                         : null;
         this.statusPessoa = cliente.getPessoa().getStatus();
 
-    }
-
-    public static List<ClienteListAllResponse> toList(List<Cliente> clientes) {
-        return clientes.stream().map(ClienteListAllResponse::new).collect(Collectors.toList());
     }
 
 }
