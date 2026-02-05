@@ -74,6 +74,9 @@ public class PagamentoApplicationService implements PagamentoService {
 
     @Override
     public PagamentoPageResponse buscaPagamentos(int page, int size) {
+        log.info("[start] PagamentoApplicationService - buscaPagamentos");
+
+        log.info("[finish] PagamentoApplicationService - buscaPagamentos");
         return null;
     }
 }

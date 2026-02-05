@@ -7,6 +7,7 @@ import java.util.UUID;
 import br.com.wakax.wakax_ecommerce.pagamento.domain.Pagamento;
 import br.com.wakax.wakax_ecommerce.pagamento.domain.StatusPagamento;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface PagamentoRepository {
 
@@ -15,4 +16,6 @@ public interface PagamentoRepository {
   Pagamento buscaPagamentoPorId(UUID idPagamento);
 
   Optional<Pagamento> buscaPagamentoPorPedidoId(UUID pedidoId);
+
+  Page<Pagamento> buscaTodosPagamentosPaginado(Pageable pageable);
 }

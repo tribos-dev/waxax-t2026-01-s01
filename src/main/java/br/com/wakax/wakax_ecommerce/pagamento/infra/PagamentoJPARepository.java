@@ -23,4 +23,8 @@ public interface PagamentoJPARepository extends JpaRepository<Pagamento, UUID> {
 
   @Query("SELECT p FROM Pagamento p WHERE p.pedido.id = :idPedido")
   Optional<Pagamento> findByPedidoId(@Param("idPedido") UUID idPedido);
+
+  @Query("SELECT p FROM Pagamento p")
+  Page<Pagamento> findAllPagamentosPaginado(Pageable pageable);
+
 }

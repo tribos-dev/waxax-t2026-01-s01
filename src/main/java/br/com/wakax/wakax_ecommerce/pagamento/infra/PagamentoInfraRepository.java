@@ -55,4 +55,13 @@ public class PagamentoInfraRepository implements PagamentoRepository {
     log.debug("[finish] PagamentoInfraRepository - buscaPagamentoPorPedidoId");
     return pagamento;
   }
+
+  @Override
+  public Page<Pagamento> buscaTodosPagamentosPaginado(Pageable pageable) {
+  log.info("[start] PagamentoInfraRepository - buscaTodosPagamentosPaginado");
+  Page<Pagamento> pagamentos = pagamentoJPARepository.findAllPagamentosPaginado(pageable);
+  log.info("[finish] PagamentoInfraRepository - buscaTodosPagamentosPaginado");
+  return pagamentos;
+  }
+
 }
