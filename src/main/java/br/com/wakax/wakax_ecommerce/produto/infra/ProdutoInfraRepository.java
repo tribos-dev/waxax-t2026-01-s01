@@ -1,6 +1,5 @@
 package br.com.wakax.wakax_ecommerce.produto.infra;
 
-import java.util.List;
 import java.util.UUID;
 
 import org.springframework.data.domain.Page;
@@ -41,8 +40,6 @@ public class ProdutoInfraRepository implements ProdutoRepository {
                     HttpStatus.NOT_FOUND, ErrorCode.PRODUTO_NAO_ENCONTRADO, idProduto));
   }
 
-
-  
   @Override
   public Page<Produto> listarTodosProdutosPaginado(Pageable pageable) {
     log.debug("[start] ProdutoInfraRepository - listarTodosProdutosPaginado");

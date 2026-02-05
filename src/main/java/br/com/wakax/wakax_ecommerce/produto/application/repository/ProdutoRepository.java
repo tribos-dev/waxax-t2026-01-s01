@@ -1,6 +1,5 @@
 package br.com.wakax.wakax_ecommerce.produto.application.repository;
 
-import java.util.List;
 import java.util.UUID;
 
 import org.springframework.data.domain.Page;
@@ -13,6 +12,5 @@ public interface ProdutoRepository {
 
   Produto buscaProdutoPorId(UUID idProduto);
 
-  
   Page<Produto> listarTodosProdutosPaginado(Pageable pageable);
 }

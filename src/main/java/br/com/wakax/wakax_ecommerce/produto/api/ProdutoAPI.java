@@ -1,14 +1,13 @@
 package br.com.wakax.wakax_ecommerce.produto.api;
 
-import java.util.List;
 import java.util.UUID;
 
-import br.com.wakax.wakax_ecommerce.produto.api.response.ProdutoListagemResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import br.com.wakax.wakax_ecommerce.produto.api.request.ProdutoRequest;
 import br.com.wakax.wakax_ecommerce.produto.api.response.ProdutoListResponse;
+import br.com.wakax.wakax_ecommerce.produto.api.response.ProdutoListagemResponse;
 import br.com.wakax.wakax_ecommerce.produto.api.response.ProdutoResponse;
 
 @RestController
@@ -24,6 +23,5 @@ public interface ProdutoAPI {
   @GetMapping
   @ResponseStatus(HttpStatus.OK)
   ProdutoListagemResponse listarTodosProdutos(
-      @RequestParam(defaultValue = "0") int page,
-      @RequestParam(defaultValue = "20") int size);
+      @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "20") int size);
 }

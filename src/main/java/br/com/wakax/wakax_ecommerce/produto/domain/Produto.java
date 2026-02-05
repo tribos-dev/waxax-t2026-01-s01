@@ -58,6 +58,7 @@ public class Produto {
 
   @Column(name = "data_de_cadastro")
   private LocalDateTime dataDeCadastro;
+
   public Produto(ProdutoRequest request) {
     this.descricao = request.getDescricao();
     this.status = StatusProduto.ATIVO;
@@ -70,9 +71,9 @@ public class Produto {
     this.estoqueMaximo = request.getEstoqueMaximo();
     if (request.getPrecos() != null) {
       this.precos =
-              request.getPrecos().stream()
-                      .map(precoReq -> new Preco(precoReq.getTipo(), precoReq.getValor(), this))
-                      .collect(Collectors.toList());
+          request.getPrecos().stream()
+              .map(precoReq -> new Preco(precoReq.getTipo(), precoReq.getValor(), this))
+              .collect(Collectors.toList());
     }
     this.dataDeCadastro = LocalDateTime.now();
   }

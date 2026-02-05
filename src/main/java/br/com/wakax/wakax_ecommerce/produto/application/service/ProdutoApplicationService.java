@@ -1,11 +1,7 @@
 package br.com.wakax.wakax_ecommerce.produto.application.service;
 
-import java.util.Comparator;
-import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
-import br.com.wakax.wakax_ecommerce.produto.api.response.ProdutoListagemResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -14,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import br.com.wakax.wakax_ecommerce.produto.api.request.ProdutoRequest;
 import br.com.wakax.wakax_ecommerce.produto.api.response.ProdutoListResponse;
+import br.com.wakax.wakax_ecommerce.produto.api.response.ProdutoListagemResponse;
 import br.com.wakax.wakax_ecommerce.produto.api.response.ProdutoResponse;
 import br.com.wakax.wakax_ecommerce.produto.application.repository.ProdutoRepository;
 import br.com.wakax.wakax_ecommerce.produto.domain.Produto;
@@ -49,8 +46,7 @@ public class ProdutoApplicationService implements ProdutoService {
     Pageable pageable = PageRequest.of(page, size, Sort.by("descricao"));
     Page<Produto> produtos = produtoRepository.listarTodosProdutosPaginado(pageable);
     log.debug("[finish] ProdutoApplicationService - listarTodosProdutos");
-    return ProdutoListagemResponse.convertePaginado(produtos.getContent(), produtos.getTotalElements());
+    return ProdutoListagemResponse.convertePaginado(
+        produtos.getContent(), produtos.getTotalElements());
   }
-
-
 }
