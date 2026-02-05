@@ -1,10 +1,15 @@
 package br.com.wakax.wakax_ecommerce.cliente.application.api;
 
-import java.util.List;
+
+
 import java.util.UUID;
 
 import br.com.wakax.wakax_ecommerce.cliente.application.api.response.ClienteListAllResponse;
+import br.com.wakax.wakax_ecommerce.cliente.application.api.response.PageResponse;
 import br.com.wakax.wakax_ecommerce.cliente.domain.Cliente;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.com.wakax.wakax_ecommerce.cliente.application.api.request.ClienteRequest;
@@ -37,11 +42,13 @@ public class ClienteController implements ClienteApi {
   }
 
   @Override
-  public List<ClienteListAllResponse> buscarTodosOsClientes(UUID idCliente) {
+  public PageResponse<ClienteListAllResponse> buscarTodosOsClientes(int page, int size) {
     log.info("[start] ClienteController - buscarTodosOsClientes");
-    List<Cliente> clientes = clienteService.buscarTodosOsClientes;
+    Page<Cliente> clientes = clienteService.buscarTodosOsClientes(PageRequest.of(page, size));
+    Page<ClienteListAllResponse> response = clientes.map(ClienteListAllResponse::new);
     log.info("[finish] ClienteController - buscarTodosOsClientes");
-    return ClienteListAllResponse.toList(clientes);
+
+    return PageResponse.from(response);
   }
 
 }
