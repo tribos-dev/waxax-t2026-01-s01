@@ -1,7 +1,12 @@
 package br.com.wakax.wakax_ecommerce.pagamento.application.service;
 
+import java.math.BigDecimal;
 import java.util.UUID;
 
+import br.com.wakax.wakax_ecommerce.pagamento.application.api.response.PagamentoPageResponse;
+import br.com.wakax.wakax_ecommerce.pagamento.domain.StatusPagamento;
+import br.com.wakax.wakax_ecommerce.pagamento.infra.PagamentoInfraRepository;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,8 +31,9 @@ public class PagamentoApplicationService implements PagamentoService {
   private final PagamentoRepository pagamentoRepository;
   private final PedidoRepository pedidoRepository;
   private final ProcessadorPagamentoFactory processadorFactory;
+    private PagamentoInfraRepository pagamentoInfraRepository;
 
-  @Override
+    @Override
   @Transactional
   public PagamentoResponse processaPagamento(PagamentoRequest novoPagamento) {
     log.debug("[start] PagamentoApplicationService - criaPagamento");
@@ -65,4 +71,9 @@ public class PagamentoApplicationService implements PagamentoService {
     log.debug("[finish] PagamentoApplicationService - buscaPagamentoPorId");
     return new PagamentoResponse(pagamento);
   }
+
+    @Override
+    public PagamentoPageResponse buscaPagamentos(int page, int size) {
+        return null;
+    }
 }
