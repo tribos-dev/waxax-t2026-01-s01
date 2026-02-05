@@ -2,6 +2,8 @@ package br.com.wakax.wakax_ecommerce.cliente.application.service;
 
 import java.util.UUID;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import br.com.wakax.wakax_ecommerce.cliente.application.api.request.ClienteRequest;
@@ -10,6 +12,7 @@ import br.com.wakax.wakax_ecommerce.cliente.application.repository.ClienteReposi
 import br.com.wakax.wakax_ecommerce.cliente.domain.Cliente;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Log4j2
@@ -31,5 +34,14 @@ public class ClienteApplicationService implements ClienteService {
     Cliente cliente = clienteRepository.buscaClientePorId(idCliente);
     log.debug("[finish] ClienteApplicationService - buscaClienteEspecifico");
     return new ClienteResponse(cliente);
+  }
+
+  @Override
+  @Transactional(readOnly = true)
+  public Page<Cliente> buscarTodosOsClientes(Pageable pageable) {
+    log.info("[start] ClienteApplicationService - buscarTodosOsClientes");
+    Page<Cliente> clientes = clienteRepository.buscaTodosOsClientes(pageable);
+    log.info("[finish] ClienteApplicationService - buscarTodosOsClientes");
+    return clientes;
   }
 }
