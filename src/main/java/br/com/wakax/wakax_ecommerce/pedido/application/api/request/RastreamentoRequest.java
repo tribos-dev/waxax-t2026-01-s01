@@ -24,5 +24,5 @@ public class RastreamentoRequest {
 
   private LocalDate previsaoEntrega;
 
-  @Valid private List<HistoricoRastreamentoRequest> eventos;
+  @Valid private List<HistoricoRastreamentoRequest> historico;
 }

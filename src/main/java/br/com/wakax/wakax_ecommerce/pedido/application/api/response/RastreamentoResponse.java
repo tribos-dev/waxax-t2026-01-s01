@@ -23,9 +23,9 @@ public class RastreamentoResponse {
     this.statusAtual = rastreamento.getStatusAtual();
     this.previsaoEntrega = rastreamento.getPrevisaoEntrega();
     this.historico =
-        rastreamento.getEventos() == null
+        rastreamento.getHistorico() == null
             ? Collections.emptyList()
-            : rastreamento.getEventos().stream()
+            : rastreamento.getHistorico().stream()
                 .map(HistoricoRastreamentoResponse::new)
                 .collect(Collectors.toList());
   }
