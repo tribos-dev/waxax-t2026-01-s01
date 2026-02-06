@@ -1,1 +1,1 @@
-ALTER TABLE produto ADD COLUMN data_de_cadastro TIMESTAMP;
+ALTER TABLE produto ADD COLUMN IF NOT EXISTS data_de_cadastro TIMESTAMP;
