@@ -1,20 +1,17 @@
 package br.com.wakax.wakax_ecommerce.cliente.application.api;
 
-
-
 import java.util.UUID;
 
-import br.com.wakax.wakax_ecommerce.cliente.application.api.response.ClienteListAllResponse;
-import br.com.wakax.wakax_ecommerce.cliente.application.api.response.PageResponse;
-import br.com.wakax.wakax_ecommerce.cliente.domain.Cliente;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.com.wakax.wakax_ecommerce.cliente.application.api.request.ClienteRequest;
+import br.com.wakax.wakax_ecommerce.cliente.application.api.response.ClienteListAllResponse;
 import br.com.wakax.wakax_ecommerce.cliente.application.api.response.ClienteResponse;
+import br.com.wakax.wakax_ecommerce.cliente.application.api.response.PageResponse;
 import br.com.wakax.wakax_ecommerce.cliente.application.service.ClienteService;
+import br.com.wakax.wakax_ecommerce.cliente.domain.Cliente;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 
@@ -49,5 +46,4 @@ public class ClienteController implements ClienteApi {
     log.info("[finish] ClienteController - buscarTodosOsClientes");
     return PageResponse.from(response);
   }
-
 }
