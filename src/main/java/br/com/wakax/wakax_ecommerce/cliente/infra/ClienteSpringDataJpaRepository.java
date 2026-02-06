@@ -20,6 +20,8 @@ public interface ClienteSpringDataJpaRepository extends JpaRepository<Cliente, U
     @Query("""
     SELECT c
     FROM Cliente c
+    JOIN c.pessoa p
+    ORDER BY p.nome ASC
 """)
     Page<Cliente> buscaTodosOsClientes(Pageable pageable);
 
