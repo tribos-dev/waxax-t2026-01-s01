@@ -47,7 +47,6 @@ public class ClienteController implements ClienteApi {
     Page<Cliente> clientes = clienteService.buscarTodosOsClientes(PageRequest.of(page, size));
     Page<ClienteListAllResponse> response = clientes.map(ClienteListAllResponse::new);
     log.info("[finish] ClienteController - buscarTodosOsClientes");
-
     return PageResponse.from(response);
   }
 

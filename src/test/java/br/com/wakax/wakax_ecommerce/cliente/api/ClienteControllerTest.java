@@ -32,37 +32,25 @@ class ClienteControllerTest {
     @Test
     void deveListarClientesComSucesso() {
         PageRequest pageable = PageRequest.of(0, 10);
-
         Cliente cliente = mock(Cliente.class);
         Page<Cliente> page = new PageImpl<>(List.of(cliente), pageable, 1);
-
         when(clienteService.buscarTodosOsClientes(pageable)).thenReturn(page);
-
-        PageResponse<ClienteListAllResponse> response =
-                clienteController.buscarTodosOsClientes(0, 10);
-
+        PageResponse<ClienteListAllResponse> response = clienteController.buscarTodosOsClientes(0, 10);
         assertNotNull(response);
         assertEquals(1, response.getTotalDeUsuarios());
         assertEquals(1, response.getContent().size());
-
         verify(clienteService, times(1)).buscarTodosOsClientes(pageable);
     }
 
     @Test
     void deveRetornarListaVaziaQuandoNaoExistirClientes() {
         PageRequest pageable = PageRequest.of(0, 10);
-
         Page<Cliente> pageVazia = new PageImpl<>(List.of(), pageable, 0);
-
         when(clienteService.buscarTodosOsClientes(pageable)).thenReturn(pageVazia);
-
-        PageResponse<ClienteListAllResponse> response =
-                clienteController.buscarTodosOsClientes(0, 10);
-
+        PageResponse<ClienteListAllResponse> response = clienteController.buscarTodosOsClientes(0, 10);
         assertNotNull(response);
         assertTrue(response.getContent().isEmpty());
         assertEquals(0, response.getTotalDeUsuarios());
-
         verify(clienteService, times(1)).buscarTodosOsClientes(pageable);
     }
 }

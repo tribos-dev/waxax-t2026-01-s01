@@ -21,7 +21,6 @@ public class ClienteListAllResponse {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime dataEdicao;
 
-
     public ClienteListAllResponse(Cliente cliente) {
         this.nome = cliente.getPessoa().getNome();
         this.email =
