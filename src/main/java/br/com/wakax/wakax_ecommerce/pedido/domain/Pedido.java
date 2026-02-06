@@ -57,6 +57,9 @@ public class Pedido {
   @NotNull
   private Endereco enderecoEntrega;
 
+  @OneToOne(mappedBy = "pedido")
+  private Rastreamento rastreamento;
+
   public Pedido(PedidoRequest request, Carrinho carrinho) {
     this.cliente = carrinho.getCliente();
     this.dataPedido = LocalDateTime.now();
