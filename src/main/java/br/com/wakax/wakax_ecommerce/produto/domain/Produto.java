@@ -84,4 +84,15 @@ public class Produto {
     }
     return this.precos.get(0).getValor();
   }
+
+  public BigDecimal getPrecoAtual() {
+    if (this.precos == null || this.precos.isEmpty()) {
+      return BigDecimal.ZERO;
+    }
+    return this.precos.stream()
+        .filter(preco -> preco.getTipo() == TipoPreco.PADRAO)
+        .map(Preco::getValor)
+        .findFirst()
+        .orElse(BigDecimal.ZERO);
+  }
 }

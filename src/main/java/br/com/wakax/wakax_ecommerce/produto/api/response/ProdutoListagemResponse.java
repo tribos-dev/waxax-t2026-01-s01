@@ -5,13 +5,11 @@ import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 
-import br.com.wakax.wakax_ecommerce.produto.domain.Preco;
 import br.com.wakax.wakax_ecommerce.produto.domain.Produto;
 import br.com.wakax.wakax_ecommerce.produto.domain.StatusProduto;
-import br.com.wakax.wakax_ecommerce.produto.domain.TipoPreco;
-import lombok.Data;
+import lombok.Getter;
 
-@Data
+@Getter
 public class ProdutoListagemResponse {
 
   private final List<ProdutoItem> produtos;
@@ -44,7 +42,7 @@ public class ProdutoListagemResponse {
     return new ProdutoListagemResponse(produtosConvertidos, totalElementos);
   }
 
-  @Data
+  @Getter
   public static class ProdutoItem {
     private final StatusProduto status;
     private final String descricao;
@@ -55,18 +53,7 @@ public class ProdutoListagemResponse {
       this.status = produto.getStatus();
       this.descricao = produto.getDescricao();
       this.dataDeCadastro = produto.getDataDeCadastro();
-      this.precoAtual = obterPrecoAtual(produto);
-    }
-
-    private BigDecimal obterPrecoAtual(Produto produto) {
-      if (produto.getPrecos() == null || produto.getPrecos().isEmpty()) {
-        return BigDecimal.ZERO;
-      }
-      return produto.getPrecos().stream()
-          .filter(preco -> preco.getTipo() == TipoPreco.PADRAO)
-          .map(Preco::getValor)
-          .findFirst()
-          .orElse(BigDecimal.ZERO);
+      this.precoAtual = produto.getPrecoAtual();
     }
   }
 }
