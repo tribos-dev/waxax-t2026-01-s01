@@ -12,22 +12,16 @@ import java.util.List;
 public class PageResponse<T> {
 
     private List<T> content;
-    private int page;
-    private int size;
-    private long totalElements;
-    private int totalPages;
-    private boolean first;
-    private boolean last;
+    private int paginaAtual;
+    private long totalDeUsuarios;
+    private int totalDePaginas;
 
     public static <T> PageResponse<T> from(Page<T> page) {
         return new PageResponse<>(
                 page.getContent(),
                 page.getNumber(),
-                page.getSize(),
                 page.getTotalElements(),
-                page.getTotalPages(),
-                page.isFirst(),
-                page.isLast()
+                page.getTotalPages()
         );
     }
 }

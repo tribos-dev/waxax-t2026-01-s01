@@ -24,7 +24,7 @@ public interface ClienteApi {
   @GetMapping("/{idCliente}")
   ClienteResponse buscaClienteEspecifico(@PathVariable UUID idCliente);
 
-  @GetMapping("/cliente")
+  @GetMapping("/ListarClientes")
   PageResponse<ClienteListAllResponse> buscarTodosOsClientes(
           @RequestParam(defaultValue = "0") int page,
           @RequestParam(defaultValue = "10") int size);
