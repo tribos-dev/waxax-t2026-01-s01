@@ -1,10 +1,14 @@
 package br.com.wakax.wakax_ecommerce.pagamento.application.service;
 
+import java.util.List;
 import java.util.UUID;
 
 import br.com.wakax.wakax_ecommerce.pagamento.application.api.request.PagamentoRequest;
-import br.com.wakax.wakax_ecommerce.pagamento.application.api.response.PagamentoPageResponse;
 import br.com.wakax.wakax_ecommerce.pagamento.application.api.response.PagamentoResponse;
+import br.com.wakax.wakax_ecommerce.pagamento.domain.Pagamento;
+import br.com.wakax.wakax_ecommerce.pagamento.domain.StatusPagamento;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface PagamentoService {
 
@@ -12,5 +16,5 @@ public interface PagamentoService {
 
   PagamentoResponse buscaPagamentoPorId(UUID idPagamento);
 
-  PagamentoPageResponse buscaPagamentos(int page, int size);
+  Page<Pagamento> buscaPagamentosPaginado(StatusPagamento statusPagamento, Pageable pageable);
 }

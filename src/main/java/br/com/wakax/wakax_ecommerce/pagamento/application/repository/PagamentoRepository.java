@@ -17,5 +17,5 @@ public interface PagamentoRepository {
 
   Optional<Pagamento> buscaPagamentoPorPedidoId(UUID pedidoId);
 
-  Page<Pagamento> buscaTodosPagamentosPaginado(Pageable pageable);
+  Page<Pagamento> buscaPagamentosPaginado(StatusPagamento statusPagamento, Pageable pageable);
 }

@@ -1,5 +1,6 @@
 package br.com.wakax.wakax_ecommerce.pagamento.application.api;
 
+import java.util.List;
 import java.util.UUID;
 
 import javax.validation.Valid;
@@ -23,9 +24,10 @@ public interface PagamentoAPI {
 
   @GetMapping("busca-pagamentos")
   @ResponseStatus(HttpStatus.OK)
-  PagamentoPageResponse buscaPagamentos(
-          @RequestParam(defaultValue = "0") int page,
-          @RequestParam(defaultValue = "10") int size
+  PagamentoPageResponse buscaPagamentosPaginado(
+          @RequestParam(value = "status", required = false) String status,
+          @RequestParam(value = "page", defaultValue = "0") int page,
+          @RequestParam(value = "size", defaultValue = "10") int size
   );
 
 }

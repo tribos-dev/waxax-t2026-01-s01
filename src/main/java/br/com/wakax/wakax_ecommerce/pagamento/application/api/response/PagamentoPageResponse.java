@@ -1,21 +1,24 @@
 package br.com.wakax.wakax_ecommerce.pagamento.application.api.response;
 
-import lombok.Getter;
-import org.springframework.data.domain.Page;
+import br.com.wakax.wakax_ecommerce.pagamento.domain.Pagamento;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 
-import java.math.BigDecimal;
+import java.util.List;
+import java.util.stream.Collectors;
 
-@Getter
+@Data
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class PagamentoPageResponse {
-    private final Page<PagamentoResponse> pagamentos;
-    private final long totalRegistros;
-    private final BigDecimal valorTotal;
-    private final long totalPago;
+    private final List<PagamentoResponse> pagamentos;
+    private final long totalPagamentos;
 
-    public PagamentoPageResponse(Page<PagamentoResponse> pagamentos, long totalRegistros, BigDecimal valorTotal, long totalPago) {
-        this.pagamentos = pagamentos;
-        this.totalRegistros = totalRegistros;
-        this.valorTotal = valorTotal;
-        this.totalPago = totalPago;
+    public static PagamentoPageResponse convertePaginado(List<Pagamento> pagamentos, long totalElements) {
+        List<PagamentoResponse> dtos = pagamentos.stream()
+                .map(PagamentoResponse::new)
+                .collect(Collectors.toList());
+
+        return new PagamentoPageResponse(dtos, totalElements);
     }
 }
