@@ -45,20 +45,8 @@ public class PagamentoController implements PagamentoAPI {
     @Override
     public PagamentoPageResponse buscaPagamentosPaginado(String status, int page, int size) {
         log.info("[start] PagamentoController - buscaPagamentosPaginado");
-
-        StatusPagamento statusPagamento = null;
-        if (status != null && !status.isBlank()) {
-            statusPagamento = StatusPagamento.valueOf(status.toUpperCase());
-        }
-        Pageable pageable = PageRequest.of(page, size, Sort.by("dataPagamento").descending());
-        Page<Pagamento> pagamentos = pagamentoService.buscaPagamentosPaginado(statusPagamento, pageable);
+        PagamentoPageResponse pagamentoPageResponse = pagamentoService.buscaPagamentosPaginado(status, page, size);
         log.info("[finish] PagamentoController - buscaPagamentosPaginado");
-        return PagamentoPageResponse.convertePaginado(
-                pagamentos.getContent(),
-                pagamentos.getTotalElements(),
-                pagamentos.getTotalPages()
-        );
+        return pagamentoPageResponse;
     }
-
-
 }
