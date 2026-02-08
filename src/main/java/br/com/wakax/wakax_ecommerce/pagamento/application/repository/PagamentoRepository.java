@@ -1,6 +1,6 @@
 package br.com.wakax.wakax_ecommerce.pagamento.application.repository;
 
-import java.util.List;
+import java.math.BigDecimal;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -18,4 +18,6 @@ public interface PagamentoRepository {
   Optional<Pagamento> buscaPagamentoPorPedidoId(UUID pedidoId);
 
   Page<Pagamento> buscaPagamentosPaginado(StatusPagamento statusPagamento, Pageable pageable);
+
+  //BigDecimal somaPagamentosFiltro(StatusPagamento statusPagamento);
 }

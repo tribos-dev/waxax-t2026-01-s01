@@ -55,7 +55,8 @@ public class PagamentoController implements PagamentoAPI {
         log.info("[finish] PagamentoController - buscaPagamentosPaginado");
         return PagamentoPageResponse.convertePaginado(
                 pagamentos.getContent(),
-                pagamentos.getTotalElements()
+                pagamentos.getTotalElements(),
+                pagamentos.getTotalPages()
         );
     }
 

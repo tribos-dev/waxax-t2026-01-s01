@@ -3,22 +3,31 @@ package br.com.wakax.wakax_ecommerce.pagamento.application.api.response;
 import br.com.wakax.wakax_ecommerce.pagamento.domain.Pagamento;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Builder
 @Data
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class PagamentoPageResponse {
     private final List<PagamentoResponse> pagamentos;
     private final long totalPagamentos;
+    private final long totalPaginas;
+    private final BigDecimal valorTotalPagamentos;
 
-    public static PagamentoPageResponse convertePaginado(List<Pagamento> pagamentos, long totalElements) {
-        List<PagamentoResponse> dtos = pagamentos.stream()
+    public static PagamentoPageResponse convertePaginado(List<Pagamento> pagamentos, long totalElements, int totalPages) {
+        List<PagamentoResponse> dto = pagamentos.stream()
                 .map(PagamentoResponse::new)
                 .collect(Collectors.toList());
 
-        return new PagamentoPageResponse(dtos, totalElements);
+        BigDecimal valorTotalFiltro = dto.stream()
+                .map(PagamentoResponse::getValor)
+                //.filter(Objects::nonNull) // Boa prática: evita NullPointerException se um valor for nulo
+                .reduce(BigDecimal.ZERO, BigDecimal::add); // Começa em zero e vai somando
+        return new PagamentoPageResponse(dto, totalElements, totalPages, valorTotalFiltro);
     }
 }

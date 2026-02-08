@@ -1,6 +1,5 @@
 package br.com.wakax.wakax_ecommerce.pagamento.application.api;
 
-import java.util.List;
 import java.util.UUID;
 
 import javax.validation.Valid;

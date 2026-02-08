@@ -1,7 +1,6 @@
 package br.com.wakax.wakax_ecommerce.pagamento.infra;
 
 import java.math.BigDecimal;
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -27,4 +26,8 @@ public interface PagamentoJPARepository extends JpaRepository<Pagamento, UUID> {
   @Query("SELECT p FROM Pagamento p " +
          "WHERE (:statusPagamento IS NULL OR p.statusPagamento = :statusPagamento)")
   Page<Pagamento> findAllPagamentosPaginado(StatusPagamento statusPagamento, Pageable pageable);
+
+  /*@Query ("SELECT SUM(p.valor) FROM Pagamento p " +
+          "       WHERE (:status IS NULL OR p.statusPagamento = :status)")
+  BigDecimal findAllSomaPagamentosFiltro(StatusPagamento statusPagamento);*/
 }

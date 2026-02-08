@@ -1,14 +1,12 @@
 package br.com.wakax.wakax_ecommerce.pagamento.application.service;
 
-import java.util.List;
+import java.math.BigDecimal;
 import java.util.UUID;
 
 import br.com.wakax.wakax_ecommerce.pagamento.domain.StatusPagamento;
 import br.com.wakax.wakax_ecommerce.pagamento.infra.PagamentoInfraRepository;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -78,6 +76,7 @@ public class PagamentoApplicationService implements PagamentoService {
   public Page<Pagamento> buscaPagamentosPaginado(StatusPagamento statusPagamento, Pageable pageable) {
      log.info("[start] PagamentoApplicationService - buscaPagamentosPaginado");
      Page<Pagamento> paginaPagamentos = pagamentoRepository.buscaPagamentosPaginado(statusPagamento, pageable);
+     //BigDecimal valorTotalFiltro =  pagamentoRepository.somaPagamentosFiltro(statusPagamento);
      log.info("[finish] PagamentoApplicationService - buscaPagamentosPaginado");
      return paginaPagamentos;
     }
