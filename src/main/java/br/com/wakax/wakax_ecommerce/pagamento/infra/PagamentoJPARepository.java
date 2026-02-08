@@ -27,7 +27,4 @@ public interface PagamentoJPARepository extends JpaRepository<Pagamento, UUID> {
          "WHERE (:statusPagamento IS NULL OR p.statusPagamento = :statusPagamento)")
   Page<Pagamento> findAllPagamentosPaginado(StatusPagamento statusPagamento, Pageable pageable);
 
-  /*@Query ("SELECT SUM(p.valor) FROM Pagamento p " +
-          "       WHERE (:status IS NULL OR p.statusPagamento = :status)")
-  BigDecimal findAllSomaPagamentosFiltro(StatusPagamento statusPagamento);*/
 }

@@ -26,8 +26,7 @@ public class PagamentoPageResponse {
 
         BigDecimal valorTotalFiltro = dto.stream()
                 .map(PagamentoResponse::getValor)
-                //.filter(Objects::nonNull) // Boa prática: evita NullPointerException se um valor for nulo
-                .reduce(BigDecimal.ZERO, BigDecimal::add); // Começa em zero e vai somando
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
         return new PagamentoPageResponse(dto, totalElements, totalPages, valorTotalFiltro);
     }
 }

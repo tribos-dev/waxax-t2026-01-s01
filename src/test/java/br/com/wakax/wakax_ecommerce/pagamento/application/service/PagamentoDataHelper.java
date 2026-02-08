@@ -83,6 +83,5 @@ public final class PagamentoDataHelper {
   public static PagamentoRequest criaPagamentoRequestValido(UUID pedidoId) {
     return PagamentoRequest.builder().pedidoId(pedidoId).build();
   }
-
-
+  
 }

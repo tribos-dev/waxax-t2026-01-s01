@@ -76,7 +76,6 @@ public class PagamentoApplicationService implements PagamentoService {
   public Page<Pagamento> buscaPagamentosPaginado(StatusPagamento statusPagamento, Pageable pageable) {
      log.info("[start] PagamentoApplicationService - buscaPagamentosPaginado");
      Page<Pagamento> paginaPagamentos = pagamentoRepository.buscaPagamentosPaginado(statusPagamento, pageable);
-     //BigDecimal valorTotalFiltro =  pagamentoRepository.somaPagamentosFiltro(statusPagamento);
      log.info("[finish] PagamentoApplicationService - buscaPagamentosPaginado");
      return paginaPagamentos;
     }

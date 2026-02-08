@@ -19,5 +19,4 @@ public interface PagamentoRepository {
 
   Page<Pagamento> buscaPagamentosPaginado(StatusPagamento statusPagamento, Pageable pageable);
 
-  //BigDecimal somaPagamentosFiltro(StatusPagamento statusPagamento);
 }
