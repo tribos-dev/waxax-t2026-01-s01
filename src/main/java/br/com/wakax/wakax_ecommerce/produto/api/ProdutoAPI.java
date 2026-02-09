@@ -20,8 +20,8 @@ public interface ProdutoAPI {
   @GetMapping("/{idProduto}")
   ProdutoListResponse buscaProdutoPorId(@PathVariable UUID idProduto);
 
-  @GetMapping
+  @GetMapping("/produtos")
   @ResponseStatus(HttpStatus.OK)
   ProdutoListagemResponse listarTodosProdutos(
-      @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "20") int size);
+      @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size);
 }
