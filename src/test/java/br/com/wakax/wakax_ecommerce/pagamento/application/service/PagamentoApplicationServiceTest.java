@@ -12,6 +12,7 @@ import br.com.wakax.wakax_ecommerce.pagamento.application.api.response.Pagamento
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -271,59 +272,78 @@ class PagamentoApplicationServiceTest {
     assertEquals(StatusPedido.AGUARDANDO_PAGAMENTO, pedido.getStatus());
   }
 
+    @Test
+    void deveBuscarPagamentosSemFiltroComPaginacao() {
+        int page = 0;
+        int size = 10;
+        Pagamento pagamanto1 = PagamentoDataHelper.criaPagamentoValido(pedido);
+        pagamanto1.setValor(new BigDecimal("100.00"));
+        Pagamento pagamanto2 = PagamentoDataHelper.criaPagamentoValido(pedido);
+        pagamanto2.setValor(new BigDecimal("200.00"));
+
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Pagamento> pagamentos = new PageImpl<>(List.of(pagamanto1, pagamanto2), pageable, 2);
+
+        doReturn(pagamentos)
+                .when(pagamentoRepository)
+                .buscaPagamentosPaginado(isNull(), any(Pageable.class));
+
+        PagamentoPageResponse pagamentoPageResponse = pagamentoApplicationService.buscaPagamentosPaginado(null, page, size);
+
+        assertNotNull(pagamentoPageResponse);
+        assertEquals(2, pagamentoPageResponse.getTotalPagamentos());
+        assertEquals(1, pagamentoPageResponse.getTotalPaginas());
+        assertTrue(new BigDecimal("300.0").compareTo(pagamentoPageResponse.getValorTotalPagamentos()) == 0);
+
+        ArgumentCaptor<Pageable> pageableCaptor = ArgumentCaptor.forClass(Pageable.class);
+        verify(pagamentoRepository).buscaPagamentosPaginado(isNull(), pageableCaptor.capture());
+        Pageable pageableEnviado = pageableCaptor.getValue();
+        assertEquals(page, pageableEnviado.getPageNumber());
+        assertTrue(pageableEnviado.getSort().getOrderFor("dataPagamento").isDescending());
+    }
+
   @Test
-    void deveBuscarTodosPagamentosPaginado(){
-      Pageable pageable = PageRequest.of(0, 10);
+  void deveBuscarPagamentosComFiltroEPaginacao() {
+      int page = 0;
+      int size = 10;
+      Pagamento pagamanto1 = PagamentoDataHelper.criaPagamentoValido(pedido);
+      pagamanto1.setValor(new BigDecimal("100.00"));
+      Pagamento pagamanto2 = PagamentoDataHelper.criaPagamentoValido(pedido);
+      pagamanto2.setValor(new BigDecimal("200.00"));
+      StatusPagamento statusPagamento = StatusPagamento.PAGO;
 
-      //Pagamento pagamento = mock(Pagamento.class); -> para testar o somatório, eu preciso do valor exato. Se eu mockar a classe, eu não terei o valor exato
-      Pagamento pagamento1 = Pagamento.builder().valor(new BigDecimal("100.00")).build();
-      Pagamento pagamento2 = Pagamento.builder().valor(new BigDecimal("200.00")).build();
+      Pageable pageable = PageRequest.of(page, size);
+      Page<Pagamento> pagamentos = new PageImpl<>(List.of(pagamanto1, pagamanto2), pageable, 2);
 
-      Page<Pagamento> pagamentos = new PageImpl<>(List.of(pagamento1, pagamento2), pageable, 2);
+      doReturn(pagamentos)
+              .when(pagamentoRepository)
+              .buscaPagamentosPaginado(
+                      eq(StatusPagamento.PAGO),
+                      any(Pageable.class)
+              );
 
-      when(pagamentoRepository.buscaPagamentosPaginado(null, pageable)).thenReturn(pagamentos);
-
-      Page<Pagamento> pagamentoPageResponse = pagamentoApplicationService.buscaPagamentosPaginado(null, pageable);
-      BigDecimal valorTotalPagamentos = pagamentoPageResponse.stream()
-              .map(Pagamento::getValor)
-              .reduce(BigDecimal.ZERO, BigDecimal::add);
+      PagamentoPageResponse pagamentoPageResponse = pagamentoApplicationService.buscaPagamentosPaginado("PAGO", page, size);
 
       assertNotNull(pagamentoPageResponse);
-      assertEquals(2, pagamentoPageResponse.getTotalElements());
-      assertEquals(1, pagamentoPageResponse.getTotalPages());
-      assertTrue(new BigDecimal("300.0").compareTo(valorTotalPagamentos) == 0);
+      assertEquals(2, pagamentoPageResponse.getTotalPagamentos());
+      assertEquals(1, pagamentoPageResponse.getTotalPaginas());
+      assertTrue(new BigDecimal("300.0").compareTo(pagamentoPageResponse.getValorTotalPagamentos()) == 0);
 
-
-      verify(pagamentoRepository, times(1))
-              .buscaPagamentosPaginado(null, pageable);
-
+      ArgumentCaptor<Pageable> pageableCaptor = ArgumentCaptor.forClass(Pageable.class);
+      verify(pagamentoRepository).buscaPagamentosPaginado(eq(StatusPagamento.PAGO), pageableCaptor.capture());
+      Pageable pageableEnviado = pageableCaptor.getValue();
+      assertEquals(page, pageableEnviado.getPageNumber());
+      assertTrue(pageableEnviado.getSort().getOrderFor("dataPagamento").isDescending());
   }
 
-  @Test
-  void deveBuscarPagamentosComFiltroPaginado(){
-      Pageable pageable = PageRequest.of(0, 10);
+    @Test
+    void deveLancarExcecaoQuandoStatusForInvalido() {
+        String statusInvalido = "STATUS_QUE_NAO_EXISTE";
 
-      Pagamento pagamento1 = Pagamento.builder().valor(new BigDecimal("100.00")).build();
-      Pagamento pagamento2 = Pagamento.builder().valor(new BigDecimal("200.00")).build();
+        assertThrows(IllegalArgumentException.class, () ->
+                pagamentoApplicationService.buscaPagamentosPaginado(statusInvalido, 0, 10)
+        );
 
-      Page<Pagamento> pagamentos = new PageImpl<>(List.of(pagamento1, pagamento2), pageable, 2);
-
-      when(pagamentoRepository.buscaPagamentosPaginado(StatusPagamento.PAGO, pageable)).thenReturn(pagamentos);
-
-      Page<Pagamento> pagamentoPageResponse = pagamentoApplicationService.buscaPagamentosPaginado(StatusPagamento.PAGO, pageable);
-      BigDecimal valorTotalPagamentos = pagamentoPageResponse.stream()
-              .map(Pagamento::getValor)
-              .reduce(BigDecimal.ZERO, BigDecimal::add);
-
-      assertNotNull(pagamentoPageResponse);
-      assertEquals(2, pagamentoPageResponse.getTotalElements());
-      assertEquals(1, pagamentoPageResponse.getTotalPages());
-      assertTrue(new BigDecimal("300.0").compareTo(valorTotalPagamentos) == 0);
-
-
-      verify(pagamentoRepository, times(1))
-              .buscaPagamentosPaginado(StatusPagamento.PAGO, pageable);
-
-  }
-
+        verify(pagamentoRepository, never()).buscaPagamentosPaginado(any(), any());
+    }
   }
