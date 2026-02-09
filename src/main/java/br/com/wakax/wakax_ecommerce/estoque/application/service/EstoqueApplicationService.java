@@ -2,6 +2,7 @@ package br.com.wakax.wakax_ecommerce.estoque.application.service;
 
 import java.util.UUID;
 
+import br.com.wakax.wakax_ecommerce.estoque.api.response.EstoqueListagemResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -81,6 +82,11 @@ public class EstoqueApplicationService implements EstoqueService {
     estoque.liberaReserva(quantidade);
     estoqueRepository.salva(estoque);
     log.info("[finish] EstoqueApplicationService - liberaReserva");
+  }
+
+  @Override
+  public EstoqueListagemResponse listarTodoEstoque(Integer quantidadeMinima, Boolean apenasEmFalta) {
+    return null;
   }
 
   private void validaSeJaExisteEstoque(UUID idProduto) {
