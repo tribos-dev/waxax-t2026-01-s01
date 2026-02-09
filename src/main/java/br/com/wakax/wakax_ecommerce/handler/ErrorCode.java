@@ -2,6 +2,9 @@ package br.com.wakax.wakax_ecommerce.handler;
 
 public enum ErrorCode {
   PEDIDO_NAO_ENCONTRADO("pedido.nao.encontrado"),
+  RASTREAMENTO_NAO_ENCONTRADO("rastreamento.nao.encontrado"),
+  RASTREAMENTO_JA_EXISTE("rastreamento.ja.existe"),
+  ACESSO_NEGADO("acesso.negado"),
   PRODUTO_NAO_ENCONTRADO("produto.nao.encontrado"),
   PRODUTO_DUPLICADO("produto.duplicado"),
   FORNECEDOR_NAO_ENCONTRADO("fornecedor.nao.encontrado"),
