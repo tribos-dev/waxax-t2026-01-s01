@@ -1,10 +1,8 @@
 package br.com.wakax.wakax_ecommerce.pagamento.infra;
 
-import java.math.BigDecimal;
 import java.util.Optional;
 import java.util.UUID;
 
-import br.com.wakax.wakax_ecommerce.pagamento.domain.StatusPagamento;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -14,6 +12,7 @@ import br.com.wakax.wakax_ecommerce.handler.APIException;
 import br.com.wakax.wakax_ecommerce.handler.ErrorCode;
 import br.com.wakax.wakax_ecommerce.pagamento.application.repository.PagamentoRepository;
 import br.com.wakax.wakax_ecommerce.pagamento.domain.Pagamento;
+import br.com.wakax.wakax_ecommerce.pagamento.domain.StatusPagamento;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 
@@ -52,11 +51,12 @@ public class PagamentoInfraRepository implements PagamentoRepository {
   }
 
   @Override
-  public Page<Pagamento> buscaPagamentosPaginado(StatusPagamento statusPagamento, Pageable pageable) {
-     log.info("[start] PagamentoInfraRepository - buscaPagamentosPaginado");
-     Page<Pagamento> pagamentos = pagamentoJPARepository.findAllPagamentosPaginado(statusPagamento, pageable);
-     log.info("[finish] PagamentoInfraRepository - buscaPagamentosPaginado");
-     return pagamentos;
-    }
-
+  public Page<Pagamento> buscaPagamentosPaginado(
+      StatusPagamento statusPagamento, Pageable pageable) {
+    log.info("[start] PagamentoInfraRepository - buscaPagamentosPaginado");
+    Page<Pagamento> pagamentos =
+        pagamentoJPARepository.findAllPagamentosPaginado(statusPagamento, pageable);
+    log.info("[finish] PagamentoInfraRepository - buscaPagamentosPaginado");
+    return pagamentos;
+  }
 }

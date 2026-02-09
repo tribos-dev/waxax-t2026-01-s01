@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import br.com.wakax.wakax_ecommerce.pagamento.application.api.response.PagamentoPageResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -25,6 +24,7 @@ import org.springframework.http.HttpStatus;
 import br.com.wakax.wakax_ecommerce.handler.APIException;
 import br.com.wakax.wakax_ecommerce.handler.ErrorCode;
 import br.com.wakax.wakax_ecommerce.pagamento.application.api.request.PagamentoRequest;
+import br.com.wakax.wakax_ecommerce.pagamento.application.api.response.PagamentoPageResponse;
 import br.com.wakax.wakax_ecommerce.pagamento.application.api.response.PagamentoResponse;
 import br.com.wakax.wakax_ecommerce.pagamento.application.factory.ProcessadorPagamentoFactory;
 import br.com.wakax.wakax_ecommerce.pagamento.application.repository.PagamentoRepository;
@@ -272,77 +272,79 @@ class PagamentoApplicationServiceTest {
     assertEquals(StatusPedido.AGUARDANDO_PAGAMENTO, pedido.getStatus());
   }
 
-    @Test
-    void deveBuscarPagamentosSemFiltroComPaginacao() {
-        int page = 0;
-        int size = 10;
-        Pagamento pagamanto1 = PagamentoDataHelper.criaPagamentoValido(pedido);
-        pagamanto1.setValor(new BigDecimal("100.00"));
-        Pagamento pagamanto2 = PagamentoDataHelper.criaPagamentoValido(pedido);
-        pagamanto2.setValor(new BigDecimal("200.00"));
+  @Test
+  void deveBuscarPagamentosSemFiltroComPaginacao() {
+    int page = 0;
+    int size = 10;
+    Pagamento pagamanto1 = PagamentoDataHelper.criaPagamentoValido(pedido);
+    pagamanto1.setValor(new BigDecimal("100.00"));
+    Pagamento pagamanto2 = PagamentoDataHelper.criaPagamentoValido(pedido);
+    pagamanto2.setValor(new BigDecimal("200.00"));
 
-        Pageable pageable = PageRequest.of(page, size);
-        Page<Pagamento> pagamentos = new PageImpl<>(List.of(pagamanto1, pagamanto2), pageable, 2);
+    Pageable pageable = PageRequest.of(page, size);
+    Page<Pagamento> pagamentos = new PageImpl<>(List.of(pagamanto1, pagamanto2), pageable, 2);
 
-        doReturn(pagamentos)
-                .when(pagamentoRepository)
-                .buscaPagamentosPaginado(isNull(), any(Pageable.class));
+    doReturn(pagamentos)
+        .when(pagamentoRepository)
+        .buscaPagamentosPaginado(isNull(), any(Pageable.class));
 
-        PagamentoPageResponse pagamentoPageResponse = pagamentoApplicationService.buscaPagamentosPaginado(null, page, size);
+    PagamentoPageResponse pagamentoPageResponse =
+        pagamentoApplicationService.buscaPagamentosPaginado(null, page, size);
 
-        assertNotNull(pagamentoPageResponse);
-        assertEquals(2, pagamentoPageResponse.getTotalPagamentos());
-        assertEquals(1, pagamentoPageResponse.getTotalPaginas());
-        assertTrue(new BigDecimal("300.0").compareTo(pagamentoPageResponse.getValorTotalPagamentos()) == 0);
+    assertNotNull(pagamentoPageResponse);
+    assertEquals(2, pagamentoPageResponse.getTotalPagamentos());
+    assertEquals(1, pagamentoPageResponse.getTotalPaginas());
+    assertTrue(
+        new BigDecimal("300.0").compareTo(pagamentoPageResponse.getValorTotalPagamentos()) == 0);
 
-        ArgumentCaptor<Pageable> pageableCaptor = ArgumentCaptor.forClass(Pageable.class);
-        verify(pagamentoRepository).buscaPagamentosPaginado(isNull(), pageableCaptor.capture());
-        Pageable pageableEnviado = pageableCaptor.getValue();
-        assertEquals(page, pageableEnviado.getPageNumber());
-        assertTrue(pageableEnviado.getSort().getOrderFor("dataPagamento").isDescending());
-    }
+    ArgumentCaptor<Pageable> pageableCaptor = ArgumentCaptor.forClass(Pageable.class);
+    verify(pagamentoRepository).buscaPagamentosPaginado(isNull(), pageableCaptor.capture());
+    Pageable pageableEnviado = pageableCaptor.getValue();
+    assertEquals(page, pageableEnviado.getPageNumber());
+    assertTrue(pageableEnviado.getSort().getOrderFor("dataPagamento").isDescending());
+  }
 
   @Test
   void deveBuscarPagamentosComFiltroEPaginacao() {
-      int page = 0;
-      int size = 10;
-      Pagamento pagamanto1 = PagamentoDataHelper.criaPagamentoValido(pedido);
-      pagamanto1.setValor(new BigDecimal("100.00"));
-      Pagamento pagamanto2 = PagamentoDataHelper.criaPagamentoValido(pedido);
-      pagamanto2.setValor(new BigDecimal("200.00"));
+    int page = 0;
+    int size = 10;
+    Pagamento pagamanto1 = PagamentoDataHelper.criaPagamentoValido(pedido);
+    pagamanto1.setValor(new BigDecimal("100.00"));
+    Pagamento pagamanto2 = PagamentoDataHelper.criaPagamentoValido(pedido);
+    pagamanto2.setValor(new BigDecimal("200.00"));
 
-      Pageable pageable = PageRequest.of(page, size);
-      Page<Pagamento> pagamentos = new PageImpl<>(List.of(pagamanto1, pagamanto2), pageable, 2);
+    Pageable pageable = PageRequest.of(page, size);
+    Page<Pagamento> pagamentos = new PageImpl<>(List.of(pagamanto1, pagamanto2), pageable, 2);
 
-      doReturn(pagamentos)
-              .when(pagamentoRepository)
-              .buscaPagamentosPaginado(
-                      eq(StatusPagamento.PAGO),
-                      any(Pageable.class)
-              );
+    doReturn(pagamentos)
+        .when(pagamentoRepository)
+        .buscaPagamentosPaginado(eq(StatusPagamento.PAGO), any(Pageable.class));
 
-      PagamentoPageResponse pagamentoPageResponse = pagamentoApplicationService.buscaPagamentosPaginado("PAGO", page, size);
+    PagamentoPageResponse pagamentoPageResponse =
+        pagamentoApplicationService.buscaPagamentosPaginado("PAGO", page, size);
 
-      assertNotNull(pagamentoPageResponse);
-      assertEquals(2, pagamentoPageResponse.getTotalPagamentos());
-      assertEquals(1, pagamentoPageResponse.getTotalPaginas());
-      assertTrue(new BigDecimal("300.0").compareTo(pagamentoPageResponse.getValorTotalPagamentos()) == 0);
+    assertNotNull(pagamentoPageResponse);
+    assertEquals(2, pagamentoPageResponse.getTotalPagamentos());
+    assertEquals(1, pagamentoPageResponse.getTotalPaginas());
+    assertTrue(
+        new BigDecimal("300.0").compareTo(pagamentoPageResponse.getValorTotalPagamentos()) == 0);
 
-      ArgumentCaptor<Pageable> pageableCaptor = ArgumentCaptor.forClass(Pageable.class);
-      verify(pagamentoRepository).buscaPagamentosPaginado(eq(StatusPagamento.PAGO), pageableCaptor.capture());
-      Pageable pageableEnviado = pageableCaptor.getValue();
-      assertEquals(page, pageableEnviado.getPageNumber());
-      assertTrue(pageableEnviado.getSort().getOrderFor("dataPagamento").isDescending());
+    ArgumentCaptor<Pageable> pageableCaptor = ArgumentCaptor.forClass(Pageable.class);
+    verify(pagamentoRepository)
+        .buscaPagamentosPaginado(eq(StatusPagamento.PAGO), pageableCaptor.capture());
+    Pageable pageableEnviado = pageableCaptor.getValue();
+    assertEquals(page, pageableEnviado.getPageNumber());
+    assertTrue(pageableEnviado.getSort().getOrderFor("dataPagamento").isDescending());
   }
 
-    @Test
-    void deveLancarExcecaoQuandoStatusForInvalido() {
-        String statusInvalido = "STATUS_QUE_NAO_EXISTE";
+  @Test
+  void deveLancarExcecaoQuandoStatusForInvalido() {
+    String statusInvalido = "STATUS_QUE_NAO_EXISTE";
 
-        assertThrows(IllegalArgumentException.class, () ->
-                pagamentoApplicationService.buscaPagamentosPaginado(statusInvalido, 0, 10)
-        );
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> pagamentoApplicationService.buscaPagamentosPaginado(statusInvalido, 0, 10));
 
-        verify(pagamentoRepository, never()).buscaPagamentosPaginado(any(), any());
-    }
+    verify(pagamentoRepository, never()).buscaPagamentosPaginado(any(), any());
   }
+}

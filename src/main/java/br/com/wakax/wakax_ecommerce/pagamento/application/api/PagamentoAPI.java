@@ -4,11 +4,11 @@ import java.util.UUID;
 
 import javax.validation.Valid;
 
-import br.com.wakax.wakax_ecommerce.pagamento.application.api.response.PagamentoPageResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import br.com.wakax.wakax_ecommerce.pagamento.application.api.request.PagamentoRequest;
+import br.com.wakax.wakax_ecommerce.pagamento.application.api.response.PagamentoPageResponse;
 import br.com.wakax.wakax_ecommerce.pagamento.application.api.response.PagamentoResponse;
 
 @RestController
@@ -24,9 +24,7 @@ public interface PagamentoAPI {
   @GetMapping("busca-pagamentos")
   @ResponseStatus(HttpStatus.OK)
   PagamentoPageResponse buscaPagamentosPaginado(
-          @RequestParam(value = "status", required = false) String status,
-          @RequestParam(value = "page", defaultValue = "0") int page,
-          @RequestParam(value = "size", defaultValue = "10") int size
-  );
-
+      @RequestParam(value = "status", required = false) String status,
+      @RequestParam(value = "page", defaultValue = "0") int page,
+      @RequestParam(value = "size", defaultValue = "10") int size);
 }

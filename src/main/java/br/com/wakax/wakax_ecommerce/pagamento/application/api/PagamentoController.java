@@ -2,19 +2,13 @@ package br.com.wakax.wakax_ecommerce.pagamento.application.api;
 
 import java.util.UUID;
 
-import br.com.wakax.wakax_ecommerce.pagamento.application.api.response.PagamentoPageResponse;
-import br.com.wakax.wakax_ecommerce.pagamento.domain.Pagamento;
-import br.com.wakax.wakax_ecommerce.pagamento.domain.StatusPagamento;
-import br.com.wakax.wakax_ecommerce.pagamento.infra.PagamentoInfraRepository;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.com.wakax.wakax_ecommerce.pagamento.application.api.request.PagamentoRequest;
+import br.com.wakax.wakax_ecommerce.pagamento.application.api.response.PagamentoPageResponse;
 import br.com.wakax.wakax_ecommerce.pagamento.application.api.response.PagamentoResponse;
 import br.com.wakax.wakax_ecommerce.pagamento.application.service.PagamentoService;
+import br.com.wakax.wakax_ecommerce.pagamento.infra.PagamentoInfraRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 
@@ -42,11 +36,12 @@ public class PagamentoController implements PagamentoAPI {
     return response;
   }
 
-    @Override
-    public PagamentoPageResponse buscaPagamentosPaginado(String status, int page, int size) {
-        log.info("[start] PagamentoController - buscaPagamentosPaginado");
-        PagamentoPageResponse pagamentoPageResponse = pagamentoService.buscaPagamentosPaginado(status, page, size);
-        log.info("[finish] PagamentoController - buscaPagamentosPaginado");
-        return pagamentoPageResponse;
-    }
+  @Override
+  public PagamentoPageResponse buscaPagamentosPaginado(String status, int page, int size) {
+    log.info("[start] PagamentoController - buscaPagamentosPaginado");
+    PagamentoPageResponse pagamentoPageResponse =
+        pagamentoService.buscaPagamentosPaginado(status, page, size);
+    log.info("[finish] PagamentoController - buscaPagamentosPaginado");
+    return pagamentoPageResponse;
+  }
 }
