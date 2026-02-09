@@ -310,7 +310,6 @@ class PagamentoApplicationServiceTest {
       pagamanto1.setValor(new BigDecimal("100.00"));
       Pagamento pagamanto2 = PagamentoDataHelper.criaPagamentoValido(pedido);
       pagamanto2.setValor(new BigDecimal("200.00"));
-      StatusPagamento statusPagamento = StatusPagamento.PAGO;
 
       Pageable pageable = PageRequest.of(page, size);
       Page<Pagamento> pagamentos = new PageImpl<>(List.of(pagamanto1, pagamanto2), pageable, 2);
