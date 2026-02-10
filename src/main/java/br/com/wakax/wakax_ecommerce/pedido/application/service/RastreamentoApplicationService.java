@@ -36,11 +36,19 @@ public class RastreamentoApplicationService implements RastreamentoService {
     return new RastreamentoResponse(rastreamento);
   }
 
-    @Override
-    public Rastreamento consultaRastreamento(String token, UUID idPedido) {
-        log.info("[start] RastreamentoApplicationService - consultaRastreamento");
-        log.info("[finish] RastreamentoApplicationService - consultaRastreamento");
-        return null;
+  @Override
+  @Transactional(readOnly = true)
+  public RastreamentoResponse consultaRastreamento(String clientePorEmail, UUID idPedido) {
+    log.info("[start] RastreamentoApplicationService - consultaRastreamento");
+    Pedido pedido = pedidoRepository.buscaPedidoPorId(idPedido);
+    verificaSeClienteEDonoDoPedido(pedido, clientePorEmail);
+    log.info("[finish] RastreamentoApplicationService - consultaRastreamento");
+    return null;
+  }
+
+    private void verificaSeClienteEDonoDoPedido(Pedido pedido, String clientePorEmail) {
+        if (!pedido.getCliente().getPessoa().getEmails().contains(clientePorEmail)) {
+            throw APIException.build(HttpStatus.FORBIDDEN, "cliente não é dono do pedido");        }
     }
 
     private void verificaSeJaExisteRastreamento(UUID idPedido) {
