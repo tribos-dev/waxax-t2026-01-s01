@@ -43,7 +43,7 @@ public class ClienteInfraRepository implements ClienteRepository {
   public Page<Cliente> buscaTodosOsClientes(Pageable pageable) {
     log.info("[start] ClienteInfraRepository - BuscaTodosOsClientes");
     Page<Cliente> clientes = clienteSpringDataJpaRepository.buscaTodosOsClientes(pageable);
-    log.info("[finish] ClienteInfraRepository - BuscaTodosOsClientes");
+    log.debug("[finish] ClienteInfraRepository - BuscaTodosOsClientes");
     return clientes;
   }
 }

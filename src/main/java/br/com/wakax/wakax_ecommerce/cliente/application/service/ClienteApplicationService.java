@@ -41,7 +41,7 @@ public class ClienteApplicationService implements ClienteService {
   public Page<Cliente> buscarTodosOsClientes(Pageable pageable) {
     log.info("[start] ClienteApplicationService - buscarTodosOsClientes");
     Page<Cliente> clientes = clienteRepository.buscaTodosOsClientes(pageable);
-    log.info("[finish] ClienteApplicationService - buscarTodosOsClientes");
+    log.debug("[finish] ClienteApplicationService - buscarTodosOsClientes");
     return clientes;
   }
 }
