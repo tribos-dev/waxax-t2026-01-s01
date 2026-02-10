@@ -36,7 +36,14 @@ public class RastreamentoApplicationService implements RastreamentoService {
     return new RastreamentoResponse(rastreamento);
   }
 
-  private void verificaSeJaExisteRastreamento(UUID idPedido) {
+    @Override
+    public Rastreamento consultaRastreamento(String token, UUID idPedido) {
+        log.info("[start] RastreamentoApplicationService - consultaRastreamento");
+        log.info("[finish] RastreamentoApplicationService - consultaRastreamento");
+        return null;
+    }
+
+    private void verificaSeJaExisteRastreamento(UUID idPedido) {
     rastreamentoRepository
         .buscaRastreamentoPorPedidoIdOptional(idPedido)
         .ifPresent(
