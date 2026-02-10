@@ -46,16 +46,16 @@ public class RastreamentoApplicationService implements RastreamentoService {
     Pedido pedido = pedidoRepository.buscaPedidoPorId(idPedido);
     verificaSeClienteEDonoDoPedido(pedido, clientePorEmail);
     Optional<RastreamentoResponse> rastreamentoResponse = rastreamentoRepository.consultaRastreamento(idPedido);
-    verificaSePedidoPossuiRastreio(rastreamentoResponse);
+    //verificaSePedidoPossuiRastreio(rastreamentoResponse);
     log.info("[finish] RastreamentoApplicationService - consultaRastreamento");
     return null;
   }
 
-    private void verificaSePedidoPossuiRastreio(Optional<RastreamentoResponse> rastreamentoResponse) {
+    /*private void verificaSePedidoPossuiRastreio(Optional<RastreamentoResponse> rastreamentoResponse) {
         if (rastreamentoResponse.isEmpty()) {
             throw APIException.build(HttpStatus.NOT_FOUND, "rastreamento não encontrado");
         }
-    }
+    }*/
 
     private void verificaSeClienteEDonoDoPedido(Pedido pedido, String clientePorEmail) {
         if (!pedido.getCliente().getPessoa().getEmails().contains(clientePorEmail)) {
