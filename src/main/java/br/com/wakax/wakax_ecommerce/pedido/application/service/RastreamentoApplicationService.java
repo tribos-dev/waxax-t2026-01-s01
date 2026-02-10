@@ -1,7 +1,9 @@
 package br.com.wakax.wakax_ecommerce.pedido.application.service;
 
+import java.util.Optional;
 import java.util.UUID;
 
+import lombok.ToString;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,6 +19,7 @@ import br.com.wakax.wakax_ecommerce.pedido.domain.Rastreamento;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 
+@ToString
 @Service
 @RequiredArgsConstructor
 @Log4j2
@@ -42,9 +45,17 @@ public class RastreamentoApplicationService implements RastreamentoService {
     log.info("[start] RastreamentoApplicationService - consultaRastreamento");
     Pedido pedido = pedidoRepository.buscaPedidoPorId(idPedido);
     verificaSeClienteEDonoDoPedido(pedido, clientePorEmail);
+    Optional<RastreamentoResponse> rastreamentoResponse = rastreamentoRepository.consultaRastreamento(idPedido);
+    verificaSePedidoPossuiRastreio(rastreamentoResponse);
     log.info("[finish] RastreamentoApplicationService - consultaRastreamento");
     return null;
   }
+
+    private void verificaSePedidoPossuiRastreio(Optional<RastreamentoResponse> rastreamentoResponse) {
+        if (rastreamentoResponse.isEmpty()) {
+            throw APIException.build(HttpStatus.NOT_FOUND, "rastreamento não encontrado");
+        }
+    }
 
     private void verificaSeClienteEDonoDoPedido(Pedido pedido, String clientePorEmail) {
         if (!pedido.getCliente().getPessoa().getEmails().contains(clientePorEmail)) {

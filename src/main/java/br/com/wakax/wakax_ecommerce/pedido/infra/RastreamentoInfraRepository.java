@@ -3,6 +3,7 @@ package br.com.wakax.wakax_ecommerce.pedido.infra;
 import java.util.Optional;
 import java.util.UUID;
 
+import br.com.wakax.wakax_ecommerce.pedido.application.api.response.RastreamentoResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Repository;
 
@@ -48,4 +49,12 @@ public class RastreamentoInfraRepository implements RastreamentoRepository {
     log.debug("[finish] RastreamentoInfraRepository - buscaRastreamentoPorPedidoIdOptional");
     return rastreamento;
   }
+
+    @Override
+    public Optional<RastreamentoResponse> consultaRastreamento(UUID idPedido) {
+        log.info("[start] RastreamentoInfraRepository - consultaRastreamento");
+        Optional<RastreamentoResponse> rastreamentoResponse = rastreamentoJPARepository.findAllRastreamentoPorIdPedido(idPedido);
+        log.info("[finish] RastreamentoInfraRepository - consultaRastreamento");
+        return rastreamentoResponse;
+    }
 }
