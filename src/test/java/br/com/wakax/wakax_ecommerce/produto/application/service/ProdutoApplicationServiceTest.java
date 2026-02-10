@@ -5,6 +5,7 @@ import static org.mockito.Mockito.*;
 
 import java.math.BigDecimal;
 import java.util.Collections;
+import java.util.List;
 import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -14,11 +15,17 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.stubbing.Answer;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
 import br.com.wakax.wakax_ecommerce.handler.APIException;
 import br.com.wakax.wakax_ecommerce.handler.ErrorCode;
 import br.com.wakax.wakax_ecommerce.produto.api.request.ProdutoRequest;
 import br.com.wakax.wakax_ecommerce.produto.api.response.ProdutoListResponse;
+import br.com.wakax.wakax_ecommerce.produto.api.response.ProdutoListagemResponse;
 import br.com.wakax.wakax_ecommerce.produto.api.response.ProdutoResponse;
 import br.com.wakax.wakax_ecommerce.produto.application.repository.ProdutoRepository;
 import br.com.wakax.wakax_ecommerce.produto.domain.Produto;
@@ -189,5 +196,37 @@ class ProdutoApplicationServiceTest {
         });
 
     verify(produtoRepository, times(1)).salva(any(Produto.class));
+  }
+
+  @Test
+  void deveListarTodosProdutosComSucesso() {
+    Produto produto1 = new Produto(produtoRequest);
+    produto1.setId(UUID.randomUUID());
+
+    ProdutoRequest produto2Request =
+        ProdutoRequest.builder()
+            .descricao("Produto Teste 2")
+            .pesoLiquido(new BigDecimal("2.0"))
+            .pesoBruto(new BigDecimal("2.5"))
+            .preco(new BigDecimal("39.99"))
+            .precos(Collections.emptyList())
+            .build();
+    Produto produto2 = new Produto(produto2Request);
+    produto2.setId(UUID.randomUUID());
+
+    List<Produto> produtos = List.of(produto1, produto2);
+    Pageable paginaEsperada = PageRequest.of(0, 10, Sort.by("descricao"));
+    Page<Produto> produtoPage = new PageImpl<>(produtos, paginaEsperada, produtos.size());
+
+    when(produtoRepository.listarTodosProdutosPaginado(paginaEsperada)).thenReturn(produtoPage);
+
+    ProdutoListagemResponse response = produtoApplicationService.listarTodosProdutos(0, 10);
+
+    assertNotNull(response);
+    assertEquals(2, response.getTotalProdutos());
+    assertEquals(2, response.getProdutos().size());
+    assertEquals("Produto Teste", response.getProdutos().get(0).getDescricao());
+    assertEquals("Produto Teste 2", response.getProdutos().get(1).getDescricao());
+    verify(produtoRepository, times(1)).listarTodosProdutosPaginado(paginaEsperada);
   }
 }

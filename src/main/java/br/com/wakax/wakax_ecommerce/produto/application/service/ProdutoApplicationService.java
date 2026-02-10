@@ -2,10 +2,15 @@ package br.com.wakax.wakax_ecommerce.produto.application.service;
 
 import java.util.UUID;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import br.com.wakax.wakax_ecommerce.produto.api.request.ProdutoRequest;
 import br.com.wakax.wakax_ecommerce.produto.api.response.ProdutoListResponse;
+import br.com.wakax.wakax_ecommerce.produto.api.response.ProdutoListagemResponse;
 import br.com.wakax.wakax_ecommerce.produto.api.response.ProdutoResponse;
 import br.com.wakax.wakax_ecommerce.produto.application.repository.ProdutoRepository;
 import br.com.wakax.wakax_ecommerce.produto.domain.Produto;
@@ -33,5 +38,15 @@ public class ProdutoApplicationService implements ProdutoService {
     Produto produto = produtoRepository.buscaProdutoPorId(idProduto);
     log.debug("[finish] ProdutoApplicationService - buscaProdutoPorId");
     return new ProdutoListResponse(produto);
+  }
+
+  @Override
+  public ProdutoListagemResponse listarTodosProdutos(int page, int size) {
+    log.debug("[start] ProdutoApplicationService - listarTodosProdutos");
+    Pageable pageable = PageRequest.of(page, size, Sort.by("descricao"));
+    Page<Produto> produtos = produtoRepository.listarTodosProdutosPaginado(pageable);
+    log.debug("[finish] ProdutoApplicationService - listarTodosProdutos");
+    return ProdutoListagemResponse.convertePaginado(
+        produtos.getContent(), produtos.getTotalElements());
   }
 }
