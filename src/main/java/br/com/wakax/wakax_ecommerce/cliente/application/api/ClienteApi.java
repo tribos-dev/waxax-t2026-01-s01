@@ -23,7 +23,7 @@ public interface ClienteApi {
   @GetMapping("/{idCliente}")
   ClienteResponse buscaClienteEspecifico(@PathVariable UUID idCliente);
 
-  @GetMapping("/ListarClientes")
+  @GetMapping("/clientes")
   PageResponse<ClienteListAllResponse> buscarTodosOsClientes(
       @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size);
 }
