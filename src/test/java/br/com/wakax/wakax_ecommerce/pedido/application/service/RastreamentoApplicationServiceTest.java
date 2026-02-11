@@ -8,14 +8,18 @@ import static org.mockito.Mockito.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
+import br.com.wakax.wakax_ecommerce.cliente.domain.Cliente;
+import br.com.wakax.wakax_ecommerce.pessoa.domain.Pessoa;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import br.com.wakax.wakax_ecommerce.handler.APIException;
@@ -89,5 +93,30 @@ class RastreamentoApplicationServiceTest {
 
     assertEquals(ErrorCode.RASTREAMENTO_JA_EXISTE, ex.getErrorCode());
     verifyNoInteractions(pedidoRepository);
+  }
+
+  @Test
+  void deveLancarExcecaoQuandoNaoForDePropriedadeDoCliente(){
+      String clientePorEmail = "cliente1@gmail.com";
+      String emailDoSolicitante = "cliente2@gmail.com";
+      UUID idPedido = UUID.randomUUID();
+
+      when(pedidoRepository.buscaPedidoPorId(idPedido))
+              .thenReturn(Pedido.builder().id(idPedido)
+                      .cliente(Cliente.builder()
+                              .pessoa(Pessoa.builder()
+                                      .emails(List.of(emailDoSolicitante)) // O e-mail real do dono
+                                      .build())
+                              .build())
+                      .build());
+
+      APIException ex =
+              assertThrows(
+                      APIException.class,
+                      () -> rastreamentoApplicationService.consultaRastreamento(clientePorEmail, idPedido));
+
+      assertEquals(HttpStatus.FORBIDDEN, ex.getStatusException());
+      assertEquals("cliente não é dono do pedido", ex.getMessage());
+      verifyNoInteractions(rastreamentoRepository);
   }
 }

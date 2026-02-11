@@ -49,7 +49,7 @@ public class Rastreamento {
   private Pedido pedido;
 
   @OneToMany(mappedBy = "rastreamento", cascade = CascadeType.ALL, orphanRemoval = true)
-  @OrderBy("dataEvento ASC")
+  @OrderBy("dataEvento DESC")
   @Builder.Default
   private List<HistoricoRastreamento> historico = new ArrayList<>();
 
