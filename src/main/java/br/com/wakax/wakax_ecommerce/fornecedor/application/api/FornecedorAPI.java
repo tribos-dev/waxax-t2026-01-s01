@@ -31,5 +31,5 @@ public interface FornecedorAPI {
                                              @RequestParam(defaultValue = "0") int page,
                                              @RequestParam(defaultValue = "razaoSocial") String sortBy,
                                              @RequestParam(defaultValue = "ASC") String sortDirection,
-                                             @RequestParam(defaultValue = "20") int size);
+                                             @RequestParam(defaultValue = "10") int size);
 }
