@@ -4,6 +4,9 @@ import java.util.UUID;
 
 import javax.validation.Valid;
 
+import br.com.wakax.wakax_ecommerce.fornecedor.application.api.request.FornecedorPageResponse;
+import br.com.wakax.wakax_ecommerce.pessoa.domain.StatusPessoa;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,10 +18,18 @@ import br.com.wakax.wakax_ecommerce.fornecedor.application.api.response.Forneced
 @RequestMapping("/fornecedor")
 public interface FornecedorAPI {
 
-  @PostMapping
-  @ResponseStatus(HttpStatus.CREATED)
-  FornecedorResponse cadastraFornecedor(@Valid @RequestBody FornecedorRequest novoFornecedor);
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    FornecedorResponse cadastraFornecedor(@Valid @RequestBody FornecedorRequest novoFornecedor);
 
-  @GetMapping("/{idFornecedor}")
-  FornecedorListResponse buscaFornecedorPorId(@PathVariable UUID idFornecedor);
+    @GetMapping("/{idFornecedor}")
+    FornecedorListResponse buscaFornecedorPorId(@PathVariable UUID idFornecedor);
+
+
+    @GetMapping
+    FornecedorPageResponse listaFornecedores(@RequestParam(required = false) StatusPessoa status,
+                                             @RequestParam(defaultValue = "0") int page,
+                                             @RequestParam(defaultValue = "razaoSocial") String sortBy,
+                                             @RequestParam(defaultValue = "ASC") String sortDirection,
+                                             @RequestParam(defaultValue = "20") int size);
 }

@@ -2,6 +2,9 @@ package br.com.wakax.wakax_ecommerce.fornecedor.infra;
 
 import java.util.UUID;
 
+import br.com.wakax.wakax_ecommerce.pessoa.domain.StatusPessoa;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Repository;
 
@@ -45,5 +48,15 @@ public class FornecedorInfraRepository implements FornecedorRepository {
                         HttpStatus.NOT_FOUND, ErrorCode.FORNECEDOR_NAO_ENCONTRADO, id));
     log.debug("[finish] FornecedorInfraRepository - buscaPorId");
     return fornecedor;
+  }
+
+  @Override
+  public Page<Fornecedor> buscaFornecedoresComFiltro(StatusPessoa status, Pageable pageable) {
+    log.debug("[start] FornecedorInfraRepository - buscaFornecedoresComFiltro");
+    Page<Fornecedor> fornecedores = (status != null)
+            ? fornecedorJPARepository.findAllByPessoaStatus(status, pageable)
+            :fornecedorJPARepository.findAll(pageable);
+    log.debug("[finaliza] FornecedorInfraRepository - buscaFornecedoresComFiltro");
+    return fornecedores;
   }
 }

@@ -2,6 +2,8 @@ package br.com.wakax.wakax_ecommerce.fornecedor.application.api;
 
 import java.util.UUID;
 
+import br.com.wakax.wakax_ecommerce.fornecedor.application.api.request.FornecedorPageResponse;
+import br.com.wakax.wakax_ecommerce.pessoa.domain.StatusPessoa;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.com.wakax.wakax_ecommerce.fornecedor.application.api.request.FornecedorRequest;
@@ -31,6 +33,14 @@ public class FornecedorController implements FornecedorAPI {
     log.debug("[start] FornecedorController - buscaFornecedorPorId");
     FornecedorListResponse response = fornecedorService.buscaFornecedorPorId(idFornecedor);
     log.debug("[finish] FornecedorController - buscaFornecedorPorId");
+    return response;
+  }
+
+  @Override
+  public FornecedorPageResponse listaFornecedores(StatusPessoa status, int page, String sortBy, String sortDirection, int size) {
+    log.debug("[start] FornecedorController - listaFornecedores");
+    FornecedorPageResponse response = fornecedorService.listaFornecedores(status, page, sortBy, sortDirection, size);
+    log.debug("[finish] FornecedorController - listaFornecedores");
     return response;
   }
 }
