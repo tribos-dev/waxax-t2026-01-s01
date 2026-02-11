@@ -4,8 +4,14 @@ import java.time.LocalDateTime;
 
 import br.com.wakax.wakax_ecommerce.pedido.domain.HistoricoRastreamento;
 import br.com.wakax.wakax_ecommerce.pedido.domain.StatusRastreamento;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor(force = true)
 @Getter
 public class HistoricoRastreamentoResponse {
   private final LocalDateTime dataEvento;
