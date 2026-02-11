@@ -1,6 +1,7 @@
 package br.com.wakax.wakax_ecommerce.produto.domain;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -55,6 +56,9 @@ public class Produto {
   private Integer estoqueMinimo;
   private Integer estoqueMaximo;
 
+  @Column(name = "data_de_cadastro")
+  private LocalDateTime dataDeCadastro;
+
   public Produto(ProdutoRequest request) {
     this.descricao = request.getDescricao();
     this.status = StatusProduto.ATIVO;
@@ -71,6 +75,7 @@ public class Produto {
               .map(precoReq -> new Preco(precoReq.getTipo(), precoReq.getValor(), this))
               .collect(Collectors.toList());
     }
+    this.dataDeCadastro = LocalDateTime.now();
   }
 
   public BigDecimal getPrecoPadrao() {
@@ -78,5 +83,16 @@ public class Produto {
       return BigDecimal.ZERO;
     }
     return this.precos.get(0).getValor();
+  }
+
+  public BigDecimal getPrecoAtual() {
+    if (this.precos == null || this.precos.isEmpty()) {
+      return BigDecimal.ZERO;
+    }
+    return this.precos.stream()
+        .filter(preco -> preco.getTipo() == TipoPreco.PADRAO)
+        .map(Preco::getValor)
+        .findFirst()
+        .orElse(BigDecimal.ZERO);
   }
 }

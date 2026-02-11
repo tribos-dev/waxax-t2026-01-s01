@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 
 import br.com.wakax.wakax_ecommerce.produto.api.request.ProdutoRequest;
 import br.com.wakax.wakax_ecommerce.produto.api.response.ProdutoListResponse;
+import br.com.wakax.wakax_ecommerce.produto.api.response.ProdutoListagemResponse;
 import br.com.wakax.wakax_ecommerce.produto.api.response.ProdutoResponse;
 
 @RestController
@@ -18,4 +19,9 @@ public interface ProdutoAPI {
 
   @GetMapping("/{idProduto}")
   ProdutoListResponse buscaProdutoPorId(@PathVariable UUID idProduto);
+
+  @GetMapping("/produtos")
+  @ResponseStatus(HttpStatus.OK)
+  ProdutoListagemResponse listarTodosProdutos(
+      @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size);
 }
