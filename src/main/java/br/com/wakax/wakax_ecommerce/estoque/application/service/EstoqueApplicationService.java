@@ -1,5 +1,7 @@
 package br.com.wakax.wakax_ecommerce.estoque.application.service;
 
+import java.math.BigDecimal;
+import java.util.List;
 import java.util.UUID;
 
 import br.com.wakax.wakax_ecommerce.estoque.api.response.EstoqueListagemResponse;
@@ -22,6 +24,7 @@ import lombok.extern.log4j.Log4j2;
 @Service
 @RequiredArgsConstructor
 public class EstoqueApplicationService implements EstoqueService {
+  private final EstoqueMapper estoqueMapper;
 
   private final EstoqueRepository estoqueRepository;
   private final ProdutoRepository produtoRepository;
@@ -85,8 +88,14 @@ public class EstoqueApplicationService implements EstoqueService {
   }
 
   @Override
+  @Transactional(readOnly = true)
   public EstoqueListagemResponse listarTodoEstoque(Integer quantidadeMinima, Boolean apenasEmFalta) {
-    return null;
+      log.info("[start] listarTodoEstoque");
+      List<Estoque> estoques = estoqueRepository.buscaTodosEstoques();
+      List<Estoque> filtrados = EstoqueFiltro.aplicar(estoques, quantidadeMinima, apenasEmFalta);
+      BigDecimal total = EstoqueCalculadora.valorTotal(filtrados);
+      log.info("[finish] listarTodoEstoque - Total: {}", filtrados.size());
+      return estoqueMapper.toResponse(filtrados, total);
   }
 
   private void validaSeJaExisteEstoque(UUID idProduto) {

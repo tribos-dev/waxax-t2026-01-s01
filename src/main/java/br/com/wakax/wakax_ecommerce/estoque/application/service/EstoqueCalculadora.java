@@ -1,4 +1,6 @@
-package br.com.wakax.wakax_ecommerce.estoque.domain;
+package br.com.wakax.wakax_ecommerce.estoque.application.service;
+
+import br.com.wakax.wakax_ecommerce.estoque.domain.Estoque;
 
 import java.math.BigDecimal;
 import java.util.List;
