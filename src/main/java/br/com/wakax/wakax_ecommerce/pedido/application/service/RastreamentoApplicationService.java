@@ -42,14 +42,14 @@ public class RastreamentoApplicationService implements RastreamentoService {
   @Override
   @Transactional(readOnly = true)
   public RastreamentoResponse consultaRastreamento(String clientePorEmail, UUID idPedido) {
-    log.info("[start] RastreamentoApplicationService - consultaRastreamento");
+    log.debug("[start] RastreamentoApplicationService - consultaRastreamento");
     Pedido pedido = pedidoRepository.buscaPedidoPorId(idPedido);
     verificaSeClienteEDonoDoPedido(pedido, clientePorEmail);
     Optional<RastreamentoResponse> rastreamentoResponse =
         rastreamentoRepository.consultaRastreamento(idPedido);
     verificaSePedidoPossuiRastreamento(rastreamentoResponse);
     RastreamentoResponse response = rastreamentoResponse.get();
-    log.info("[finish] RastreamentoApplicationService - consultaRastreamento");
+    log.debug("[finish] RastreamentoApplicationService - consultaRastreamento");
     return response;
   }
 

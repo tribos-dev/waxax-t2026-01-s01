@@ -27,11 +27,11 @@ public class RastreamentoPedidoController implements RastreamentoPedidoAPI {
 
   @Override
   public RastreamentoResponse consultaRastreamento(Credencial credencial, UUID idPedido) {
-    log.info("[start] RastreamentoPedidoController - consultaRastreamento");
+    log.debug("[start] RastreamentoPedidoController - consultaRastreamento");
     String clientePorEmail = credencial.getUsername();
     RastreamentoResponse rastreamentoResponse =
         rastreamentoService.consultaRastreamento(clientePorEmail, idPedido);
-    log.info("[finish] RastreamentoPedidoController - consultaRastreamento");
+    log.debug("[finish] RastreamentoPedidoController - consultaRastreamento");
     return rastreamentoResponse;
   }
 }

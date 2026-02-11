@@ -52,10 +52,10 @@ public class RastreamentoInfraRepository implements RastreamentoRepository {
 
   @Override
   public Optional<RastreamentoResponse> consultaRastreamento(UUID idPedido) {
-    log.info("[start] RastreamentoInfraRepository - consultaRastreamento");
+    log.debug("[start] RastreamentoInfraRepository - consultaRastreamento");
     Optional<RastreamentoResponse> rastreamentoResponse =
         rastreamentoJPARepository.findAllRastreamentoPorIdPedido(idPedido);
-    log.info("[finish] RastreamentoInfraRepository - consultaRastreamento");
+    log.debug("[finish] RastreamentoInfraRepository - consultaRastreamento");
     return rastreamentoResponse;
   }
 }
