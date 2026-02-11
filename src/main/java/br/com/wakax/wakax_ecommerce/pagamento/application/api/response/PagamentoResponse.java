@@ -2,10 +2,12 @@ package br.com.wakax.wakax_ecommerce.pagamento.application.api.response;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.UUID;
 
 import br.com.wakax.wakax_ecommerce.pagamento.domain.Pagamento;
 import br.com.wakax.wakax_ecommerce.pagamento.domain.StatusPagamento;
+import br.com.wakax.wakax_ecommerce.pedido.application.api.response.RastreamentoResponse;
 import lombok.Getter;
 
 @Getter

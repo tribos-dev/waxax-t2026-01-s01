@@ -16,12 +16,8 @@ public interface RastreamentoJPARepository extends JpaRepository<Rastreamento, U
   Optional<Rastreamento> findByPedidoId(UUID pedidoId);
 
     @Query("SELECT r FROM Rastreamento r " +
-            "JOIN FETCH r.pedido p " +         // Conecta com Pedido
-            "JOIN FETCH p.cliente c " +        // Conecta com Cliente
-            "JOIN FETCH c.pessoa pes " +       // Conecta com Pessoa
-            "JOIN pes.emails e " +             // Conecta com a lista de e-mails
+            "JOIN FETCH r.pedido p " +
             "WHERE p.id = :idPedido "
-            //"AND e = :clientePorEmail"
     )
   Optional<RastreamentoResponse> findAllRastreamentoPorIdPedido(UUID idPedido);
 }
