@@ -54,9 +54,6 @@ public class RastreamentoInfraRepository implements RastreamentoRepository {
     public Optional<RastreamentoResponse> consultaRastreamento(UUID idPedido) {
         log.info("[start] RastreamentoInfraRepository - consultaRastreamento");
         Optional<RastreamentoResponse> rastreamentoResponse = rastreamentoJPARepository.findAllRastreamentoPorIdPedido(idPedido);
-        if (rastreamentoResponse.isEmpty()) {
-            throw APIException.build(HttpStatus.NOT_FOUND, "rastreamento não encontrado");
-        }
         log.info("[finish] RastreamentoInfraRepository - consultaRastreamento");
         return rastreamentoResponse;
     }
