@@ -3,7 +3,6 @@ package br.com.wakax.wakax_ecommerce.pedido.application.api.response;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import br.com.wakax.wakax_ecommerce.pedido.domain.Rastreamento;

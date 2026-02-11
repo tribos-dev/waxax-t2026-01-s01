@@ -1,6 +1,5 @@
 package br.com.wakax.wakax_ecommerce.pedido.application.service;
 
-import java.util.Optional;
 import java.util.UUID;
 
 import br.com.wakax.wakax_ecommerce.pedido.application.api.request.RastreamentoRequest;

@@ -3,12 +3,12 @@ package br.com.wakax.wakax_ecommerce.pedido.infra;
 import java.util.Optional;
 import java.util.UUID;
 
-import br.com.wakax.wakax_ecommerce.pedido.application.api.response.RastreamentoResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Repository;
 
 import br.com.wakax.wakax_ecommerce.handler.APIException;
 import br.com.wakax.wakax_ecommerce.handler.ErrorCode;
+import br.com.wakax.wakax_ecommerce.pedido.application.api.response.RastreamentoResponse;
 import br.com.wakax.wakax_ecommerce.pedido.application.repository.RastreamentoRepository;
 import br.com.wakax.wakax_ecommerce.pedido.domain.Rastreamento;
 import lombok.RequiredArgsConstructor;
@@ -50,11 +50,12 @@ public class RastreamentoInfraRepository implements RastreamentoRepository {
     return rastreamento;
   }
 
-    @Override
-    public Optional<RastreamentoResponse> consultaRastreamento(UUID idPedido) {
-        log.info("[start] RastreamentoInfraRepository - consultaRastreamento");
-        Optional<RastreamentoResponse> rastreamentoResponse = rastreamentoJPARepository.findAllRastreamentoPorIdPedido(idPedido);
-        log.info("[finish] RastreamentoInfraRepository - consultaRastreamento");
-        return rastreamentoResponse;
-    }
+  @Override
+  public Optional<RastreamentoResponse> consultaRastreamento(UUID idPedido) {
+    log.info("[start] RastreamentoInfraRepository - consultaRastreamento");
+    Optional<RastreamentoResponse> rastreamentoResponse =
+        rastreamentoJPARepository.findAllRastreamentoPorIdPedido(idPedido);
+    log.info("[finish] RastreamentoInfraRepository - consultaRastreamento");
+    return rastreamentoResponse;
+  }
 }
