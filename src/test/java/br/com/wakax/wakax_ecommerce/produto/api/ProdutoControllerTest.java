@@ -1,5 +1,6 @@
 package br.com.wakax.wakax_ecommerce.produto.api;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.*;
 
@@ -17,6 +18,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import br.com.wakax.wakax_ecommerce.produto.api.request.PrecoRequest;
 import br.com.wakax.wakax_ecommerce.produto.api.request.ProdutoRequest;
 import br.com.wakax.wakax_ecommerce.produto.api.response.ProdutoListResponse;
+import br.com.wakax.wakax_ecommerce.produto.api.response.ProdutoListagemResponse;
 import br.com.wakax.wakax_ecommerce.produto.api.response.ProdutoResponse;
 import br.com.wakax.wakax_ecommerce.produto.application.service.ProdutoService;
 
@@ -68,5 +70,18 @@ class ProdutoControllerTest {
     ProdutoListResponse response = produtoController.buscaProdutoPorId(produtoId);
     assertNotNull(response);
     verify(produtoService, times(1)).buscaProdutoPorId(produtoId);
+  }
+
+  @Test
+  void deveListarTodosProdutosComSucesso() {
+    ProdutoListagemResponse mockResponse = mock(ProdutoListagemResponse.class);
+    when(mockResponse.getTotalProdutos()).thenReturn(2L);
+    when(mockResponse.getProdutos()).thenReturn(Collections.emptyList());
+    when(produtoService.listarTodosProdutos(0, 20)).thenReturn(mockResponse);
+    ProdutoListagemResponse response = produtoController.listarTodosProdutos(0, 20);
+    assertNotNull(response);
+    assertEquals(2L, response.getTotalProdutos());
+    assertNotNull(response.getProdutos());
+    verify(produtoService, times(1)).listarTodosProdutos(0, 20);
   }
 }
