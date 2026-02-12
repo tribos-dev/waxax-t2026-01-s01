@@ -24,7 +24,7 @@ public enum ErrorCode {
   QUANTIDADE_INVALIDA("quantidade.invalida"),
   CUSTO_INVALIDO("custo.invalido"),
   ESTOQUE_INVALIDO("estoque.invalido"),
-  CLIENTE_NAO_E_DONO_DO_PEDIDO("cliente.não.é.dono.do.pedido");
+  CLIENTE_NAO_E_DONO_DO_PEDIDO("cliente.nao.e.dono.do.pedido");
 
   private final String code;
 
