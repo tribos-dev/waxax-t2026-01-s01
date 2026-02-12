@@ -24,86 +24,86 @@ import lombok.extern.log4j.Log4j2;
 @Service
 @RequiredArgsConstructor
 public class EstoqueApplicationService implements EstoqueService {
-  private final EstoqueMapper estoqueMapper;
+    private final EstoqueMapper estoqueMapper;
 
-  private final EstoqueRepository estoqueRepository;
-  private final ProdutoRepository produtoRepository;
+    private final EstoqueRepository estoqueRepository;
+    private final ProdutoRepository produtoRepository;
 
-  @Override
-  @Transactional
-  public EstoqueResponse criaEstoque(UUID idProduto, EstoqueRequest request) {
-    log.info("[start] EstoqueApplicationService - criaEstoque");
-    Produto produto = produtoRepository.buscaProdutoPorId(idProduto);
-    validaSeJaExisteEstoque(produto.getId());
-    Estoque estoque = new Estoque(request, produto);
-    estoqueRepository.salva(estoque);
-    log.info("[finish] EstoqueApplicationService - criaEstoque");
-    return new EstoqueResponse(estoque);
-  }
+    @Override
+    @Transactional
+    public EstoqueResponse criaEstoque(UUID idProduto, EstoqueRequest request) {
+        log.info("[start] EstoqueApplicationService - criaEstoque");
+        Produto produto = produtoRepository.buscaProdutoPorId(idProduto);
+        validaSeJaExisteEstoque(produto.getId());
+        Estoque estoque = new Estoque(request, produto);
+        estoqueRepository.salva(estoque);
+        log.info("[finish] EstoqueApplicationService - criaEstoque");
+        return new EstoqueResponse(estoque);
+    }
 
-  @Override
-  @Transactional(readOnly = true)
-  public EstoqueResponse buscaEstoquePorIdProduto(UUID idProduto) {
-    log.info("[start] EstoqueApplicationService - buscaEstoquePorIdProduto");
-    Estoque estoque = buscaEstoqueExistente(idProduto);
-    log.info("[finish] EstoqueApplicationService - buscaEstoquePorIdProduto");
-    return new EstoqueResponse(estoque);
-  }
+    @Override
+    @Transactional(readOnly = true)
+    public EstoqueResponse buscaEstoquePorIdProduto(UUID idProduto) {
+        log.info("[start] EstoqueApplicationService - buscaEstoquePorIdProduto");
+        Estoque estoque = buscaEstoqueExistente(idProduto);
+        log.info("[finish] EstoqueApplicationService - buscaEstoquePorIdProduto");
+        return new EstoqueResponse(estoque);
+    }
 
-  private Estoque buscaEstoqueExistente(UUID idProduto) {
-    return estoqueRepository
-        .buscaEstoquePorIdProduto(idProduto)
-        .orElseThrow(
-            () -> new APIException(HttpStatus.NOT_FOUND, ErrorCode.ESTOQUE_NAO_ENCONTRADO));
-  }
+    private Estoque buscaEstoqueExistente(UUID idProduto) {
+        return estoqueRepository
+                .buscaEstoquePorIdProduto(idProduto)
+                .orElseThrow(
+                        () -> new APIException(HttpStatus.NOT_FOUND, ErrorCode.ESTOQUE_NAO_ENCONTRADO));
+    }
 
-  @Override
-  @Transactional(readOnly = true)
-  public boolean temQuantidadeDisponivel(UUID idProduto, Integer quantidade) {
-    log.info("[start] EstoqueApplicationService - temQuantidadeDisponivel");
-    Estoque estoque = buscaEstoqueExistente(idProduto);
-    boolean disponivel = estoque.temQuantidadeDisponivel(quantidade);
-    log.info("[finish] EstoqueApplicationService - temQuantidadeDisponivel");
-    return disponivel;
-  }
+    @Override
+    @Transactional(readOnly = true)
+    public boolean temQuantidadeDisponivel(UUID idProduto, Integer quantidade) {
+        log.info("[start] EstoqueApplicationService - temQuantidadeDisponivel");
+        Estoque estoque = buscaEstoqueExistente(idProduto);
+        boolean disponivel = estoque.temQuantidadeDisponivel(quantidade);
+        log.info("[finish] EstoqueApplicationService - temQuantidadeDisponivel");
+        return disponivel;
+    }
 
-  @Override
-  @Transactional
-  public void reservaQuantidade(UUID idProduto, Integer quantidade) {
-    log.info("[start] EstoqueApplicationService - reservaQuantidade");
-    Estoque estoque = buscaEstoqueExistente(idProduto);
-    estoque.reservaQuantidade(quantidade);
-    estoqueRepository.salva(estoque);
-    log.info("[finish] EstoqueApplicationService - reservaQuantidade");
-  }
+    @Override
+    @Transactional
+    public void reservaQuantidade(UUID idProduto, Integer quantidade) {
+        log.info("[start] EstoqueApplicationService - reservaQuantidade");
+        Estoque estoque = buscaEstoqueExistente(idProduto);
+        estoque.reservaQuantidade(quantidade);
+        estoqueRepository.salva(estoque);
+        log.info("[finish] EstoqueApplicationService - reservaQuantidade");
+    }
 
-  @Override
-  @Transactional
-  public void liberaReserva(UUID idProduto, Integer quantidade) {
-    log.info("[start] EstoqueApplicationService - liberaReserva");
-    Estoque estoque = buscaEstoqueExistente(idProduto);
-    estoque.liberaReserva(quantidade);
-    estoqueRepository.salva(estoque);
-    log.info("[finish] EstoqueApplicationService - liberaReserva");
-  }
+    @Override
+    @Transactional
+    public void liberaReserva(UUID idProduto, Integer quantidade) {
+        log.info("[start] EstoqueApplicationService - liberaReserva");
+        Estoque estoque = buscaEstoqueExistente(idProduto);
+        estoque.liberaReserva(quantidade);
+        estoqueRepository.salva(estoque);
+        log.info("[finish] EstoqueApplicationService - liberaReserva");
+    }
 
-  @Override
-  @Transactional(readOnly = true)
-  public EstoqueListagemResponse listarTodoEstoque(Integer quantidadeMinima, Boolean apenasEmFalta) {
-      log.info("[start] listarTodoEstoque");
-      List<Estoque> estoques = estoqueRepository.buscaTodosEstoques();
-      List<Estoque> filtrados = EstoqueFiltro.aplicar(estoques, quantidadeMinima, apenasEmFalta);
-      BigDecimal total = EstoqueCalculadora.valorTotal(filtrados);
-      log.info("[finish] listarTodoEstoque - Total: {}", filtrados.size());
-      return estoqueMapper.toResponse(filtrados, total);
-  }
+    @Override
+    @Transactional(readOnly = true)
+    public EstoqueListagemResponse listarTodoEstoque(Integer quantidadeMinima, Boolean apenasEmFalta) {
+        log.info("[start] listarTodoEstoque");
+        List<Estoque> estoques = estoqueRepository.buscaTodosEstoques();
+        List<Estoque> filtrados = EstoqueFiltro.aplicar(estoques, quantidadeMinima, apenasEmFalta);
+        BigDecimal total = EstoqueCalculadora.valorTotal(filtrados);
+        log.info("[finish] listarTodoEstoque - Total: {}", filtrados.size());
+        return estoqueMapper.toResponse(filtrados, total);
+    }
 
-  private void validaSeJaExisteEstoque(UUID idProduto) {
-    estoqueRepository
-        .buscaEstoquePorIdProduto(idProduto)
-        .ifPresent(
-            estoque -> {
-              throw new APIException(HttpStatus.CONFLICT, ErrorCode.ESTOQUE_JA_EXISTE);
-            });
-  }
+    private void validaSeJaExisteEstoque(UUID idProduto) {
+        estoqueRepository
+                .buscaEstoquePorIdProduto(idProduto)
+                .ifPresent(
+                        estoque -> {
+                            throw new APIException(HttpStatus.CONFLICT, ErrorCode.ESTOQUE_JA_EXISTE);
+                        });
+    }
 }

@@ -17,16 +17,16 @@ import br.com.wakax.wakax_ecommerce.estoque.api.response.EstoqueResponse;
 @RequestMapping("/estoque")
 public interface EstoqueAPI {
 
-  @PostMapping("/produto/{idProduto}")
-  @ResponseStatus(HttpStatus.CREATED)
-  EstoqueResponse criaEstoque(
-      @PathVariable UUID idProduto, @Valid @RequestBody EstoqueRequest request);
+    @PostMapping("/produto/{idProduto}")
+    @ResponseStatus(HttpStatus.CREATED)
+    EstoqueResponse criaEstoque(
+            @PathVariable UUID idProduto, @Valid @RequestBody EstoqueRequest request);
 
-  @GetMapping("/produto/{idProduto}")
-  EstoqueResponse buscaEstoquePorIdProduto(@PathVariable UUID idProduto);
+    @GetMapping("/produto/{idProduto}")
+    EstoqueResponse buscaEstoquePorIdProduto(@PathVariable UUID idProduto);
 
-  @GetMapping
-  ResponseEntity<EstoqueListagemResponse> listarTodoEstoque(
-          @RequestParam(value = "quantidadeMinima", required = false) Integer quantidadeMinima,
-          @RequestParam(value = "apenasEmFalta", required = false) Boolean apenasEmFalta);
+    @GetMapping
+    ResponseEntity<EstoqueListagemResponse> listarTodoEstoque(
+            @RequestParam(value = "quantidadeMinima", required = false) Integer quantidadeMinima,
+            @RequestParam(value = "apenasEmFalta", required = false) Boolean apenasEmFalta);
 }

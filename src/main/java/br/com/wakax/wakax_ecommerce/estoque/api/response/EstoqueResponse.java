@@ -11,21 +11,21 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 public class EstoqueResponse {
-  private UUID id;
-  private UUID idProduto;
-  private String descricaoProduto;
-  private Integer quantidadeDisponivel;
-  private BigDecimal custoMedio;
-  private BigDecimal custoTotal;
-  private BigDecimal precoVenda;
+    private UUID id;
+    private UUID idProduto;
+    private String descricaoProduto;
+    private Integer quantidadeDisponivel;
+    private BigDecimal custoMedio;
+    private BigDecimal custoTotal;
+    private BigDecimal precoVenda;
 
-  public EstoqueResponse(Estoque estoque) {
-    this.id = estoque.getId();
-    this.idProduto = estoque.getProduto().getId();
-    this.descricaoProduto = estoque.getProduto().getDescricao();
-    this.quantidadeDisponivel = estoque.getQuantidadeDisponivel();
-    this.custoMedio = estoque.getCustoMedio();
-    this.custoTotal = estoque.getCustoTotal();
-    this.precoVenda = estoque.getProduto().getPrecoPadrao();
-  }
+    public EstoqueResponse(Estoque estoque) {
+        this.id = estoque.getId();
+        this.idProduto = estoque.getProduto().getId();
+        this.descricaoProduto = estoque.getProduto().getDescricao();
+        this.quantidadeDisponivel = estoque.getQuantidadeDisponivel();
+        this.custoMedio = estoque.getCustoMedio();
+        this.custoTotal = estoque.getCustoTotal();
+        this.precoVenda = estoque.getProduto().getPrecoPadrao();
+    }
 }

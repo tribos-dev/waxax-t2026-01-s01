@@ -190,4 +190,5 @@ class ProdutoApplicationServiceTest {
 
     verify(produtoRepository, times(1)).salva(any(Produto.class));
   }
+
 }
