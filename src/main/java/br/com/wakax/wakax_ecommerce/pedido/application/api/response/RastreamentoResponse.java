@@ -10,7 +10,6 @@ import br.com.wakax.wakax_ecommerce.pedido.domain.StatusRastreamento;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 @Builder
 @AllArgsConstructor
@@ -34,4 +33,17 @@ public class RastreamentoResponse {
                 .map(HistoricoRastreamentoResponse::new)
                 .collect(Collectors.toList());
   }
+
+    public static RastreamentoResponse converte(Rastreamento response) {
+      RastreamentoResponse rastreamentoResponse = new RastreamentoResponse(
+              response.getCodigo(),
+              response.getTransportadora(),
+              response.getStatusAtual(),
+              response.getPrevisaoEntrega(),
+              response.getHistorico().stream()
+                      .map(HistoricoRastreamentoResponse::new)
+                      .collect(Collectors.toList()
+      ));
+      return rastreamentoResponse;
+    }
 }

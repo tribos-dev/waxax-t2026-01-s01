@@ -14,7 +14,4 @@ public interface RastreamentoJPARepository extends JpaRepository<Rastreamento, U
 
   @EntityGraph(attributePaths = {"historico"})
   Optional<Rastreamento> findByPedidoId(UUID pedidoId);
-
-  @Query("SELECT r FROM Rastreamento r " + "JOIN FETCH r.pedido p " + "WHERE p.id = :idPedido ")
-  Optional<RastreamentoResponse> findAllRastreamentoPorIdPedido(UUID idPedido);
 }

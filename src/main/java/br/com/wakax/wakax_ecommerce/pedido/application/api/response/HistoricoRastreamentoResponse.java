@@ -7,7 +7,6 @@ import br.com.wakax.wakax_ecommerce.pedido.domain.StatusRastreamento;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 @Builder
 @AllArgsConstructor

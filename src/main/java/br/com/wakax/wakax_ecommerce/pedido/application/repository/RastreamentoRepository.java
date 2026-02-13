@@ -13,5 +13,5 @@ public interface RastreamentoRepository {
 
   Optional<Rastreamento> buscaRastreamentoPorPedidoIdOptional(UUID idPedido);
 
-  Optional<RastreamentoResponse> consultaRastreamento(UUID idPedido);
+  //Optional<RastreamentoResponse> consultaRastreamento(UUID idPedido);
 }

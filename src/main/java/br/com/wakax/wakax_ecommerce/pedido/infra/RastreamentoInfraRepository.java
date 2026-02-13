@@ -49,13 +49,4 @@ public class RastreamentoInfraRepository implements RastreamentoRepository {
     log.debug("[finish] RastreamentoInfraRepository - buscaRastreamentoPorPedidoIdOptional");
     return rastreamento;
   }
-
-  @Override
-  public Optional<RastreamentoResponse> consultaRastreamento(UUID idPedido) {
-    log.debug("[start] RastreamentoInfraRepository - consultaRastreamento");
-    Optional<RastreamentoResponse> rastreamentoResponse =
-        rastreamentoJPARepository.findAllRastreamentoPorIdPedido(idPedido);
-    log.debug("[finish] RastreamentoInfraRepository - consultaRastreamento");
-    return rastreamentoResponse;
-  }
 }
