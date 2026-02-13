@@ -174,7 +174,6 @@ class RastreamentoApplicationServiceTest {
                         .build())
                 .build());
 
-    // 1. Criando o Histórico Fictício (SP -> PI)
     HistoricoRastreamentoResponse h1 =
         HistoricoRastreamentoResponse.builder()
             .dataEvento(LocalDateTime.now().minusDays(3))
@@ -191,7 +190,6 @@ class RastreamentoApplicationServiceTest {
             .status(StatusRastreamento.EM_TRANSITO)
             .build();
 
-    // 2. Montando a Resposta que a Infra devolveria
     RastreamentoResponse response =
         RastreamentoResponse.builder()
             .codigo("WAX123456")
@@ -207,13 +205,11 @@ class RastreamentoApplicationServiceTest {
     RastreamentoResponse resultado =
         rastreamentoApplicationService.consultaRastreamento(clientePorEmail, idPedido);
 
-    // ASSERT
     assertNotNull(resultado);
     assertEquals("WAX123456", resultado.getCodigo());
     assertEquals("MERCADO_LIVRE", resultado.getTransportadora());
     assertEquals(2, resultado.getHistorico().size());
 
-    // Validando se o primeiro item do histórico é o mais recente (Teresina)
     assertEquals("Teresina, PI", resultado.getHistorico().get(0).getLocal());
 
     verify(pedidoRepository).buscaPedidoPorId(idPedido);

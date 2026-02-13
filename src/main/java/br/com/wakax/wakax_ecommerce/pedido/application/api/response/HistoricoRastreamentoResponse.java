@@ -11,7 +11,6 @@ import lombok.NoArgsConstructor;
 
 @Builder
 @AllArgsConstructor
-@NoArgsConstructor(force = true)
 @Getter
 public class HistoricoRastreamentoResponse {
   private final LocalDateTime dataEvento;
