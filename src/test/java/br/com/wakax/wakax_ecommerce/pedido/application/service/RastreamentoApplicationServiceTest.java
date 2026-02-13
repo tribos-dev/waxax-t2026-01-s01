@@ -10,7 +10,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import br.com.wakax.wakax_ecommerce.pedido.domain.HistoricoRastreamento;
 import org.junit.jupiter.api.AfterEach;
@@ -22,19 +21,16 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-import br.com.wakax.wakax_ecommerce.cliente.domain.Cliente;
 import br.com.wakax.wakax_ecommerce.handler.APIException;
 import br.com.wakax.wakax_ecommerce.handler.ErrorCode;
 import br.com.wakax.wakax_ecommerce.pedido.application.api.request.HistoricoRastreamentoRequest;
 import br.com.wakax.wakax_ecommerce.pedido.application.api.request.RastreamentoRequest;
-import br.com.wakax.wakax_ecommerce.pedido.application.api.response.HistoricoRastreamentoResponse;
 import br.com.wakax.wakax_ecommerce.pedido.application.api.response.RastreamentoResponse;
 import br.com.wakax.wakax_ecommerce.pedido.application.repository.PedidoRepository;
 import br.com.wakax.wakax_ecommerce.pedido.application.repository.RastreamentoRepository;
 import br.com.wakax.wakax_ecommerce.pedido.domain.Pedido;
 import br.com.wakax.wakax_ecommerce.pedido.domain.Rastreamento;
 import br.com.wakax.wakax_ecommerce.pedido.domain.StatusRastreamento;
-import br.com.wakax.wakax_ecommerce.pessoa.domain.Pessoa;
 
 @ExtendWith(MockitoExtension.class)
 class RastreamentoApplicationServiceTest {
@@ -44,9 +40,9 @@ class RastreamentoApplicationServiceTest {
 
   @InjectMocks private RastreamentoApplicationService rastreamentoApplicationService;
 
-  @AfterEach
+    @AfterEach
   void tearDown() {
-    SecurityContextHolder.clearContext();
+      SecurityContextHolder.clearContext();
   }
 
   @Test
@@ -100,27 +96,17 @@ class RastreamentoApplicationServiceTest {
 
   @Test
   void deveLancarExcecaoQuandoNaoForDePropriedadeDoCliente() {
-    String clientePorEmail = "cliente1@gmail.com";
-    String emailDoSolicitante = "cliente2@gmail.com";
-    UUID idPedido = UUID.randomUUID();
+        String emailDoSolicitante = "cliente2@gmail.com";
+        UUID idPedido = RastreamentoDataHelper.criaPedidoValido().getId();
+        Pedido pedido = RastreamentoDataHelper.criaPedidoValido();
 
     when(pedidoRepository.buscaPedidoPorId(idPedido))
-        .thenReturn(
-            Pedido.builder()
-                .id(idPedido)
-                .cliente(
-                    Cliente.builder()
-                        .pessoa(
-                            Pessoa.builder()
-                                .emails(List.of(emailDoSolicitante))
-                                .build())
-                        .build())
-                .build());
+        .thenReturn(pedido);
 
     APIException ex =
         assertThrows(
             APIException.class,
-            () -> rastreamentoApplicationService.consultaRastreamento(clientePorEmail, idPedido));
+            () -> rastreamentoApplicationService.consultaRastreamento(emailDoSolicitante, idPedido));
 
     assertEquals(HttpStatus.FORBIDDEN, ex.getStatusException());
     assertEquals(ErrorCode.CLIENTE_NAO_E_DONO_DO_PEDIDO, ex.getErrorCode());
@@ -129,28 +115,19 @@ class RastreamentoApplicationServiceTest {
 
   @Test
   void deveLancarExcecaoQuandoPedidoNaoPossuirRastreamento() {
-    UUID idPedido = UUID.randomUUID();
-    String clientePorEmail = "cliente1@gmail.com";
+    String emailDoSolicitante = "cliente1@gmail.com";
+      UUID idPedido = RastreamentoDataHelper.criaPedidoValido().getId();
+      Pedido pedido = RastreamentoDataHelper.criaPedidoValido();
 
     when(pedidoRepository.buscaPedidoPorId(idPedido))
-        .thenReturn(
-            Pedido.builder()
-                .id(idPedido)
-                .cliente(
-                    Cliente.builder()
-                        .pessoa(
-                            Pessoa.builder()
-                                .emails(List.of(clientePorEmail)) // O e-mail real do dono
-                                .build())
-                        .build())
-                .build());
+        .thenReturn(pedido);
 
     when(rastreamentoRepository.buscaRastreamentoPorPedidoIdOptional(idPedido)).thenReturn(Optional.empty());
 
     APIException ex =
         assertThrows(
             APIException.class,
-            () -> rastreamentoApplicationService.consultaRastreamento(clientePorEmail, idPedido));
+            () -> rastreamentoApplicationService.consultaRastreamento(emailDoSolicitante, idPedido));
 
     assertEquals(HttpStatus.NOT_FOUND, ex.getStatusException());
     assertEquals(ErrorCode.PEDIDO_NAO_POSSUI_RASTREIO, ex.getErrorCode());
@@ -160,21 +137,14 @@ class RastreamentoApplicationServiceTest {
 
   @Test
   void deveConsultarRastreamentoDoPedidoComSucesso() {
-    UUID idPedido = UUID.randomUUID();
-    String clientePorEmail = "cliente1@gmail.com";
+      String emailDoSolicitante = "cliente1@gmail.com";
+      UUID idPedido = RastreamentoDataHelper.criaPedidoValido().getId();
+      Pedido pedido = RastreamentoDataHelper.criaPedidoValido();
+      //HistoricoRastreamento h1 = RastreamentoDataHelper.historicoRastreamento1();
+      //HistoricoRastreamento h2 = RastreamentoDataHelper.historicoRastreamento2();
 
     when(pedidoRepository.buscaPedidoPorId(idPedido))
-        .thenReturn(
-            Pedido.builder()
-                .id(idPedido)
-                .cliente(
-                    Cliente.builder()
-                        .pessoa(
-                            Pessoa.builder()
-                                .emails(List.of(clientePorEmail))
-                                .build())
-                        .build())
-                .build());
+        .thenReturn(pedido);
 
     HistoricoRastreamento h1 =
         HistoricoRastreamento.builder()
@@ -195,7 +165,7 @@ class RastreamentoApplicationServiceTest {
     Rastreamento rastreamento =
         Rastreamento.builder()
             .codigo("WAX123456")
-            .transportadora("MERCADO_LIVRE")
+            .transportadora("SEDEX")
             .statusAtual(StatusRastreamento.EM_TRANSITO)
             .previsaoEntrega(LocalDate.now().plusDays(2))
             .historico(List.of(h2, h1))
@@ -205,11 +175,11 @@ class RastreamentoApplicationServiceTest {
         .thenReturn(Optional.ofNullable(rastreamento));
 
     RastreamentoResponse resultado =
-        rastreamentoApplicationService.consultaRastreamento(clientePorEmail, idPedido);
+        rastreamentoApplicationService.consultaRastreamento(emailDoSolicitante, idPedido);
 
     assertNotNull(resultado);
     assertEquals("WAX123456", resultado.getCodigo());
-    assertEquals("MERCADO_LIVRE", resultado.getTransportadora());
+    assertEquals("SEDEX", resultado.getTransportadora());
     assertEquals(2, resultado.getHistorico().size());
 
     assertEquals("Teresina, PI", resultado.getHistorico().get(0).getLocal());
