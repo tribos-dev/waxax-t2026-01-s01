@@ -3,6 +3,7 @@ package br.com.wakax.wakax_ecommerce.pagamento.application.service;
 import java.util.UUID;
 
 import br.com.wakax.wakax_ecommerce.pagamento.application.api.request.PagamentoRequest;
+import br.com.wakax.wakax_ecommerce.pagamento.application.api.response.PagamentoPedidoResponse;
 import br.com.wakax.wakax_ecommerce.pagamento.application.api.response.PagamentoResponse;
 
 public interface PagamentoService {
@@ -10,4 +11,6 @@ public interface PagamentoService {
   PagamentoResponse processaPagamento(PagamentoRequest novoPagamento);
 
   PagamentoResponse buscaPagamentoPorId(UUID idPagamento);
+
+  PagamentoPedidoResponse buscaPagamentoPorIdPedido(UUID idPedido);
 }

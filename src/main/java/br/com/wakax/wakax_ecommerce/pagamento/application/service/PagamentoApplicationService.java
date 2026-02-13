@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import br.com.wakax.wakax_ecommerce.handler.APIException;
 import br.com.wakax.wakax_ecommerce.handler.ErrorCode;
 import br.com.wakax.wakax_ecommerce.pagamento.application.api.request.PagamentoRequest;
+import br.com.wakax.wakax_ecommerce.pagamento.application.api.response.PagamentoPedidoResponse;
 import br.com.wakax.wakax_ecommerce.pagamento.application.api.response.PagamentoResponse;
 import br.com.wakax.wakax_ecommerce.pagamento.application.factory.ProcessadorPagamentoFactory;
 import br.com.wakax.wakax_ecommerce.pagamento.application.repository.PagamentoRepository;
@@ -64,5 +65,18 @@ public class PagamentoApplicationService implements PagamentoService {
     Pagamento pagamento = pagamentoRepository.buscaPagamentoPorId(idPagamento);
     log.debug("[finish] PagamentoApplicationService - buscaPagamentoPorId");
     return new PagamentoResponse(pagamento);
+  }
+
+  @Override
+  public PagamentoPedidoResponse buscaPagamentoPorIdPedido(UUID idPedido) {
+    log.debug("[start] PagamentoApplicationService - buscaPagamentoPorIdPedido");
+    Pagamento pagamento =
+        pagamentoRepository
+            .buscaPagamentoPorPedidoId(idPedido)
+            .orElseThrow(
+                () ->
+                    new APIException(HttpStatus.NOT_FOUND, ErrorCode.PEDIDO_NAO_POSSUI_PAGAMENTO));
+    log.debug("[finish] PagamentoApplicationService - buscaPagamentoPorIdPedido");
+    return new PagamentoPedidoResponse(pagamento);
   }
 }
