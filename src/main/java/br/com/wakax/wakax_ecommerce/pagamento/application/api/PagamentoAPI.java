@@ -4,6 +4,7 @@ import java.util.UUID;
 
 import javax.validation.Valid;
 
+import br.com.wakax.wakax_ecommerce.pagamento.application.api.response.PagamentoPedidoResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,4 +20,7 @@ public interface PagamentoAPI {
 
   @GetMapping("/{idPagamento}")
   PagamentoResponse buscaPagamentoPorId(@PathVariable UUID idPagamento);
+
+  @GetMapping("/pedido/{idPedido}")
+  PagamentoPedidoResponse buscaPagamentoPorIdPedido(@PathVariable UUID idPedido);
 }
