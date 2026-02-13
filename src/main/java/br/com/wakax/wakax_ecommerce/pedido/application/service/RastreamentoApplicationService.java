@@ -16,10 +16,8 @@ import br.com.wakax.wakax_ecommerce.pedido.application.repository.RastreamentoRe
 import br.com.wakax.wakax_ecommerce.pedido.domain.Pedido;
 import br.com.wakax.wakax_ecommerce.pedido.domain.Rastreamento;
 import lombok.RequiredArgsConstructor;
-import lombok.ToString;
 import lombok.extern.log4j.Log4j2;
 
-@ToString
 @Service
 @RequiredArgsConstructor
 @Log4j2
