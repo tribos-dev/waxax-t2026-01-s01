@@ -1,7 +1,9 @@
 package br.com.wakax.wakax_ecommerce.carrinho.api;
 
+import java.util.List;
 import java.util.UUID;
 
+import br.com.wakax.wakax_ecommerce.carrinho.api.response.CarrinhosListAllResponse;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.com.wakax.wakax_ecommerce.carrinho.api.request.ItemCarrinhoRequest;
@@ -31,5 +33,13 @@ public class CarrinhoController implements CarrinhoAPI {
     CarrinhoResponse carrinho = carrinhoService.buscaCarrinhoPorId(idCliente, idCarrinho);
     log.debug("[finish] CarrinhoController - buscaCarrinhoPorId");
     return carrinho;
+  }
+
+  @Override
+  public List<CarrinhosListAllResponse> buscarTodosOsCarrinhos(UUID idCliente) {
+    log.info("[start] CarrinhoController - buscarTodosOsCarrinhos");
+    List<CarrinhosListAllResponse> carrinhos = carrinhoService.buscarTodosOsCarrinhos(idCliente);
+    log.debug("[finish] CarrinhoController - buscarTodosOsCarrinhos");
+    return carrinhos;
   }
 }
