@@ -67,6 +67,7 @@ public class CarrinhoApplicationService implements CarrinhoService {
   @Override
   public List<CarrinhosListAllResponse> buscarTodosOsCarrinhos(UUID idCliente) {
     log.info("[start] CarrinhoApplicationService - buscarTodosOsCarrinhos");
+    clienteRepository.buscaClientePorId(idCliente);
     List<Carrinho> carrinho = carrinhoRepository.buscarTodosOsCarrinhos(idCliente);
     List<CarrinhosListAllResponse> list = carrinho.stream()
             .map(CarrinhosListAllResponse::new)
