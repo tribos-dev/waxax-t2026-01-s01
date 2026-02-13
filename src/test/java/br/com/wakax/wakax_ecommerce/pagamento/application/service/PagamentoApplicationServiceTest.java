@@ -263,4 +263,31 @@ class PagamentoApplicationServiceTest {
     assertEquals(StatusPagamento.AGUARDANDO, pagamentoTeste.getStatusPagamento());
     assertEquals(StatusPedido.AGUARDANDO_PAGAMENTO, pedido.getStatus());
   }
+
+  @Test
+  void deveBuscarPagamentoPorIdPedidoComSucesso() {
+    when(pagamentoRepository.buscaPagamentoPorPedidoId(pedidoId))
+        .thenReturn(Optional.of(pagamento));
+
+    var response = pagamentoApplicationService.buscaPagamentoPorIdPedido(pedidoId);
+
+    assertNotNull(response);
+    assertEquals(pagamento.getStatusPagamento(), response.getStatusPagamento());
+    assertEquals(pagamento.getValor(), response.getValor());
+    verify(pagamentoRepository).buscaPagamentoPorPedidoId(pedidoId);
+  }
+
+  @Test
+  void deveLancarExcecaoQuandoPedidoNaoPossuiPagamento() {
+    when(pagamentoRepository.buscaPagamentoPorPedidoId(pedidoId)).thenReturn(Optional.empty());
+
+    APIException exception =
+        assertThrows(
+            APIException.class,
+            () -> pagamentoApplicationService.buscaPagamentoPorIdPedido(pedidoId));
+
+    assertEquals(HttpStatus.NOT_FOUND, exception.getStatusException());
+    assertEquals(ErrorCode.PEDIDO_NAO_POSSUI_PAGAMENTO, exception.getErrorCode());
+    verify(pagamentoRepository).buscaPagamentoPorPedidoId(pedidoId);
+  }
 }
