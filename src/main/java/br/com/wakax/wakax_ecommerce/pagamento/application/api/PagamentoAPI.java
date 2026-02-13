@@ -4,6 +4,7 @@ import java.util.UUID;
 
 import javax.validation.Valid;
 
+import br.com.wakax.wakax_ecommerce.pagamento.domain.StatusPagamento;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,7 +25,7 @@ public interface PagamentoAPI {
   @GetMapping()
   @ResponseStatus(HttpStatus.OK)
   PagamentoPageResponse buscaPagamentosPaginado(
-      @RequestParam(value = "status", required = false) String status,
+      @RequestParam(value = "status", required = false) StatusPagamento statusPagamento,
       @RequestParam(value = "page", defaultValue = "0") int page,
       @RequestParam(value = "size", defaultValue = "10") int size);
 }

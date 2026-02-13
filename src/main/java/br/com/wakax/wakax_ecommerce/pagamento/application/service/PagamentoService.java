@@ -5,6 +5,7 @@ import java.util.UUID;
 import br.com.wakax.wakax_ecommerce.pagamento.application.api.request.PagamentoRequest;
 import br.com.wakax.wakax_ecommerce.pagamento.application.api.response.PagamentoPageResponse;
 import br.com.wakax.wakax_ecommerce.pagamento.application.api.response.PagamentoResponse;
+import br.com.wakax.wakax_ecommerce.pagamento.domain.StatusPagamento;
 
 public interface PagamentoService {
 
@@ -12,5 +13,5 @@ public interface PagamentoService {
 
   PagamentoResponse buscaPagamentoPorId(UUID idPagamento);
 
-  PagamentoPageResponse buscaPagamentosPaginado(String status, int page, int size);
+  PagamentoPageResponse buscaPagamentosPaginado(StatusPagamento statusPagamento, int page, int size);
 }

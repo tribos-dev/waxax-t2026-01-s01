@@ -2,6 +2,7 @@ package br.com.wakax.wakax_ecommerce.pagamento.application.api;
 
 import java.util.UUID;
 
+import br.com.wakax.wakax_ecommerce.pagamento.domain.StatusPagamento;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.com.wakax.wakax_ecommerce.pagamento.application.api.request.PagamentoRequest;
@@ -37,10 +38,10 @@ public class PagamentoController implements PagamentoAPI {
   }
 
   @Override
-  public PagamentoPageResponse buscaPagamentosPaginado(String status, int page, int size) {
+  public PagamentoPageResponse buscaPagamentosPaginado(StatusPagamento statusPagamento, int page, int size) {
     log.debug("[start] PagamentoController - buscaPagamentosPaginado");
     PagamentoPageResponse pagamentoPageResponse =
-        pagamentoService.buscaPagamentosPaginado(status, page, size);
+        pagamentoService.buscaPagamentosPaginado(statusPagamento, page, size);
     log.debug("[finish] PagamentoController - buscaPagamentosPaginado");
     return pagamentoPageResponse;
   }
