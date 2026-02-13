@@ -10,7 +10,9 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
+import br.com.wakax.wakax_ecommerce.pedido.domain.HistoricoRastreamento;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -110,7 +112,7 @@ class RastreamentoApplicationServiceTest {
                     Cliente.builder()
                         .pessoa(
                             Pessoa.builder()
-                                .emails(List.of(emailDoSolicitante)) // O e-mail real do dono
+                                .emails(List.of(emailDoSolicitante))
                                 .build())
                         .build())
                 .build());
@@ -121,7 +123,7 @@ class RastreamentoApplicationServiceTest {
             () -> rastreamentoApplicationService.consultaRastreamento(clientePorEmail, idPedido));
 
     assertEquals(HttpStatus.FORBIDDEN, ex.getStatusException());
-    assertEquals("cliente não é dono do pedido", ex.getMessage());
+    assertEquals(ErrorCode.CLIENTE_NAO_E_DONO_DO_PEDIDO, ex.getErrorCode());
     verifyNoInteractions(rastreamentoRepository);
   }
 
@@ -143,7 +145,7 @@ class RastreamentoApplicationServiceTest {
                         .build())
                 .build());
 
-    when(rastreamentoRepository.consultaRastreamento(idPedido)).thenReturn(Optional.empty());
+    when(rastreamentoRepository.buscaRastreamentoPorPedidoIdOptional(idPedido)).thenReturn(Optional.empty());
 
     APIException ex =
         assertThrows(
@@ -151,9 +153,9 @@ class RastreamentoApplicationServiceTest {
             () -> rastreamentoApplicationService.consultaRastreamento(clientePorEmail, idPedido));
 
     assertEquals(HttpStatus.NOT_FOUND, ex.getStatusException());
-    assertEquals("rastreamento não encontrado", ex.getMessage());
+    assertEquals(ErrorCode.PEDIDO_NAO_POSSUI_RASTREIO, ex.getErrorCode());
 
-    verify(rastreamentoRepository, times(1)).consultaRastreamento(idPedido);
+    verify(rastreamentoRepository, times(1)).buscaRastreamentoPorPedidoIdOptional(idPedido);
   }
 
   @Test
@@ -169,38 +171,38 @@ class RastreamentoApplicationServiceTest {
                     Cliente.builder()
                         .pessoa(
                             Pessoa.builder()
-                                .emails(List.of(clientePorEmail)) // O e-mail real do dono
+                                .emails(List.of(clientePorEmail))
                                 .build())
                         .build())
                 .build());
 
-    HistoricoRastreamentoResponse h1 =
-        HistoricoRastreamentoResponse.builder()
+    HistoricoRastreamento h1 =
+        HistoricoRastreamento.builder()
             .dataEvento(LocalDateTime.now().minusDays(3))
             .local("São Paulo, SP")
             .descricao("Objeto postado no CD Cajamar")
             .status(StatusRastreamento.CRIADO)
             .build();
 
-    HistoricoRastreamentoResponse h2 =
-        HistoricoRastreamentoResponse.builder()
+    HistoricoRastreamento h2 =
+        HistoricoRastreamento.builder()
             .dataEvento(LocalDateTime.now().minusDays(1))
             .local("Teresina, PI")
             .descricao("Chegou na unidade de tratamento regional")
             .status(StatusRastreamento.EM_TRANSITO)
             .build();
 
-    RastreamentoResponse response =
-        RastreamentoResponse.builder()
+    Rastreamento rastreamento =
+        Rastreamento.builder()
             .codigo("WAX123456")
             .transportadora("MERCADO_LIVRE")
             .statusAtual(StatusRastreamento.EM_TRANSITO)
             .previsaoEntrega(LocalDate.now().plusDays(2))
-            .historico(List.of(h2, h1)) // Ordenado conforme o seu @OrderBy DESC
+            .historico(List.of(h2, h1))
             .build();
 
-    when(rastreamentoRepository.consultaRastreamento(idPedido))
-        .thenReturn(Optional.ofNullable(response));
+    when(rastreamentoRepository.buscaRastreamentoPorPedidoIdOptional(idPedido))
+        .thenReturn(Optional.ofNullable(rastreamento));
 
     RastreamentoResponse resultado =
         rastreamentoApplicationService.consultaRastreamento(clientePorEmail, idPedido);
@@ -213,6 +215,6 @@ class RastreamentoApplicationServiceTest {
     assertEquals("Teresina, PI", resultado.getHistorico().get(0).getLocal());
 
     verify(pedidoRepository).buscaPedidoPorId(idPedido);
-    verify(rastreamentoRepository).consultaRastreamento(idPedido);
+    verify(rastreamentoRepository).buscaRastreamentoPorPedidoIdOptional(idPedido);
   }
 }
