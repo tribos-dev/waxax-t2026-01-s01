@@ -44,14 +44,6 @@ public class Pagamento {
     this.valor = pedido.getValorTotal();
   }
 
-  public Pagamento(Pagamento pagamento) {
-    this.id = pagamento.getId();
-    this.pedido = pagamento.getPedido();
-    this.statusPagamento = pagamento.getStatusPagamento();
-    this.dataPagamento = pagamento.getDataPagamento();
-    this.valor = pagamento.getValor();
-  }
-
   public void confirmarPagamento() {
     this.statusPagamento = StatusPagamento.PAGO;
   }

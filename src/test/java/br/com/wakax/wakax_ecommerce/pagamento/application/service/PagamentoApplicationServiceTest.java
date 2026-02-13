@@ -321,7 +321,7 @@ class PagamentoApplicationServiceTest {
         .buscaPagamentosPaginado(eq(StatusPagamento.PAGO), any(Pageable.class));
 
     PagamentoPageResponse pagamentoPageResponse =
-        pagamentoApplicationService.buscaPagamentosPaginado("PAGO", page, size);
+        pagamentoApplicationService.buscaPagamentosPaginado(StatusPagamento.valueOf("PAGO"), page, size);
 
     assertNotNull(pagamentoPageResponse);
     assertEquals(2, pagamentoPageResponse.getTotalPagamentos());
@@ -339,7 +339,7 @@ class PagamentoApplicationServiceTest {
 
   @Test
   void deveLancarExcecaoQuandoStatusForInvalido() {
-    String statusInvalido = "STATUS_QUE_NAO_EXISTE";
+    StatusPagamento statusInvalido = StatusPagamento.valueOf("PAG");
 
     assertThrows(
         IllegalArgumentException.class,

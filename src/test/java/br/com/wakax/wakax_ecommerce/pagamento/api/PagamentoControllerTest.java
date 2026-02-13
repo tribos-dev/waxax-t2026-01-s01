@@ -5,6 +5,7 @@ import static org.mockito.Mockito.*;
 
 import java.util.UUID;
 
+import br.com.wakax.wakax_ecommerce.pagamento.domain.StatusPagamento;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -99,37 +100,37 @@ class PagamentoControllerTest {
 
   @Test
   void deveListarPagamentosSemFiltrosComPaginacao() {
-    String status = null;
+    StatusPagamento statusPagamento = null;
     int page = 0;
     int size = 10;
     PagamentoPageResponse pagamentoPageResponse = mock(PagamentoPageResponse.class);
 
-    when(pagamentoService.buscaPagamentosPaginado(status, page, size))
+    when(pagamentoService.buscaPagamentosPaginado(statusPagamento, page, size))
         .thenReturn(pagamentoPageResponse);
 
     PagamentoPageResponse resultado =
-        pagamentoController.buscaPagamentosPaginado(status, page, size);
+        pagamentoController.buscaPagamentosPaginado(statusPagamento, page, size);
 
     assertNotNull(resultado);
     assertEquals(pagamentoPageResponse, resultado);
-    verify(pagamentoService, times(1)).buscaPagamentosPaginado(status, page, size);
+    verify(pagamentoService, times(1)).buscaPagamentosPaginado(statusPagamento, page, size);
   }
 
   @Test
   void deveFiltrarPagamentosPorStatusPAGO() {
-    String status = "PAGO";
+    StatusPagamento statusPagamento = StatusPagamento.PAGO;
     int page = 0;
     int size = 10;
     PagamentoPageResponse pagamentoPageResponse = mock(PagamentoPageResponse.class);
 
-    when(pagamentoService.buscaPagamentosPaginado(status, page, size))
+    when(pagamentoService.buscaPagamentosPaginado(statusPagamento, page, size))
         .thenReturn(pagamentoPageResponse);
 
     PagamentoPageResponse resultado =
-        pagamentoController.buscaPagamentosPaginado(status, page, size);
+        pagamentoController.buscaPagamentosPaginado(statusPagamento, page, size);
 
     assertNotNull(resultado);
     assertEquals(pagamentoPageResponse, resultado);
-    verify(pagamentoService, times(1)).buscaPagamentosPaginado(status, page, size);
+    verify(pagamentoService, times(1)).buscaPagamentosPaginado(statusPagamento, page, size);
   }
 }
