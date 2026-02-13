@@ -21,7 +21,7 @@ public interface PagamentoAPI {
   @GetMapping("/{idPagamento}")
   PagamentoResponse buscaPagamentoPorId(@PathVariable UUID idPagamento);
 
-  @GetMapping("busca-pagamentos")
+  @GetMapping()
   @ResponseStatus(HttpStatus.OK)
   PagamentoPageResponse buscaPagamentosPaginado(
       @RequestParam(value = "status", required = false) String status,
