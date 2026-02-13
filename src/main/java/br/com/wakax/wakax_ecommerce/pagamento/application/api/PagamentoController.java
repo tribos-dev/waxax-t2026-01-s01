@@ -9,7 +9,6 @@ import br.com.wakax.wakax_ecommerce.pagamento.application.api.request.PagamentoR
 import br.com.wakax.wakax_ecommerce.pagamento.application.api.response.PagamentoPageResponse;
 import br.com.wakax.wakax_ecommerce.pagamento.application.api.response.PagamentoResponse;
 import br.com.wakax.wakax_ecommerce.pagamento.application.service.PagamentoService;
-import br.com.wakax.wakax_ecommerce.pagamento.infra.PagamentoInfraRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 
@@ -19,7 +18,6 @@ import lombok.extern.log4j.Log4j2;
 public class PagamentoController implements PagamentoAPI {
 
   private final PagamentoService pagamentoService;
-  private PagamentoInfraRepository pagamentoInfraRepository;
 
   @Override
   public PagamentoResponse processaPagamento(PagamentoRequest novoPagamento) {
