@@ -54,13 +54,13 @@ public class RastreamentoApplicationService implements RastreamentoService {
   private void verificaSePedidoPossuiRastreamento(
       Optional<RastreamentoResponse> rastreamentoResponse) {
     if (rastreamentoResponse.isEmpty()) {
-      throw APIException.build(HttpStatus.NOT_FOUND, "rastreamento não encontrado");
+      throw new APIException(HttpStatus.NOT_FOUND, ErrorCode.PEDIDO_NAO_POSSUI_RASTREIO);
     }
   }
 
   private void verificaSeClienteEDonoDoPedido(Pedido pedido, String clientePorEmail) {
     if (!pedido.getCliente().getPessoa().getEmails().contains(clientePorEmail)) {
-      throw APIException.build(HttpStatus.FORBIDDEN, "cliente não é dono do pedido");
+      throw new APIException(HttpStatus.FORBIDDEN, ErrorCode.CLIENTE_NAO_E_DONO_DO_PEDIDO);
     }
   }
 
