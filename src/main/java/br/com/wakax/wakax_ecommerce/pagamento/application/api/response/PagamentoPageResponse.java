@@ -19,8 +19,7 @@ public class PagamentoPageResponse {
   private final long totalPaginas;
   private final BigDecimal valorTotalPagamentos;
 
-  public static PagamentoPageResponse convertePaginado(
-      List<Pagamento> pagamentos, long totalElements, int totalPages) {
+  public static PagamentoPageResponse convertePaginado(List<Pagamento> pagamentos, long totalElements, int totalPages) {
     List<PagamentoResponse> dto =
         pagamentos.stream().map(PagamentoResponse::new).collect(Collectors.toList());
 

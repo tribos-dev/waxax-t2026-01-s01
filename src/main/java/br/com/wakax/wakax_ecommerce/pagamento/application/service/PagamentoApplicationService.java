@@ -75,7 +75,8 @@ public class PagamentoApplicationService implements PagamentoService {
   }
 
   @Override
-  public PagamentoPageResponse buscaPagamentosPaginado(StatusPagamento statusPagamento, int page, int size) {
+  public PagamentoPageResponse buscaPagamentosPaginado(
+      StatusPagamento statusPagamento, int page, int size) {
     log.debug("[start] PagamentoApplicationService - buscaPagamentosPaginado");
     /*if (status != null && !status.isBlank()) {
       statusPagamento = StatusPagamento.valueOf(status.toUpperCase());

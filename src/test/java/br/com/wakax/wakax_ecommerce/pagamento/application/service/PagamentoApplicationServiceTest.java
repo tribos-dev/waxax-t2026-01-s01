@@ -321,7 +321,8 @@ class PagamentoApplicationServiceTest {
         .buscaPagamentosPaginado(eq(StatusPagamento.PAGO), any(Pageable.class));
 
     PagamentoPageResponse pagamentoPageResponse =
-        pagamentoApplicationService.buscaPagamentosPaginado(StatusPagamento.valueOf("PAGO"), page, size);
+        pagamentoApplicationService.buscaPagamentosPaginado(
+            StatusPagamento.valueOf("PAGO"), page, size);
 
     assertNotNull(pagamentoPageResponse);
     assertEquals(2, pagamentoPageResponse.getTotalPagamentos());

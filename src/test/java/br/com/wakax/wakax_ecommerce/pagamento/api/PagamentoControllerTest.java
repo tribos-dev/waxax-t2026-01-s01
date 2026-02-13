@@ -5,7 +5,6 @@ import static org.mockito.Mockito.*;
 
 import java.util.UUID;
 
-import br.com.wakax.wakax_ecommerce.pagamento.domain.StatusPagamento;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -20,6 +19,7 @@ import br.com.wakax.wakax_ecommerce.pagamento.application.api.response.Pagamento
 import br.com.wakax.wakax_ecommerce.pagamento.application.service.PagamentoDataHelper;
 import br.com.wakax.wakax_ecommerce.pagamento.application.service.PagamentoService;
 import br.com.wakax.wakax_ecommerce.pagamento.domain.Pagamento;
+import br.com.wakax.wakax_ecommerce.pagamento.domain.StatusPagamento;
 import br.com.wakax.wakax_ecommerce.pedido.domain.Pedido;
 
 @ExtendWith(MockitoExtension.class)
