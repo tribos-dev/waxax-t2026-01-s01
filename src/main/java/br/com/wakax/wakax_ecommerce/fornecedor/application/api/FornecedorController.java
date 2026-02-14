@@ -2,12 +2,13 @@ package br.com.wakax.wakax_ecommerce.fornecedor.application.api;
 
 import java.util.UUID;
 
-import br.com.wakax.wakax_ecommerce.fornecedor.application.api.request.FornecedorPageResponse;
-import br.com.wakax.wakax_ecommerce.pessoa.domain.StatusPessoa;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RestController;
 
+import br.com.wakax.wakax_ecommerce.fornecedor.application.api.request.FornecedorFiltroRequest;
 import br.com.wakax.wakax_ecommerce.fornecedor.application.api.request.FornecedorRequest;
 import br.com.wakax.wakax_ecommerce.fornecedor.application.api.response.FornecedorListResponse;
+import br.com.wakax.wakax_ecommerce.fornecedor.application.api.response.FornecedorPageResponse;
 import br.com.wakax.wakax_ecommerce.fornecedor.application.api.response.FornecedorResponse;
 import br.com.wakax.wakax_ecommerce.fornecedor.application.service.FornecedorService;
 import lombok.RequiredArgsConstructor;
@@ -37,9 +38,10 @@ public class FornecedorController implements FornecedorAPI {
   }
 
   @Override
-  public FornecedorPageResponse listaFornecedores(StatusPessoa status, int page, String sortBy, String sortDirection, int size) {
+  public FornecedorPageResponse listaFornecedores(@ModelAttribute FornecedorFiltroRequest filtro) {
     log.debug("[start] FornecedorController - listaFornecedores");
-    FornecedorPageResponse response = fornecedorService.listaFornecedores(status, page, sortBy, sortDirection, size);
+    FornecedorPageResponse response =
+        fornecedorService.listaFornecedores(filtro.getStatus(), filtro.toPageable());
     log.debug("[finish] FornecedorController - listaFornecedores");
     return response;
   }
