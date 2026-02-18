@@ -1,15 +1,7 @@
 package br.com.wakax.wakax_ecommerce.estoque.application.service;
 
-import java.math.BigDecimal;
-import java.util.List;
-import java.util.UUID;
-
-import br.com.wakax.wakax_ecommerce.estoque.api.response.EstoqueListagemResponse;
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import br.com.wakax.wakax_ecommerce.estoque.api.request.EstoqueRequest;
+import br.com.wakax.wakax_ecommerce.estoque.api.response.EstoqueListagemResponse;
 import br.com.wakax.wakax_ecommerce.estoque.api.response.EstoqueResponse;
 import br.com.wakax.wakax_ecommerce.estoque.application.repository.EstoqueRepository;
 import br.com.wakax.wakax_ecommerce.estoque.domain.Estoque;
@@ -19,13 +11,17 @@ import br.com.wakax.wakax_ecommerce.produto.application.repository.ProdutoReposi
 import br.com.wakax.wakax_ecommerce.produto.domain.Produto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.UUID;
 
 @Log4j2
 @Service
 @RequiredArgsConstructor
 public class EstoqueApplicationService implements EstoqueService {
-    private final EstoqueMapper estoqueMapper;
-
     private final EstoqueRepository estoqueRepository;
     private final ProdutoRepository produtoRepository;
 
@@ -91,11 +87,9 @@ public class EstoqueApplicationService implements EstoqueService {
     @Transactional(readOnly = true)
     public EstoqueListagemResponse listarTodoEstoque(Integer quantidadeMinima, Boolean apenasEmFalta) {
         log.info("[start] listarTodoEstoque");
-        List<Estoque> estoques = estoqueRepository.buscaTodosEstoques();
-        List<Estoque> filtrados = EstoqueFiltro.aplicar(estoques, quantidadeMinima, apenasEmFalta);
-        BigDecimal total = EstoqueCalculadora.valorTotal(filtrados);
-        log.info("[finish] listarTodoEstoque - Total: {}", filtrados.size());
-        return estoqueMapper.toResponse(filtrados, total);
+        List<Estoque> estoques = estoqueRepository.buscarComFiltro(quantidadeMinima, apenasEmFalta);
+        log.info("[finish] listarTodoEstoque - Total: {}", estoques.size());
+        return EstoqueListagemResponse.of(estoques);
     }
 
     private void validaSeJaExisteEstoque(UUID idProduto) {

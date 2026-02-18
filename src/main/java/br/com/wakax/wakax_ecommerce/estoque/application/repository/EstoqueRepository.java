@@ -11,4 +11,5 @@ public interface EstoqueRepository {
     Optional<Estoque> buscaEstoquePorIdProduto(UUID idProduto);
     Estoque buscaEstoquePorId(UUID idEstoque);
     List<Estoque> buscaTodosEstoques();
+    List<Estoque> buscarComFiltro(Integer quantidadeMinima, Boolean apenasEmFalta);
 }
