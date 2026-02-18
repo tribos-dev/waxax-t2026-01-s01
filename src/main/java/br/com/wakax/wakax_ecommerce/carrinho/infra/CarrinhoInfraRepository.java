@@ -1,8 +1,10 @@
 package br.com.wakax.wakax_ecommerce.carrinho.infra;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import br.com.wakax.wakax_ecommerce.carrinho.api.response.CarrinhosListAllResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Repository;
 
@@ -49,5 +51,15 @@ public class CarrinhoInfraRepository implements CarrinhoRepository {
                 () -> new APIException(HttpStatus.NOT_FOUND, ErrorCode.CARRINHO_NAO_ENCONTRADO));
     log.debug("[finish] CarrinhoInfraRepository - buscaCarrinhoPorId");
     return carrinho;
+  }
+
+  @Override
+  public List<Carrinho> buscarTodosOsCarrinhos(UUID idCliente) {
+    log.info("[start] CarrinhoInfraRepository - buscarTodosOsCarrinhos");
+    List<Carrinho> carrinhos =
+            carrinhoSpringDataJPARepository
+                    .findAllByClienteIdOrderByDataCriacaoDesc(idCliente);
+    log.debug("[finish] CarrinhoInfraRepository - buscarTodosOsCarrinhos");
+    return carrinhos;
   }
 }
