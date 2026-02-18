@@ -78,9 +78,6 @@ public class PagamentoApplicationService implements PagamentoService {
   public PagamentoPageResponse buscaPagamentosPaginado(
       StatusPagamento statusPagamento, int page, int size) {
     log.debug("[start] PagamentoApplicationService - buscaPagamentosPaginado");
-    /*if (status != null && !status.isBlank()) {
-      statusPagamento = StatusPagamento.valueOf(status.toUpperCase());
-    }*/
     Pageable pageable = PageRequest.of(page, size, Sort.by("dataPagamento").descending());
     Page<Pagamento> pagamentos =
         pagamentoRepository.buscaPagamentosPaginado(statusPagamento, pageable);
