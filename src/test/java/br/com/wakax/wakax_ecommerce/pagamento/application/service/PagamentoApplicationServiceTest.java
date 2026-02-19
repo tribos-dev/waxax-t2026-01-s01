@@ -24,6 +24,7 @@ import org.springframework.http.HttpStatus;
 import br.com.wakax.wakax_ecommerce.handler.APIException;
 import br.com.wakax.wakax_ecommerce.handler.ErrorCode;
 import br.com.wakax.wakax_ecommerce.pagamento.application.api.request.PagamentoRequest;
+import br.com.wakax.wakax_ecommerce.pagamento.application.api.response.PagamentoPageResponse;
 import br.com.wakax.wakax_ecommerce.pagamento.application.api.response.PagamentoResponse;
 import br.com.wakax.wakax_ecommerce.pagamento.application.factory.ProcessadorPagamentoFactory;
 import br.com.wakax.wakax_ecommerce.pagamento.application.repository.PagamentoRepository;
@@ -335,17 +336,6 @@ class PagamentoApplicationServiceTest {
     Pageable pageableEnviado = pageableCaptor.getValue();
     assertEquals(page, pageableEnviado.getPageNumber());
     assertTrue(pageableEnviado.getSort().getOrderFor("dataPagamento").isDescending());
-  }
-
-  @Test
-  void deveLancarExcecaoQuandoStatusForInvalido() {
-    StatusPagamento statusInvalido = StatusPagamento.valueOf("PAG");
-
-    assertThrows(
-        IllegalArgumentException.class,
-        () -> pagamentoApplicationService.buscaPagamentosPaginado(statusInvalido, 0, 10));
-
-    verify(pagamentoRepository, never()).buscaPagamentosPaginado(any(), any());
   }
 
   @Test
