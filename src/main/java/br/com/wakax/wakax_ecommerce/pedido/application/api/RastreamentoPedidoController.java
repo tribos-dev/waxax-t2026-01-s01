@@ -1,11 +1,12 @@
 package br.com.wakax.wakax_ecommerce.pedido.application.api;
 
-import java.util.Optional;
 import java.util.UUID;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.com.wakax.wakax_ecommerce.auth.security.service.TokenService;
+import br.com.wakax.wakax_ecommerce.handler.APIException;
 import br.com.wakax.wakax_ecommerce.pedido.application.api.request.RastreamentoRequest;
 import br.com.wakax.wakax_ecommerce.pedido.application.api.response.RastreamentoResponse;
 import br.com.wakax.wakax_ecommerce.pedido.application.service.RastreamentoService;
@@ -39,9 +40,11 @@ public class RastreamentoPedidoController implements RastreamentoPedidoAPI {
 
   private String getUsuarioByToken(String token) {
     log.info("[start] RastreamentoPedidoController - getUsuarioByToken");
-    Optional<String> usuario = tokenService.getUsuarioByBearerToken(token);
-    String clientePorEmail = usuario.get();
+    String usuario =
+        tokenService
+            .getUsuarioByBearerToken(token)
+            .orElseThrow(() -> APIException.build(HttpStatus.UNAUTHORIZED, token));
     log.info("[finish] RastreamentoPedidoController - getUsuarioByToken");
-    return clientePorEmail;
+    return usuario;
   }
 }
