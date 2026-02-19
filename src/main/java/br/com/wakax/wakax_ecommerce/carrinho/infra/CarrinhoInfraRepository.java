@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import br.com.wakax.wakax_ecommerce.carrinho.api.response.CarrinhosListAllResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Repository;
 
@@ -57,8 +56,7 @@ public class CarrinhoInfraRepository implements CarrinhoRepository {
   public List<Carrinho> buscarTodosOsCarrinhos(UUID idCliente) {
     log.info("[start] CarrinhoInfraRepository - buscarTodosOsCarrinhos");
     List<Carrinho> carrinhos =
-            carrinhoSpringDataJPARepository
-                    .findAllByClienteIdOrderByDataCriacaoDesc(idCliente);
+        carrinhoSpringDataJPARepository.findAllByClienteIdOrderByDataCriacaoDesc(idCliente);
     log.debug("[finish] CarrinhoInfraRepository - buscarTodosOsCarrinhos");
     return carrinhos;
   }

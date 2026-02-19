@@ -14,6 +14,7 @@ import br.com.wakax.wakax_ecommerce.handler.APIException;
 import br.com.wakax.wakax_ecommerce.handler.ErrorCode;
 import br.com.wakax.wakax_ecommerce.pagamento.application.api.request.PagamentoRequest;
 import br.com.wakax.wakax_ecommerce.pagamento.application.api.response.PagamentoPageResponse;
+import br.com.wakax.wakax_ecommerce.pagamento.application.api.response.PagamentoPedidoResponse;
 import br.com.wakax.wakax_ecommerce.pagamento.application.api.response.PagamentoResponse;
 import br.com.wakax.wakax_ecommerce.pagamento.application.factory.ProcessadorPagamentoFactory;
 import br.com.wakax.wakax_ecommerce.pagamento.application.repository.PagamentoRepository;
@@ -84,5 +85,18 @@ public class PagamentoApplicationService implements PagamentoService {
     log.debug("[finish] PagamentoApplicationService - buscaPagamentosPaginado");
     return PagamentoPageResponse.convertePaginado(
         pagamentos.getContent(), pagamentos.getTotalElements(), pagamentos.getTotalPages());
+  }
+
+  @Override
+  public PagamentoPedidoResponse buscaPagamentoPorIdPedido(UUID idPedido) {
+    log.debug("[start] PagamentoApplicationService - buscaPagamentoPorIdPedido");
+    Pagamento pagamento =
+        pagamentoRepository
+            .buscaPagamentoPorPedidoId(idPedido)
+            .orElseThrow(
+                () ->
+                    new APIException(HttpStatus.NOT_FOUND, ErrorCode.PEDIDO_NAO_POSSUI_PAGAMENTO));
+    log.debug("[finish] PagamentoApplicationService - buscaPagamentoPorIdPedido");
+    return new PagamentoPedidoResponse(pagamento);
   }
 }

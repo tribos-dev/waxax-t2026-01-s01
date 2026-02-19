@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 import br.com.wakax.wakax_ecommerce.pagamento.application.api.request.PagamentoRequest;
 import br.com.wakax.wakax_ecommerce.pagamento.application.api.response.PagamentoPageResponse;
+import br.com.wakax.wakax_ecommerce.pagamento.application.api.response.PagamentoPedidoResponse;
 import br.com.wakax.wakax_ecommerce.pagamento.application.api.response.PagamentoResponse;
 import br.com.wakax.wakax_ecommerce.pagamento.domain.StatusPagamento;
 
@@ -28,4 +29,7 @@ public interface PagamentoAPI {
       @RequestParam(value = "status", required = false) StatusPagamento statusPagamento,
       @RequestParam(value = "page", defaultValue = "0") int page,
       @RequestParam(value = "size", defaultValue = "10") int size);
+
+  @GetMapping("/pedido/{idPedido}")
+  PagamentoPedidoResponse buscaPagamentoPorIdPedido(@PathVariable UUID idPedido);
 }

@@ -12,8 +12,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-import br.com.wakax.wakax_ecommerce.carrinho.api.response.CarrinhosListAllResponse;
-import br.com.wakax.wakax_ecommerce.carrinho.domain.StatusCarrinho;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -22,10 +20,12 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import br.com.wakax.wakax_ecommerce.carrinho.api.request.ItemCarrinhoRequest;
 import br.com.wakax.wakax_ecommerce.carrinho.api.response.CarrinhoResponse;
+import br.com.wakax.wakax_ecommerce.carrinho.api.response.CarrinhosListAllResponse;
 import br.com.wakax.wakax_ecommerce.carrinho.application.factory.ProcessadorEstoqueFactory;
 import br.com.wakax.wakax_ecommerce.carrinho.application.repository.CarrinhoRepository;
 import br.com.wakax.wakax_ecommerce.carrinho.application.strategy.ProcessadorEstoque;
 import br.com.wakax.wakax_ecommerce.carrinho.domain.Carrinho;
+import br.com.wakax.wakax_ecommerce.carrinho.domain.StatusCarrinho;
 import br.com.wakax.wakax_ecommerce.cliente.application.repository.ClienteRepository;
 import br.com.wakax.wakax_ecommerce.cliente.domain.Cliente;
 import br.com.wakax.wakax_ecommerce.produto.application.repository.ProdutoRepository;
@@ -124,7 +124,7 @@ class CarrinhoApplicationServiceTest {
     when(carrinhoRepository.buscarTodosOsCarrinhos(cliente.getId())).thenReturn(carrinhos);
 
     List<CarrinhosListAllResponse> carrinhosBuscados =
-            applicationService.buscarTodosOsCarrinhos(cliente.getId());
+        applicationService.buscarTodosOsCarrinhos(cliente.getId());
 
     assertEquals(2, carrinhosBuscados.size());
     assertEquals(carrinho.getId(), carrinhosBuscados.get(0).getIdCarrinho());
@@ -142,7 +142,7 @@ class CarrinhoApplicationServiceTest {
     when(carrinhoRepository.buscarTodosOsCarrinhos(cliente.getId())).thenReturn(List.of());
 
     List<CarrinhosListAllResponse> carrinhosBuscados =
-            applicationService.buscarTodosOsCarrinhos(cliente.getId());
+        applicationService.buscarTodosOsCarrinhos(cliente.getId());
 
     assertNotNull(carrinhosBuscados);
     assertTrue(carrinhosBuscados.isEmpty());
@@ -162,7 +162,7 @@ class CarrinhoApplicationServiceTest {
     when(carrinhoRepository.buscarTodosOsCarrinhos(cliente.getId())).thenReturn(carrinhos);
 
     List<CarrinhosListAllResponse> carrinhosBuscados =
-            applicationService.buscarTodosOsCarrinhos(cliente.getId());
+        applicationService.buscarTodosOsCarrinhos(cliente.getId());
 
     assertEquals(2, carrinhosBuscados.size());
     assertEquals(StatusCarrinho.ATIVO, carrinhosBuscados.get(0).getStatusCarrinho());
@@ -185,7 +185,8 @@ class CarrinhoApplicationServiceTest {
     when(clienteRepository.buscaClientePorId(cliente.getId())).thenReturn(cliente);
     when(carrinhoRepository.buscarTodosOsCarrinhos(cliente.getId())).thenReturn(carrinhos);
 
-    List<CarrinhosListAllResponse> resposta = applicationService.buscarTodosOsCarrinhos(cliente.getId());
+    List<CarrinhosListAllResponse> resposta =
+        applicationService.buscarTodosOsCarrinhos(cliente.getId());
 
     assertEquals(2, resposta.size());
 
@@ -195,5 +196,4 @@ class CarrinhoApplicationServiceTest {
     verify(clienteRepository).buscaClientePorId(cliente.getId());
     verify(carrinhoRepository).buscarTodosOsCarrinhos(cliente.getId());
   }
-
 }

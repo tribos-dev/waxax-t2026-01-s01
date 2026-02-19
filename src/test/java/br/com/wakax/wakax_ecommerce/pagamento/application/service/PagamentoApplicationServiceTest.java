@@ -339,13 +339,29 @@ class PagamentoApplicationServiceTest {
   }
 
   @Test
-  void deveLancarExcecaoQuandoStatusForInvalido() {
-    StatusPagamento statusInvalido = StatusPagamento.valueOf("PAG");
+  void deveBuscarPagamentoPorIdPedidoComSucesso() {
+    when(pagamentoRepository.buscaPagamentoPorPedidoId(pedidoId))
+        .thenReturn(Optional.of(pagamento));
 
-    assertThrows(
-        IllegalArgumentException.class,
-        () -> pagamentoApplicationService.buscaPagamentosPaginado(statusInvalido, 0, 10));
+    var response = pagamentoApplicationService.buscaPagamentoPorIdPedido(pedidoId);
 
-    verify(pagamentoRepository, never()).buscaPagamentosPaginado(any(), any());
+    assertNotNull(response);
+    assertEquals(pagamento.getStatusPagamento(), response.getStatusPagamento());
+    assertEquals(pagamento.getValor(), response.getValor());
+    verify(pagamentoRepository).buscaPagamentoPorPedidoId(pedidoId);
+  }
+
+  @Test
+  void deveLancarExcecaoQuandoPedidoNaoPossuiPagamento() {
+    when(pagamentoRepository.buscaPagamentoPorPedidoId(pedidoId)).thenReturn(Optional.empty());
+
+    APIException exception =
+        assertThrows(
+            APIException.class,
+            () -> pagamentoApplicationService.buscaPagamentoPorIdPedido(pedidoId));
+
+    assertEquals(HttpStatus.NOT_FOUND, exception.getStatusException());
+    assertEquals(ErrorCode.PEDIDO_NAO_POSSUI_PAGAMENTO, exception.getErrorCode());
+    verify(pagamentoRepository).buscaPagamentoPorPedidoId(pedidoId);
   }
 }

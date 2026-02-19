@@ -133,4 +133,18 @@ class PagamentoControllerTest {
     assertEquals(pagamentoPageResponse, resultado);
     verify(pagamentoService, times(1)).buscaPagamentosPaginado(statusPagamento, page, size);
   }
+
+  @Test
+  void deveBuscarPagamentoPorIdPedidoComSucesso() {
+    var pagamentoPedidoResponse =
+        mock(
+            br.com.wakax.wakax_ecommerce.pagamento.application.api.response.PagamentoPedidoResponse
+                .class);
+    when(pagamentoService.buscaPagamentoPorIdPedido(pedidoId)).thenReturn(pagamentoPedidoResponse);
+
+    var response = pagamentoController.buscaPagamentoPorIdPedido(pedidoId);
+
+    assertNotNull(response);
+    verify(pagamentoService).buscaPagamentoPorIdPedido(pedidoId);
+  }
 }
