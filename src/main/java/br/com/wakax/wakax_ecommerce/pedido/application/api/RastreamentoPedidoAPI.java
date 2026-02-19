@@ -5,10 +5,8 @@ import java.util.UUID;
 import javax.validation.Valid;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import br.com.wakax.wakax_ecommerce.auth.credencial.domain.Credencial;
 import br.com.wakax.wakax_ecommerce.pedido.application.api.request.RastreamentoRequest;
 import br.com.wakax.wakax_ecommerce.pedido.application.api.response.RastreamentoResponse;
 
@@ -24,5 +22,6 @@ public interface RastreamentoPedidoAPI {
   @GetMapping("/{idPedido}/rastreamento")
   @ResponseStatus(HttpStatus.OK)
   RastreamentoResponse consultaRastreamento(
-      @AuthenticationPrincipal Credencial credencial, @PathVariable UUID idPedido);
+      @RequestHeader(name = "Authorization", required = true) String token,
+      @PathVariable UUID idPedido);
 }

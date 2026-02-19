@@ -7,9 +7,13 @@ import java.util.UUID;
 import br.com.wakax.wakax_ecommerce.estoque.domain.Estoque;
 
 public interface EstoqueRepository {
-    Estoque salva(Estoque estoque);
-    Optional<Estoque> buscaEstoquePorIdProduto(UUID idProduto);
-    Estoque buscaEstoquePorId(UUID idEstoque);
-    List<Estoque> buscaTodosEstoques();
-    List<Estoque> buscarComFiltro(Integer quantidadeMinima, Boolean apenasEmFalta);
+  Estoque salva(Estoque estoque);
+
+  Optional<Estoque> buscaEstoquePorIdProduto(UUID idProduto);
+
+  Estoque buscaEstoquePorId(UUID idEstoque);
+
+  List<Estoque> buscaTodosEstoques();
+
+  List<Estoque> buscarComFiltro(Integer quantidadeMinima, Boolean apenasEmFalta);
 }

@@ -1,10 +1,11 @@
 package br.com.wakax.wakax_ecommerce.pedido.application.api;
 
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.web.bind.annotation.RestController;
 
-import br.com.wakax.wakax_ecommerce.auth.credencial.domain.Credencial;
+import br.com.wakax.wakax_ecommerce.auth.security.service.TokenService;
 import br.com.wakax.wakax_ecommerce.pedido.application.api.request.RastreamentoRequest;
 import br.com.wakax.wakax_ecommerce.pedido.application.api.response.RastreamentoResponse;
 import br.com.wakax.wakax_ecommerce.pedido.application.service.RastreamentoService;
@@ -16,6 +17,7 @@ import lombok.extern.log4j.Log4j2;
 @Log4j2
 public class RastreamentoPedidoController implements RastreamentoPedidoAPI {
   private final RastreamentoService rastreamentoService;
+  private final TokenService tokenService;
 
   @Override
   public RastreamentoResponse cadastraRastreamento(UUID idPedido, RastreamentoRequest request) {
@@ -26,12 +28,20 @@ public class RastreamentoPedidoController implements RastreamentoPedidoAPI {
   }
 
   @Override
-  public RastreamentoResponse consultaRastreamento(Credencial credencial, UUID idPedido) {
+  public RastreamentoResponse consultaRastreamento(String token, UUID idPedido) {
     log.debug("[start] RastreamentoPedidoController - consultaRastreamento");
-    String clientePorEmail = credencial.getUsername();
+    String clientePorEmail = getUsuarioByToken(token);
     RastreamentoResponse rastreamentoResponse =
         rastreamentoService.consultaRastreamento(clientePorEmail, idPedido);
     log.debug("[finish] RastreamentoPedidoController - consultaRastreamento");
     return rastreamentoResponse;
+  }
+
+  private String getUsuarioByToken(String token) {
+    log.info("[start] RastreamentoPedidoController - getUsuarioByToken");
+    Optional<String> usuario = tokenService.getUsuarioByBearerToken(token);
+    String clientePorEmail = usuario.get();
+    log.info("[finish] RastreamentoPedidoController - getUsuarioByToken");
+    return clientePorEmail;
   }
 }
