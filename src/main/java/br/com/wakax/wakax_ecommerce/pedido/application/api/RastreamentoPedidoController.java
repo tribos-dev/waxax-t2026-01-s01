@@ -4,6 +4,7 @@ import java.util.UUID;
 
 import org.springframework.web.bind.annotation.RestController;
 
+import br.com.wakax.wakax_ecommerce.auth.credencial.domain.Credencial;
 import br.com.wakax.wakax_ecommerce.pedido.application.api.request.RastreamentoRequest;
 import br.com.wakax.wakax_ecommerce.pedido.application.api.response.RastreamentoResponse;
 import br.com.wakax.wakax_ecommerce.pedido.application.service.RastreamentoService;
@@ -22,5 +23,15 @@ public class RastreamentoPedidoController implements RastreamentoPedidoAPI {
     RastreamentoResponse response = rastreamentoService.cadastraRastreamento(idPedido, request);
     log.debug("[finish] RastreamentoPedidoController - cadastraRastreamento");
     return response;
+  }
+
+  @Override
+  public RastreamentoResponse consultaRastreamento(Credencial credencial, UUID idPedido) {
+    log.debug("[start] RastreamentoPedidoController - consultaRastreamento");
+    String clientePorEmail = credencial.getUsername();
+    RastreamentoResponse rastreamentoResponse =
+        rastreamentoService.consultaRastreamento(clientePorEmail, idPedido);
+    log.debug("[finish] RastreamentoPedidoController - consultaRastreamento");
+    return rastreamentoResponse;
   }
 }

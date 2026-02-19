@@ -1,5 +1,6 @@
 package br.com.wakax.wakax_ecommerce.pedido.application.service;
 
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
@@ -34,6 +35,32 @@ public class RastreamentoApplicationService implements RastreamentoService {
     rastreamentoRepository.salva(rastreamento);
     log.debug("[finish] RastreamentoApplicationService - cadastraRastreamento");
     return new RastreamentoResponse(rastreamento);
+  }
+
+  @Override
+  @Transactional(readOnly = true)
+  public RastreamentoResponse consultaRastreamento(String clientePorEmail, UUID idPedido) {
+    log.debug("[start] RastreamentoApplicationService - consultaRastreamento");
+    Pedido pedido = pedidoRepository.buscaPedidoPorId(idPedido);
+    verificaSeClienteEDonoDoPedido(pedido, clientePorEmail);
+    Optional<Rastreamento> rastreamento =
+        rastreamentoRepository.buscaRastreamentoPorPedidoIdOptional(idPedido);
+    verificaSePedidoPossuiRastreamento(rastreamento);
+    Rastreamento response = rastreamento.get();
+    log.debug("[finish] RastreamentoApplicationService - consultaRastreamento");
+    return RastreamentoResponse.converte(response);
+  }
+
+  private void verificaSePedidoPossuiRastreamento(Optional<Rastreamento> rastreamento) {
+    if (rastreamento.isEmpty()) {
+      throw new APIException(HttpStatus.NOT_FOUND, ErrorCode.PEDIDO_NAO_POSSUI_RASTREIO);
+    }
+  }
+
+  private void verificaSeClienteEDonoDoPedido(Pedido pedido, String clientePorEmail) {
+    if (!pedido.getCliente().getPessoa().getEmails().contains(clientePorEmail)) {
+      throw new APIException(HttpStatus.FORBIDDEN, ErrorCode.CLIENTE_NAO_E_DONO_DO_PEDIDO);
+    }
   }
 
   private void verificaSeJaExisteRastreamento(UUID idPedido) {

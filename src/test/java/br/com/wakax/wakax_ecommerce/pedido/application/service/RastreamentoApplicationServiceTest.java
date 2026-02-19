@@ -8,6 +8,7 @@ import static org.mockito.Mockito.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.junit.jupiter.api.AfterEach;
@@ -16,6 +17,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import br.com.wakax.wakax_ecommerce.handler.APIException;
@@ -89,5 +91,73 @@ class RastreamentoApplicationServiceTest {
 
     assertEquals(ErrorCode.RASTREAMENTO_JA_EXISTE, ex.getErrorCode());
     verifyNoInteractions(pedidoRepository);
+  }
+
+  @Test
+  void deveLancarExcecaoQuandoNaoForDePropriedadeDoCliente() {
+    String emailDoSolicitante = "cliente2@gmail.com";
+    UUID idPedido = RastreamentoDataHelper.criaPedidoValido().getId();
+    Pedido pedido = RastreamentoDataHelper.criaPedidoValido();
+
+    when(pedidoRepository.buscaPedidoPorId(idPedido)).thenReturn(pedido);
+
+    APIException ex =
+        assertThrows(
+            APIException.class,
+            () ->
+                rastreamentoApplicationService.consultaRastreamento(emailDoSolicitante, idPedido));
+
+    assertEquals(HttpStatus.FORBIDDEN, ex.getStatusException());
+    assertEquals(ErrorCode.CLIENTE_NAO_E_DONO_DO_PEDIDO, ex.getErrorCode());
+    verifyNoInteractions(rastreamentoRepository);
+  }
+
+  @Test
+  void deveLancarExcecaoQuandoPedidoNaoPossuirRastreamento() {
+    String emailDoSolicitante = "cliente1@gmail.com";
+    UUID idPedido = RastreamentoDataHelper.criaPedidoValido().getId();
+    Pedido pedido = RastreamentoDataHelper.criaPedidoValido();
+
+    when(pedidoRepository.buscaPedidoPorId(idPedido)).thenReturn(pedido);
+
+    when(rastreamentoRepository.buscaRastreamentoPorPedidoIdOptional(idPedido))
+        .thenReturn(Optional.empty());
+
+    APIException ex =
+        assertThrows(
+            APIException.class,
+            () ->
+                rastreamentoApplicationService.consultaRastreamento(emailDoSolicitante, idPedido));
+
+    assertEquals(HttpStatus.NOT_FOUND, ex.getStatusException());
+    assertEquals(ErrorCode.PEDIDO_NAO_POSSUI_RASTREIO, ex.getErrorCode());
+
+    verify(rastreamentoRepository, times(1)).buscaRastreamentoPorPedidoIdOptional(idPedido);
+  }
+
+  @Test
+  void deveConsultarRastreamentoDoPedidoComSucesso() {
+    String emailDoSolicitante = "cliente1@gmail.com";
+    UUID idPedido = RastreamentoDataHelper.criaPedidoValido().getId();
+    Pedido pedido = RastreamentoDataHelper.criaPedidoValido();
+    Rastreamento rastreamento = RastreamentoDataHelper.criaRastremanento();
+
+    when(pedidoRepository.buscaPedidoPorId(idPedido)).thenReturn(pedido);
+
+    when(rastreamentoRepository.buscaRastreamentoPorPedidoIdOptional(idPedido))
+        .thenReturn(Optional.ofNullable(rastreamento));
+
+    RastreamentoResponse resultado =
+        rastreamentoApplicationService.consultaRastreamento(emailDoSolicitante, idPedido);
+
+    assertNotNull(resultado);
+    assertEquals("WAX123456", resultado.getCodigo());
+    assertEquals("SEDEX", resultado.getTransportadora());
+    assertEquals(2, resultado.getHistorico().size());
+
+    assertEquals("São Paulo, SP", resultado.getHistorico().get(0).getLocal());
+
+    verify(pedidoRepository).buscaPedidoPorId(idPedido);
+    verify(rastreamentoRepository).buscaRastreamentoPorPedidoIdOptional(idPedido);
   }
 }
