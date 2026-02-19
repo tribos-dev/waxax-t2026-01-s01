@@ -8,7 +8,6 @@ import org.springframework.stereotype.Repository;
 
 import br.com.wakax.wakax_ecommerce.handler.APIException;
 import br.com.wakax.wakax_ecommerce.handler.ErrorCode;
-import br.com.wakax.wakax_ecommerce.pedido.application.api.response.RastreamentoResponse;
 import br.com.wakax.wakax_ecommerce.pedido.application.repository.RastreamentoRepository;
 import br.com.wakax.wakax_ecommerce.pedido.domain.Rastreamento;
 import lombok.RequiredArgsConstructor;
