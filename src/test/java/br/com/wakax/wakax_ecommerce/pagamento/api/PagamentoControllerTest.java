@@ -14,10 +14,12 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import br.com.wakax.wakax_ecommerce.pagamento.application.api.PagamentoController;
 import br.com.wakax.wakax_ecommerce.pagamento.application.api.request.PagamentoRequest;
+import br.com.wakax.wakax_ecommerce.pagamento.application.api.response.PagamentoPageResponse;
 import br.com.wakax.wakax_ecommerce.pagamento.application.api.response.PagamentoResponse;
 import br.com.wakax.wakax_ecommerce.pagamento.application.service.PagamentoDataHelper;
 import br.com.wakax.wakax_ecommerce.pagamento.application.service.PagamentoService;
 import br.com.wakax.wakax_ecommerce.pagamento.domain.Pagamento;
+import br.com.wakax.wakax_ecommerce.pagamento.domain.StatusPagamento;
 import br.com.wakax.wakax_ecommerce.pedido.domain.Pedido;
 
 @ExtendWith(MockitoExtension.class)
@@ -29,6 +31,7 @@ class PagamentoControllerTest {
 
   private PagamentoRequest pagamentoRequest;
   private PagamentoResponse pagamentoResponse;
+  private PagamentoPageResponse pagamentoPageResponse;
   private UUID pedidoId;
   private UUID pagamentoId;
 
@@ -93,6 +96,42 @@ class PagamentoControllerTest {
         RuntimeException.class, () -> pagamentoController.buscaPagamentoPorId(pagamentoId));
 
     verify(pagamentoService).buscaPagamentoPorId(pagamentoId);
+  }
+
+  @Test
+  void deveListarPagamentosSemFiltrosComPaginacao() {
+    StatusPagamento statusPagamento = null;
+    int page = 0;
+    int size = 10;
+    PagamentoPageResponse pagamentoPageResponse = mock(PagamentoPageResponse.class);
+
+    when(pagamentoService.buscaPagamentosPaginado(statusPagamento, page, size))
+        .thenReturn(pagamentoPageResponse);
+
+    PagamentoPageResponse resultado =
+        pagamentoController.buscaPagamentosPaginado(statusPagamento, page, size);
+
+    assertNotNull(resultado);
+    assertEquals(pagamentoPageResponse, resultado);
+    verify(pagamentoService, times(1)).buscaPagamentosPaginado(statusPagamento, page, size);
+  }
+
+  @Test
+  void deveFiltrarPagamentosPorStatusPAGO() {
+    StatusPagamento statusPagamento = StatusPagamento.PAGO;
+    int page = 0;
+    int size = 10;
+    PagamentoPageResponse pagamentoPageResponse = mock(PagamentoPageResponse.class);
+
+    when(pagamentoService.buscaPagamentosPaginado(statusPagamento, page, size))
+        .thenReturn(pagamentoPageResponse);
+
+    PagamentoPageResponse resultado =
+        pagamentoController.buscaPagamentosPaginado(statusPagamento, page, size);
+
+    assertNotNull(resultado);
+    assertEquals(pagamentoPageResponse, resultado);
+    verify(pagamentoService, times(1)).buscaPagamentosPaginado(statusPagamento, page, size);
   }
 
   @Test

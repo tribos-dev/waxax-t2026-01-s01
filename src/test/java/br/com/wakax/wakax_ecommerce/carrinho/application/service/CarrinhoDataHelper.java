@@ -115,10 +115,35 @@ public final class CarrinhoDataHelper {
         .build();
   }
 
+  public static Carrinho criaCarrinhoFinalizadoDeOntem(Cliente cliente) {
+    return Carrinho.builder()
+        .id(UUID.fromString("3b7c8a6f-3c5d-4a1e-8f9a-2b7c8a6f3c5d"))
+        .cliente(cliente)
+        .dataCriacao(LocalDateTime.now().minusDays(1))
+        .statusCarrinho(StatusCarrinho.FINALIZADO)
+        .itensCarrinho(new ArrayList<>())
+        .build();
+  }
+
   public static Carrinho criaCarrinhoAtivoComUmItem(Cliente cliente) {
     Carrinho carrinho = criaCarrinhoAtivoVazio(cliente);
     Produto produto = criaProduto();
 
+    ItemCarrinho item =
+        ItemCarrinho.builder()
+            .id(UUID.fromString("e5d4c3b2-a1f0-9e8d-7c6b-5a4f3e2d1c0b"))
+            .carrinho(carrinho)
+            .produto(produto)
+            .quantidade(2)
+            .build();
+
+    carrinho.getItensCarrinho().add(item);
+    return carrinho;
+  }
+
+  public static Carrinho criaCarrinhoFinalizadoComUmItem(Cliente cliente) {
+    Carrinho carrinho = criaCarrinhoFinalizadoDeOntem(cliente);
+    Produto produto = criaProduto();
     ItemCarrinho item =
         ItemCarrinho.builder()
             .id(UUID.fromString("e5d4c3b2-a1f0-9e8d-7c6b-5a4f3e2d1c0b"))

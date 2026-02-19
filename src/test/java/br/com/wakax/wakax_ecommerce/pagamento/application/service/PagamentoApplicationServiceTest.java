@@ -3,15 +3,22 @@ package br.com.wakax.wakax_ecommerce.pagamento.application.service;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+import java.math.BigDecimal;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 
 import br.com.wakax.wakax_ecommerce.handler.APIException;
@@ -262,6 +269,83 @@ class PagamentoApplicationServiceTest {
 
     assertEquals(StatusPagamento.AGUARDANDO, pagamentoTeste.getStatusPagamento());
     assertEquals(StatusPedido.AGUARDANDO_PAGAMENTO, pedido.getStatus());
+  }
+
+  @Test
+  void deveBuscarPagamentosSemFiltroComPaginacao() {
+    int page = 0;
+    int size = 10;
+    Pagamento pagamanto1 = PagamentoDataHelper.criaPagamentoValido(pedido);
+    pagamanto1.setValor(new BigDecimal("100.00"));
+    Pagamento pagamanto2 = PagamentoDataHelper.criaPagamentoValido(pedido);
+    pagamanto2.setValor(new BigDecimal("200.00"));
+
+    Pageable pageable = PageRequest.of(page, size);
+    Page<Pagamento> pagamentos = new PageImpl<>(List.of(pagamanto1, pagamanto2), pageable, 2);
+
+    doReturn(pagamentos)
+        .when(pagamentoRepository)
+        .buscaPagamentosPaginado(isNull(), any(Pageable.class));
+
+    PagamentoPageResponse pagamentoPageResponse =
+        pagamentoApplicationService.buscaPagamentosPaginado(null, page, size);
+
+    assertNotNull(pagamentoPageResponse);
+    assertEquals(2, pagamentoPageResponse.getTotalPagamentos());
+    assertEquals(1, pagamentoPageResponse.getTotalPaginas());
+    assertTrue(
+        new BigDecimal("300.0").compareTo(pagamentoPageResponse.getValorTotalPagamentos()) == 0);
+
+    ArgumentCaptor<Pageable> pageableCaptor = ArgumentCaptor.forClass(Pageable.class);
+    verify(pagamentoRepository).buscaPagamentosPaginado(isNull(), pageableCaptor.capture());
+    Pageable pageableEnviado = pageableCaptor.getValue();
+    assertEquals(page, pageableEnviado.getPageNumber());
+    assertTrue(pageableEnviado.getSort().getOrderFor("dataPagamento").isDescending());
+  }
+
+  @Test
+  void deveBuscarPagamentosComFiltroEPaginacao() {
+    int page = 0;
+    int size = 10;
+    Pagamento pagamanto1 = PagamentoDataHelper.criaPagamentoValido(pedido);
+    pagamanto1.setValor(new BigDecimal("100.00"));
+    Pagamento pagamanto2 = PagamentoDataHelper.criaPagamentoValido(pedido);
+    pagamanto2.setValor(new BigDecimal("200.00"));
+
+    Pageable pageable = PageRequest.of(page, size);
+    Page<Pagamento> pagamentos = new PageImpl<>(List.of(pagamanto1, pagamanto2), pageable, 2);
+
+    doReturn(pagamentos)
+        .when(pagamentoRepository)
+        .buscaPagamentosPaginado(eq(StatusPagamento.PAGO), any(Pageable.class));
+
+    PagamentoPageResponse pagamentoPageResponse =
+        pagamentoApplicationService.buscaPagamentosPaginado(
+            StatusPagamento.valueOf("PAGO"), page, size);
+
+    assertNotNull(pagamentoPageResponse);
+    assertEquals(2, pagamentoPageResponse.getTotalPagamentos());
+    assertEquals(1, pagamentoPageResponse.getTotalPaginas());
+    assertTrue(
+        new BigDecimal("300.0").compareTo(pagamentoPageResponse.getValorTotalPagamentos()) == 0);
+
+    ArgumentCaptor<Pageable> pageableCaptor = ArgumentCaptor.forClass(Pageable.class);
+    verify(pagamentoRepository)
+        .buscaPagamentosPaginado(eq(StatusPagamento.PAGO), pageableCaptor.capture());
+    Pageable pageableEnviado = pageableCaptor.getValue();
+    assertEquals(page, pageableEnviado.getPageNumber());
+    assertTrue(pageableEnviado.getSort().getOrderFor("dataPagamento").isDescending());
+  }
+
+  @Test
+  void deveLancarExcecaoQuandoStatusForInvalido() {
+    StatusPagamento statusInvalido = StatusPagamento.valueOf("PAG");
+
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> pagamentoApplicationService.buscaPagamentosPaginado(statusInvalido, 0, 10));
+
+    verify(pagamentoRepository, never()).buscaPagamentosPaginado(any(), any());
   }
 
   @Test

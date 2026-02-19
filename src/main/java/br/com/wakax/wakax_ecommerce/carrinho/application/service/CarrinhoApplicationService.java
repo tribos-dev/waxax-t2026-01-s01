@@ -1,5 +1,6 @@
 package br.com.wakax.wakax_ecommerce.carrinho.application.service;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
@@ -7,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import br.com.wakax.wakax_ecommerce.carrinho.api.request.ItemCarrinhoRequest;
 import br.com.wakax.wakax_ecommerce.carrinho.api.response.CarrinhoResponse;
+import br.com.wakax.wakax_ecommerce.carrinho.api.response.CarrinhosListAllResponse;
 import br.com.wakax.wakax_ecommerce.carrinho.application.factory.ProcessadorEstoqueFactory;
 import br.com.wakax.wakax_ecommerce.carrinho.application.repository.CarrinhoRepository;
 import br.com.wakax.wakax_ecommerce.carrinho.application.strategy.ProcessadorEstoque;
@@ -60,5 +62,16 @@ public class CarrinhoApplicationService implements CarrinhoService {
     Carrinho carrinho = carrinhoRepository.buscaCarrinhoPorId(idCarrinho);
     log.debug("[finish] CarrinhoApplicationService - buscaCarrinhoPorId");
     return new CarrinhoResponse(carrinho);
+  }
+
+  @Override
+  public List<CarrinhosListAllResponse> buscarTodosOsCarrinhos(UUID idCliente) {
+    log.info("[start] CarrinhoApplicationService - buscarTodosOsCarrinhos");
+    clienteRepository.buscaClientePorId(idCliente);
+    List<Carrinho> carrinho = carrinhoRepository.buscarTodosOsCarrinhos(idCliente);
+    List<CarrinhosListAllResponse> list =
+        carrinho.stream().map(CarrinhosListAllResponse::new).toList();
+    log.debug("[finish] CarrinhoApplicationService - buscarTodosOsCarrinhos");
+    return list;
   }
 }

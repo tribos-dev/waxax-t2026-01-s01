@@ -2,6 +2,10 @@ package br.com.wakax.wakax_ecommerce.pagamento.application.service;
 
 import java.util.UUID;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -9,11 +13,14 @@ import org.springframework.transaction.annotation.Transactional;
 import br.com.wakax.wakax_ecommerce.handler.APIException;
 import br.com.wakax.wakax_ecommerce.handler.ErrorCode;
 import br.com.wakax.wakax_ecommerce.pagamento.application.api.request.PagamentoRequest;
+import br.com.wakax.wakax_ecommerce.pagamento.application.api.response.PagamentoPageResponse;
 import br.com.wakax.wakax_ecommerce.pagamento.application.api.response.PagamentoPedidoResponse;
 import br.com.wakax.wakax_ecommerce.pagamento.application.api.response.PagamentoResponse;
 import br.com.wakax.wakax_ecommerce.pagamento.application.factory.ProcessadorPagamentoFactory;
 import br.com.wakax.wakax_ecommerce.pagamento.application.repository.PagamentoRepository;
 import br.com.wakax.wakax_ecommerce.pagamento.domain.Pagamento;
+import br.com.wakax.wakax_ecommerce.pagamento.domain.StatusPagamento;
+import br.com.wakax.wakax_ecommerce.pagamento.infra.PagamentoInfraRepository;
 import br.com.wakax.wakax_ecommerce.pedido.application.repository.PedidoRepository;
 import br.com.wakax.wakax_ecommerce.pedido.domain.Pedido;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +34,7 @@ public class PagamentoApplicationService implements PagamentoService {
   private final PagamentoRepository pagamentoRepository;
   private final PedidoRepository pedidoRepository;
   private final ProcessadorPagamentoFactory processadorFactory;
+  private PagamentoInfraRepository pagamentoInfraRepository;
 
   @Override
   @Transactional
@@ -65,6 +73,18 @@ public class PagamentoApplicationService implements PagamentoService {
     Pagamento pagamento = pagamentoRepository.buscaPagamentoPorId(idPagamento);
     log.debug("[finish] PagamentoApplicationService - buscaPagamentoPorId");
     return new PagamentoResponse(pagamento);
+  }
+
+  @Override
+  public PagamentoPageResponse buscaPagamentosPaginado(
+      StatusPagamento statusPagamento, int page, int size) {
+    log.debug("[start] PagamentoApplicationService - buscaPagamentosPaginado");
+    Pageable pageable = PageRequest.of(page, size, Sort.by("dataPagamento").descending());
+    Page<Pagamento> pagamentos =
+        pagamentoRepository.buscaPagamentosPaginado(statusPagamento, pageable);
+    log.debug("[finish] PagamentoApplicationService - buscaPagamentosPaginado");
+    return PagamentoPageResponse.convertePaginado(
+        pagamentos.getContent(), pagamentos.getTotalElements(), pagamentos.getTotalPages());
   }
 
   @Override

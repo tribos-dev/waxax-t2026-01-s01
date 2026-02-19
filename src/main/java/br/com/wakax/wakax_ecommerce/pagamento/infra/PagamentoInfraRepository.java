@@ -3,6 +3,8 @@ package br.com.wakax.wakax_ecommerce.pagamento.infra;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Repository;
 
@@ -10,6 +12,7 @@ import br.com.wakax.wakax_ecommerce.handler.APIException;
 import br.com.wakax.wakax_ecommerce.handler.ErrorCode;
 import br.com.wakax.wakax_ecommerce.pagamento.application.repository.PagamentoRepository;
 import br.com.wakax.wakax_ecommerce.pagamento.domain.Pagamento;
+import br.com.wakax.wakax_ecommerce.pagamento.domain.StatusPagamento;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 
@@ -45,5 +48,15 @@ public class PagamentoInfraRepository implements PagamentoRepository {
     Optional<Pagamento> pagamento = pagamentoJPARepository.findByPedidoId(pedidoId);
     log.debug("[finish] PagamentoInfraRepository - buscaPagamentoPorPedidoId");
     return pagamento;
+  }
+
+  @Override
+  public Page<Pagamento> buscaPagamentosPaginado(
+      StatusPagamento statusPagamento, Pageable pageable) {
+    log.debug("[start] PagamentoInfraRepository - buscaPagamentosPaginado");
+    Page<Pagamento> pagamentos =
+        pagamentoJPARepository.findAllPagamentosPaginado(statusPagamento, pageable);
+    log.debug("[finish] PagamentoInfraRepository - buscaPagamentosPaginado");
+    return pagamentos;
   }
 }
