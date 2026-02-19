@@ -25,7 +25,8 @@ public enum ErrorCode {
   CUSTO_INVALIDO("custo.invalido"),
   ESTOQUE_INVALIDO("estoque.invalido"),
   CLIENTE_NAO_E_DONO_DO_PEDIDO("cliente.nao.e.dono.do.pedido"),
-  PEDIDO_NAO_POSSUI_RASTREIO("pedido.nao.possui.rastreio");
+  PEDIDO_NAO_POSSUI_RASTREIO("pedido.nao.possui.rastreio"),
+  STATUS_PAGAMENTO_INVALIDO("status.de.pagamento.invalido");
 
   private final String code;
 
