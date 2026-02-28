@@ -15,6 +15,7 @@ public class ClienteAtualizaResponse {
   private String nome;
   private String email;
   private Endereco endereco;
+  private String telefone;
   private StatusPessoa statusPessoa;
   private LocalDateTime dataEdicao;
 
@@ -22,6 +23,10 @@ public class ClienteAtualizaResponse {
     this.nome = cliente.getPessoa().getNome();
     this.dataEdicao = cliente.getDataEdicao();
     this.statusPessoa = cliente.getPessoa().getStatus();
+    if (request.getTelefones() != null && !request.getTelefones().isEmpty()) {
+
+      this.telefone = request.getTelefones().get(request.getTelefones().size() - 1);
+    }
 
     if (request.getEmails() != null && !request.getEmails().isEmpty()) {
 
