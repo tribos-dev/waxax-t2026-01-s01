@@ -13,6 +13,7 @@ import br.com.wakax.wakax_ecommerce.carrinho.domain.Carrinho;
 import br.com.wakax.wakax_ecommerce.carrinho.domain.ItemCarrinho;
 import br.com.wakax.wakax_ecommerce.cliente.domain.Cliente;
 import br.com.wakax.wakax_ecommerce.pedido.application.api.request.PedidoRequest;
+import br.com.wakax.wakax_ecommerce.pedido.application.api.response.ItemPedidoResponse;
 import br.com.wakax.wakax_ecommerce.pessoa.domain.Endereco;
 import lombok.*;
 
@@ -70,7 +71,22 @@ public class Pedido {
     this.valorTotal = calcularValorTotal();
   }
 
-  private List<ItemPedido> mapearItensCarrinhoParaPedido(List<ItemCarrinho> itensCarrinho) {
+    public static Pedido mudaStatusAguardandoPagamento(Pedido pedido) {
+    Pedido pedidoAlterado = new Pedido(
+            pedido.getId(),
+            pedido.getCliente(),
+            pedido.getDataPedido(),
+            StatusPedido.AGUARDANDO_PAGAMENTO,
+            pedido.getItensPedido(),
+            pedido.getValorTotal(),
+            pedido.getFormaPagamento(),
+            pedido.getEnderecoEntrega(),
+            pedido.getRastreamento()
+    );
+      return pedidoAlterado;
+  }
+
+    private List<ItemPedido> mapearItensCarrinhoParaPedido(List<ItemCarrinho> itensCarrinho) {
     return itensCarrinho.stream().map(this::mapearItem).collect(Collectors.toList());
   }
 
