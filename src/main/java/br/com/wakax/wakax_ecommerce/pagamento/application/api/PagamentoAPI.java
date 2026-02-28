@@ -4,6 +4,7 @@ import java.util.UUID;
 
 import javax.validation.Valid;
 
+import br.com.wakax.wakax_ecommerce.pagamento.application.api.request.CancelaPagamentoRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -37,6 +38,6 @@ public interface PagamentoAPI {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     void cancelaPagamento (
             @PathVariable UUID idPagamento,
-            @Valid @RequestBody PagamentoRequest pagamentoRequest);
+            @Valid @RequestBody CancelaPagamentoRequest cancelaPagamentoRequest);
 
 }

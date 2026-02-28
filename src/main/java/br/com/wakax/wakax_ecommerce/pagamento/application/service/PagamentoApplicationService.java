@@ -2,6 +2,7 @@ package br.com.wakax.wakax_ecommerce.pagamento.application.service;
 
 import java.util.UUID;
 
+import br.com.wakax.wakax_ecommerce.pagamento.application.api.request.CancelaPagamentoRequest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -101,11 +102,14 @@ public class PagamentoApplicationService implements PagamentoService {
   }
 
     @Override
-    public void cancelaPagamento(PagamentoResponse pagamentoResponse, PagamentoRequest pagamentoRequest) {
+    public void cancelaPagamento(PagamentoResponse pagamentoResponse, CancelaPagamentoRequest cancelaPagamentoRequest) {
         log.info("[start] PagamentoApplicationService - cancelaPagamento");
         validaStatusPagamento(pagamentoResponse);
-        pagamentoResponse.getStatusPagamento();
+        mudaStatus(cancelaPagamentoRequest);
         log.info("[finish] PagamentoApplicationService - cancelaPagamento");
+    }
+
+    private void mudaStatus(CancelaPagamentoRequest cancelaPagamentoRequest) {
     }
 
     private void validaStatusPagamento(PagamentoResponse pagamentoResponse) {
