@@ -8,6 +8,7 @@ import javax.persistence.*;
 import javax.validation.constraints.*;
 
 import br.com.wakax.wakax_ecommerce.pagamento.application.api.PagamentoController;
+import br.com.wakax.wakax_ecommerce.pagamento.application.api.request.CancelaPagamentoRequest;
 import br.com.wakax.wakax_ecommerce.pagamento.application.api.response.PagamentoResponse;
 import br.com.wakax.wakax_ecommerce.pedido.domain.Pedido;
 import lombok.*;
@@ -39,25 +40,26 @@ public class Pagamento {
   @PositiveOrZero
   private BigDecimal valor;
 
-    /*@Column(nullable = false)
+    @Column(nullable = false)
     @NotNull
-    private String motivoCancelamento;*/
+    private String motivoCancelamento;
 
   public Pagamento(Pedido pedido) {
     this.pedido = pedido;
     this.statusPagamento = StatusPagamento.AGUARDANDO;
     this.dataPagamento = LocalDateTime.now();
     this.valor = pedido.getValorTotal();
-      //this.motivoCancelamento = motivoCancelamento;
+     this.motivoCancelamento = motivoCancelamento;
   }
 
-    public static Pagamento mudaStatus(Pagamento pagamento) {
+    public static Pagamento mudaStatus(Pagamento pagamento, CancelaPagamentoRequest cancelaPagamentoRequest) {
         Pagamento pagamentoAlterado = new Pagamento(
                 pagamento.getId(),
                 pagamento.getPedido(),
                 StatusPagamento.FALHOU,
                 pagamento.getDataPagamento(),
-                pagamento.getValor()
+                pagamento.getValor(),
+                cancelaPagamentoRequest.getMotivoCancelamento()
         );
       return pagamentoAlterado;
     }
