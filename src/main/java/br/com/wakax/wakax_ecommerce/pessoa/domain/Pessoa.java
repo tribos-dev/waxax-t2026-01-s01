@@ -7,6 +7,7 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
+import br.com.wakax.wakax_ecommerce.cliente.application.api.request.ClienteAtualizaRequest;
 import br.com.wakax.wakax_ecommerce.pessoa.application.api.request.DadosPessoa;
 import br.com.wakax.wakax_ecommerce.pessoa.application.api.request.PessoaRequest;
 import lombok.AllArgsConstructor;
@@ -76,6 +77,23 @@ public class Pessoa {
   private void vincularEnderecos() {
     if (this.enderecos != null) {
       this.enderecos.forEach(endereco -> endereco.setPessoa(this));
+    }
+  }
+
+  public void alterar(ClienteAtualizaRequest request) {
+    if (request.getNome() != null) {
+      this.nome = request.getNome();
+    }
+    if (request.getTelefones() != null && !request.getTelefones().isEmpty()) {
+      this.telefones.addAll(request.getTelefones());
+    }
+    if (request.getEmails() != null && !request.getEmails().isEmpty()) {
+      this.emails.addAll(request.getEmails());
+    }
+
+    if (request.getEnderecos() != null && !request.getEnderecos().isEmpty()) {
+      request.getEnderecos().forEach(novoEndereco -> novoEndereco.setPessoa(this));
+      this.enderecos.addAll(request.getEnderecos());
     }
   }
 }
