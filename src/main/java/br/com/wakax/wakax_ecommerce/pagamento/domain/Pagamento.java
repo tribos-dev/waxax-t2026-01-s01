@@ -37,14 +37,19 @@ public class Pagamento {
   @PositiveOrZero
   private BigDecimal valor;
 
+    /*@Column(nullable = false)
+    @NotNull
+    private String motivoCancelamento;*/
+
   public Pagamento(Pedido pedido) {
     this.pedido = pedido;
     this.statusPagamento = StatusPagamento.AGUARDANDO;
     this.dataPagamento = LocalDateTime.now();
     this.valor = pedido.getValorTotal();
+      //this.motivoCancelamento = motivoCancelamento;
   }
 
-  public void confirmarPagamento() {
+    public void confirmarPagamento() {
     this.statusPagamento = StatusPagamento.PAGO;
   }
 

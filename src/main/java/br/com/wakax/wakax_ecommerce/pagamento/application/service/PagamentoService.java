@@ -18,4 +18,6 @@ public interface PagamentoService {
       StatusPagamento statusPagamento, int page, int size);
 
   PagamentoPedidoResponse buscaPagamentoPorIdPedido(UUID idPedido);
+
+    void cancelaPagamento(PagamentoResponse pagamentoResponse, PagamentoRequest pagamentoRequest);
 }

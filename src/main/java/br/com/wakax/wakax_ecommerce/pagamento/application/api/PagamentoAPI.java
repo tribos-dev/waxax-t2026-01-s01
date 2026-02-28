@@ -32,4 +32,11 @@ public interface PagamentoAPI {
 
   @GetMapping("/pedido/{idPedido}")
   PagamentoPedidoResponse buscaPagamentoPorIdPedido(@PathVariable UUID idPedido);
+
+  @PatchMapping("/cancelaPagamento/{idPagamento}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    void cancelaPagamento (
+            @PathVariable UUID idPagamento,
+            @Valid @RequestBody PagamentoRequest pagamentoRequest);
+
 }

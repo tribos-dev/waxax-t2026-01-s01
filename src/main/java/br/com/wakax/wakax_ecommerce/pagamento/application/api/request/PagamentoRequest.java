@@ -15,4 +15,7 @@ public class PagamentoRequest {
 
   @NotNull(message = "{validacao.pedido}")
   private UUID pedidoId;
+
+  //@NotNull
+    //private String motivoCancelamento;
 }

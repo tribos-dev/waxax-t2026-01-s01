@@ -99,4 +99,18 @@ public class PagamentoApplicationService implements PagamentoService {
     log.debug("[finish] PagamentoApplicationService - buscaPagamentoPorIdPedido");
     return new PagamentoPedidoResponse(pagamento);
   }
+
+    @Override
+    public void cancelaPagamento(PagamentoResponse pagamentoResponse, PagamentoRequest pagamentoRequest) {
+        log.info("[start] PagamentoApplicationService - cancelaPagamento");
+        validaStatusPagamento(pagamentoResponse);
+        pagamentoResponse.getStatusPagamento();
+        log.info("[finish] PagamentoApplicationService - cancelaPagamento");
+    }
+
+    private void validaStatusPagamento(PagamentoResponse pagamentoResponse) {
+      if (pagamentoResponse.getStatusPagamento() != StatusPagamento.AGUARDANDO){
+          throw new APIException(HttpStatus.CONFLICT, ErrorCode.STATUS_PAGAMENTO_DIFERENTE_AGUARDANDO);
+      }
+    }
 }
