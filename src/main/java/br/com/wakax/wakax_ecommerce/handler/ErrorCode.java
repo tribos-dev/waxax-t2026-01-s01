@@ -28,7 +28,7 @@ public enum ErrorCode {
   CLIENTE_NAO_E_DONO_DO_PEDIDO("cliente.nao.e.dono.do.pedido"),
   PEDIDO_NAO_POSSUI_RASTREIO("pedido.nao.possui.rastreio"),
   STATUS_PAGAMENTO_INVALIDO("status.de.pagamento.invalido"),
-  STATUS_PAGAMENTO_DIFERENTE_AGUARDANDO("status.de.pagamento.diferente.de.aguardando");
+  PAGAMENTO_JA_PROCESSADO("pagamento.ja.processado");
 
   private final String code;
 

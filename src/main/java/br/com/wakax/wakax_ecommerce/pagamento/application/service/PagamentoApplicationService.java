@@ -109,8 +109,8 @@ public class PagamentoApplicationService implements PagamentoService {
     }
 
     private void validaStatusPagamento(PagamentoResponse pagamentoResponse) {
-      if (pagamentoResponse.getStatusPagamento() != StatusPagamento.AGUARDANDO){
-          throw new APIException(HttpStatus.CONFLICT, ErrorCode.STATUS_PAGAMENTO_DIFERENTE_AGUARDANDO);
+      if (pagamentoResponse.getStatusPagamento() == StatusPagamento.PAGO){
+          throw new APIException(HttpStatus.CONFLICT, ErrorCode.PAGAMENTO_JA_PROCESSADO);
       }
     }
 }
