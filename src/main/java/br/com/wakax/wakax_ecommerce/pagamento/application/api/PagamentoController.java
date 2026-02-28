@@ -3,7 +3,6 @@ package br.com.wakax.wakax_ecommerce.pagamento.application.api;
 import java.util.UUID;
 
 import br.com.wakax.wakax_ecommerce.pagamento.application.api.request.CancelaPagamentoRequest;
-import br.com.wakax.wakax_ecommerce.pagamento.domain.Pagamento;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.com.wakax.wakax_ecommerce.pagamento.application.api.request.PagamentoRequest;
@@ -59,8 +58,7 @@ public class PagamentoController implements PagamentoAPI {
     @Override
     public void cancelaPagamento(UUID idPagamento, CancelaPagamentoRequest cancelaPagamentoRequest) {
         log.info("[start] PagamentoController - cancelaPagamento");
-        PagamentoResponse pagamentoResponse = buscaPagamentoPorId(idPagamento);
-        pagamentoService.cancelaPagamento(pagamentoResponse, cancelaPagamentoRequest);
+        pagamentoService.cancelaPagamento(idPagamento, cancelaPagamentoRequest);
         log.info("[finish] PagamentoController - cancelaPagamento");
     }
 }

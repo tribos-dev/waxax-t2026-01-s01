@@ -102,18 +102,17 @@ public class PagamentoApplicationService implements PagamentoService {
   }
 
     @Override
-    public void cancelaPagamento(PagamentoResponse pagamentoResponse, CancelaPagamentoRequest cancelaPagamentoRequest) {
+    public void cancelaPagamento(UUID idPagamento, CancelaPagamentoRequest cancelaPagamentoRequest) {
         log.info("[start] PagamentoApplicationService - cancelaPagamento");
-        validaStatusPagamento(pagamentoResponse);
-        mudaStatus(cancelaPagamentoRequest);
+        Pagamento pagamento = pagamentoRepository.buscaPagamentoPorId(idPagamento);
+        validaStatusPagamento(pagamento);
+        Pagamento pagamentoAlterado = Pagamento.mudaStatus(pagamento);
+        pagamentoRepository.salva(pagamentoAlterado);
         log.info("[finish] PagamentoApplicationService - cancelaPagamento");
     }
 
-    private void mudaStatus(CancelaPagamentoRequest cancelaPagamentoRequest) {
-    }
-
-    private void validaStatusPagamento(PagamentoResponse pagamentoResponse) {
-      if (pagamentoResponse.getStatusPagamento() == StatusPagamento.PAGO){
+    private void validaStatusPagamento(Pagamento pagamento) {
+      if (pagamento.getStatusPagamento() == StatusPagamento.PAGO){
           throw new APIException(HttpStatus.CONFLICT, ErrorCode.PAGAMENTO_JA_PROCESSADO);
       }
     }

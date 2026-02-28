@@ -7,6 +7,8 @@ import java.util.UUID;
 import javax.persistence.*;
 import javax.validation.constraints.*;
 
+import br.com.wakax.wakax_ecommerce.pagamento.application.api.PagamentoController;
+import br.com.wakax.wakax_ecommerce.pagamento.application.api.response.PagamentoResponse;
 import br.com.wakax.wakax_ecommerce.pedido.domain.Pedido;
 import lombok.*;
 
@@ -48,6 +50,17 @@ public class Pagamento {
     this.valor = pedido.getValorTotal();
       //this.motivoCancelamento = motivoCancelamento;
   }
+
+    public static Pagamento mudaStatus(Pagamento pagamento) {
+        Pagamento pagamentoAlterado = new Pagamento(
+                pagamento.getId(),
+                pagamento.getPedido(),
+                StatusPagamento.FALHOU,
+                pagamento.getDataPagamento(),
+                pagamento.getValor()
+        );
+      return pagamentoAlterado;
+    }
 
     public void confirmarPagamento() {
     this.statusPagamento = StatusPagamento.PAGO;
