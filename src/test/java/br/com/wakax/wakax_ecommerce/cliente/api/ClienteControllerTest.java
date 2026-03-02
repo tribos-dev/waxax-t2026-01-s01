@@ -5,6 +5,7 @@ import static org.mockito.Mockito.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -16,6 +17,8 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 
 import br.com.wakax.wakax_ecommerce.cliente.application.api.ClienteController;
+import br.com.wakax.wakax_ecommerce.cliente.application.api.request.ClienteAtualizaRequest;
+import br.com.wakax.wakax_ecommerce.cliente.application.api.response.ClienteAtualizaResponse;
 import br.com.wakax.wakax_ecommerce.cliente.application.api.response.ClienteListAllResponse;
 import br.com.wakax.wakax_ecommerce.cliente.application.api.response.PageResponse;
 import br.com.wakax.wakax_ecommerce.cliente.application.service.ClienteService;
@@ -60,5 +63,23 @@ class ClienteControllerTest {
     assertTrue(response.getContent().isEmpty());
     assertEquals(0, response.getTotalDeUsuarios());
     verify(clienteService, times(1)).buscarTodosOsClientes(pageable);
+  }
+
+  @Test
+  void deveAtualizarClienteComSucesso() {
+    UUID idCliente = UUID.randomUUID();
+    ClienteAtualizaRequest request = mock(ClienteAtualizaRequest.class);
+
+    ClienteAtualizaResponse responseEsperado = mock(ClienteAtualizaResponse.class);
+
+    when(clienteService.atualizarCliente(eq(idCliente), any(ClienteAtualizaRequest.class)))
+        .thenReturn(responseEsperado);
+
+    ClienteAtualizaResponse responseResult = clienteController.atualizarCliente(idCliente, request);
+
+    assertNotNull(responseResult);
+    assertEquals(responseEsperado, responseResult);
+
+    verify(clienteService, times(1)).atualizarCliente(idCliente, request);
   }
 }
