@@ -23,16 +23,14 @@ public class ClienteAtualizaResponse {
     this.nome = cliente.getPessoa().getNome();
     this.dataEdicao = cliente.getDataEdicao();
     this.statusPessoa = cliente.getPessoa().getStatus();
-    if (request.getTelefones() != null && !request.getTelefones().isEmpty()) {
 
-      this.telefone = request.getTelefones().get(request.getTelefones().size() - 1);
+    if (request.getTelefoneNovo() != null) {
+      this.telefone = request.getTelefoneNovo();
     }
 
-    if (request.getEmails() != null && !request.getEmails().isEmpty()) {
-
-      this.email = request.getEmails().get(request.getEmails().size() - 1);
+    if (request.getEmailNovo() != null) {
+      this.email = request.getEmailNovo();
     }
-
     if (request.getEnderecos() != null && !request.getEnderecos().isEmpty()) {
 
       this.endereco = request.getEnderecos().get(request.getEnderecos().size() - 1);
