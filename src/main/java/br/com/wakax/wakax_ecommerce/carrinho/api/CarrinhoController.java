@@ -42,4 +42,12 @@ public class CarrinhoController implements CarrinhoAPI {
     log.debug("[finish] CarrinhoController - buscarTodosOsCarrinhos");
     return carrinhos;
   }
+
+  @Override
+  public void deletaItemDoCarrinho(UUID idCliente, UUID idCarrinho, UUID idProduto) {
+    log.info("[start] CarrinhoController - deletaItemDoCarrinho");
+    carrinhoService.deletaItemDoCarrinho(idCliente, idCarrinho, idProduto);
+    log.info("[finish] CarrinhoController - deletaItemDoCarrinho");
+  }
+
 }
