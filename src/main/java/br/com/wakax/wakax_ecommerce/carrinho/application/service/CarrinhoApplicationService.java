@@ -3,6 +3,9 @@ package br.com.wakax.wakax_ecommerce.carrinho.application.service;
 import java.util.List;
 import java.util.UUID;
 
+import br.com.wakax.wakax_ecommerce.carrinho.domain.StatusCarrinho;
+import br.com.wakax.wakax_ecommerce.handler.APIException;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -78,7 +81,15 @@ public class CarrinhoApplicationService implements CarrinhoService {
   @Override
   public void deletaItemDoCarrinho(UUID idCliente, UUID idCarrinho, UUID idProduto) {
     log.info("[start] deletaItemDoCarrinho - buscaCarrinhoPorId");
-    log.info("Teste");
+    clienteRepository.buscaClientePorId(idCliente);
+    Carrinho carrinho = carrinhoRepository.buscaCarrinhoPorId(idCarrinho);
+    if (carrinho.getStatusCarrinho() == StatusCarrinho.ATIVO){
+      carrinhoRepository.deletaItemDoCarrinho(idProduto);
+    }else{
+      throw APIException.build(HttpStatus.BAD_REQUEST, "Carrinho não permite modificação");
+    }
+
+
     log.info("[finish] deletaItemDoCarrinho - buscaCarrinhoPorId");
   }
 }

@@ -60,4 +60,10 @@ public class CarrinhoInfraRepository implements CarrinhoRepository {
     log.debug("[finish] CarrinhoInfraRepository - buscarTodosOsCarrinhos");
     return carrinhos;
   }
+
+  @Override
+  public void deletaItemDoCarrinho(UUID idProduto) {
+    log.info("[start] deletaItemDoCarrinho - buscarTodosOsCarrinhos");
+    log.info("[finish] deletaItemDoCarrinho - buscarTodosOsCarrinhos");
+  }
 }
