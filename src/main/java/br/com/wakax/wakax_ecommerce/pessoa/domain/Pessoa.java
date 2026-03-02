@@ -111,13 +111,13 @@ public class Pessoa {
 
   private void validarExistenciaTelefone(String telefoneAntigo) {
     if (!this.telefones.contains(telefoneAntigo)) {
-      throw new APIException(HttpStatus.FORBIDDEN, ErrorCode.TELEFONE_INFORMADO_NAO_ENCONTRADO);
+      throw new APIException(HttpStatus.BAD_REQUEST, ErrorCode.TELEFONE_INFORMADO_NAO_ENCONTRADO);
     }
   }
 
   private void validarExistenciaEmail(@Email String email) {
     if (!this.emails.contains(email)) {
-      throw new APIException(HttpStatus.FORBIDDEN, ErrorCode.EMAIL_INFORMADO_NAO_ENCONTRADO);
+      throw new APIException(HttpStatus.BAD_REQUEST, ErrorCode.EMAIL_INFORMADO_NAO_ENCONTRADO);
     }
   }
 }

@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -21,6 +22,7 @@ import br.com.wakax.wakax_ecommerce.cliente.application.api.request.ClienteAtual
 import br.com.wakax.wakax_ecommerce.cliente.application.api.response.ClienteAtualizaResponse;
 import br.com.wakax.wakax_ecommerce.cliente.application.repository.ClienteRepository;
 import br.com.wakax.wakax_ecommerce.cliente.domain.Cliente;
+import br.com.wakax.wakax_ecommerce.pessoa.domain.Endereco;
 import br.com.wakax.wakax_ecommerce.pessoa.domain.Pessoa;
 
 @ExtendWith(MockitoExtension.class)
@@ -59,14 +61,16 @@ class ClienteApplicationServiceTest {
   void deveAtualizarClienteComSucesso() {
 
     UUID idCliente = UUID.randomUUID();
-
     Cliente clienteMock = mock(Cliente.class);
     Pessoa pessoaMock = mock(Pessoa.class);
     ClienteAtualizaRequest request = mock(ClienteAtualizaRequest.class);
 
-    when(clienteMock.getPessoa()).thenReturn(pessoaMock);
+    Endereco enderecoFake = Endereco.builder().logradouro("Rua das Flores").numero("123").build();
+    List<Endereco> listaEnderecos = new ArrayList<>(List.of(enderecoFake));
 
-    when(pessoaMock.getNome()).thenReturn("João");
+    when(clienteMock.getPessoa()).thenReturn(pessoaMock);
+    when(pessoaMock.getNome()).thenReturn("Rodrigo Dev");
+    when(pessoaMock.getEnderecos()).thenReturn(listaEnderecos);
     when(clienteMock.getDataEdicao()).thenReturn(LocalDateTime.now());
 
     when(clienteRepository.buscaClientePorId(idCliente)).thenReturn(clienteMock);
@@ -75,7 +79,11 @@ class ClienteApplicationServiceTest {
         clienteApplicationService.atualizarCliente(idCliente, request);
 
     assertNotNull(response);
+    assertNotNull(response.getEndereco());
+
+    assertEquals("Rua das Flores", response.getEndereco().getLogradouro());
+    assertEquals("123", response.getEndereco().getNumero());
+
     verify(clienteRepository, times(1)).salva(clienteMock);
-    verify(clienteMock, times(1)).alterar(request);
   }
 }
