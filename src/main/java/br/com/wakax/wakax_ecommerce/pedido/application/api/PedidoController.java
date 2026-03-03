@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 import br.com.wakax.wakax_ecommerce.pedido.application.api.request.PedidoRequest;
 import br.com.wakax.wakax_ecommerce.pedido.application.api.response.PedidoResponse;
 import br.com.wakax.wakax_ecommerce.pedido.application.service.PedidoService;
+import br.com.wakax.wakax_ecommerce.pedido.domain.StatusPedido;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 
@@ -32,5 +33,15 @@ public class PedidoController implements PedidoAPI {
     PedidoResponse response = pedidoService.buscaPedidoPorId(idPedido);
     log.debug("[finish] PedidoController - buscaPedidoPorId");
     return response;
+  }
+
+  @Override
+  public PedidoPageResponse buscaPedidosDoCliente(
+      UUID idCliente, StatusPedido statusPedido, int page, int size) {
+    log.debug("[start] PedidoController - buscaPedidosDoCliente");
+    PedidoPageResponse resonse =
+        pedidoService.buscaPedidosDoCliente(idCliente, statusPedido, page, size);
+    log.debug("[finish] PedidoController - buscaPedidosDoCliente");
+    return resonse;
   }
 }

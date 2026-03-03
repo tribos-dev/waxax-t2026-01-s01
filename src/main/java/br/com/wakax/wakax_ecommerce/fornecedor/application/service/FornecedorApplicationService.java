@@ -2,15 +2,19 @@ package br.com.wakax.wakax_ecommerce.fornecedor.application.service;
 
 import java.util.UUID;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import br.com.wakax.wakax_ecommerce.fornecedor.application.api.request.FornecedorUpdateRequest;
 import br.com.wakax.wakax_ecommerce.fornecedor.application.api.response.FornecedorUpdateResponse;
 import org.springframework.stereotype.Service;
 
 import br.com.wakax.wakax_ecommerce.fornecedor.application.api.request.FornecedorRequest;
 import br.com.wakax.wakax_ecommerce.fornecedor.application.api.response.FornecedorListResponse;
+import br.com.wakax.wakax_ecommerce.fornecedor.application.api.response.FornecedorPageResponse;
 import br.com.wakax.wakax_ecommerce.fornecedor.application.api.response.FornecedorResponse;
 import br.com.wakax.wakax_ecommerce.fornecedor.application.repository.FornecedorRepository;
 import br.com.wakax.wakax_ecommerce.fornecedor.domain.Fornecedor;
+import br.com.wakax.wakax_ecommerce.pessoa.domain.StatusPessoa;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 
@@ -36,6 +40,14 @@ public class FornecedorApplicationService implements FornecedorService {
     Fornecedor fornecedor = fornecedorRepository.buscaFornecedorPorId(idFornecedor);
     log.debug("[finish] FornecedorApplicationService - buscaFornecedorPorId");
     return new FornecedorListResponse(fornecedor);
+  }
+
+  @Override
+  public FornecedorPageResponse listaFornecedores(StatusPessoa status, Pageable pageable) {
+    log.debug("[start] FornecedorApplicationService - listaFornecedores");
+    Page<Fornecedor> fornecedor = fornecedorRepository.buscaFornecedoresComFiltro(status, pageable);
+    log.debug("[finish] FornecedorApplicationService - listaFornecedores");
+    return new FornecedorPageResponse(fornecedor);
   }
 
   @Override

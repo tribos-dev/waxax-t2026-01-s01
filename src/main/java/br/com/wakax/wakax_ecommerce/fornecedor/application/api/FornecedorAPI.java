@@ -9,8 +9,10 @@ import br.com.wakax.wakax_ecommerce.fornecedor.application.api.response.Forneced
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import br.com.wakax.wakax_ecommerce.fornecedor.application.api.request.FornecedorFiltroRequest;
 import br.com.wakax.wakax_ecommerce.fornecedor.application.api.request.FornecedorRequest;
 import br.com.wakax.wakax_ecommerce.fornecedor.application.api.response.FornecedorListResponse;
+import br.com.wakax.wakax_ecommerce.fornecedor.application.api.response.FornecedorPageResponse;
 import br.com.wakax.wakax_ecommerce.fornecedor.application.api.response.FornecedorResponse;
 
 @RestController
@@ -23,6 +25,9 @@ public interface FornecedorAPI {
 
   @GetMapping("/{idFornecedor}")
   FornecedorListResponse buscaFornecedorPorId(@PathVariable UUID idFornecedor);
+
+  @GetMapping
+  FornecedorPageResponse listaFornecedores(@ModelAttribute FornecedorFiltroRequest filtro);
 
   @PatchMapping("/{idFornecedor}")
   @ResponseStatus(HttpStatus.OK)
