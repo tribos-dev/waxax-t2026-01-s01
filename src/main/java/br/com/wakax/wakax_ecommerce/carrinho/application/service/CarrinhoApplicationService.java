@@ -79,17 +79,17 @@ public class CarrinhoApplicationService implements CarrinhoService {
   }
 
   @Override
-  public void deletaItemDoCarrinho(UUID idCliente, UUID idCarrinho, UUID idProduto) {
+  @Transactional
+  public void deletaItemDoCarrinho(UUID idCliente, UUID idCarrinho, UUID idItem) {
     log.info("[start] deletaItemDoCarrinho - buscaCarrinhoPorId");
     clienteRepository.buscaClientePorId(idCliente);
     Carrinho carrinho = carrinhoRepository.buscaCarrinhoPorId(idCarrinho);
-    if (carrinho.getStatusCarrinho() == StatusCarrinho.ATIVO){
-      carrinhoRepository.deletaItemDoCarrinho(idProduto);
-    }else{
-      throw APIException.build(HttpStatus.BAD_REQUEST, "Carrinho não permite modificação");
+    if (carrinho.getStatusCarrinho() != StatusCarrinho.ATIVO) {
+      throw APIException.build(HttpStatus.BAD_REQUEST,
+              "Carrinho não permite modificação");
     }
-
-
+    carrinho.removeItem(idItem);
+    carrinhoRepository.salva(carrinho);
     log.info("[finish] deletaItemDoCarrinho - buscaCarrinhoPorId");
   }
 }

@@ -15,5 +15,4 @@ public interface CarrinhoRepository {
 
   List<Carrinho> buscarTodosOsCarrinhos(UUID idCliente);
 
-  void deletaItemDoCarrinho(UUID idProduto);
 }
