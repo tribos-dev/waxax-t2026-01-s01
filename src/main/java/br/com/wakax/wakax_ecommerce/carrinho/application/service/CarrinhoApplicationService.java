@@ -3,6 +3,7 @@ package br.com.wakax.wakax_ecommerce.carrinho.application.service;
 import java.util.List;
 import java.util.UUID;
 
+import br.com.wakax.wakax_ecommerce.auth.security.service.TokenService;
 import br.com.wakax.wakax_ecommerce.carrinho.domain.StatusCarrinho;
 import br.com.wakax.wakax_ecommerce.handler.APIException;
 import org.springframework.http.HttpStatus;
@@ -32,6 +33,7 @@ public class CarrinhoApplicationService implements CarrinhoService {
   private final ProdutoRepository produtoRepository;
   private final ClienteRepository clienteRepository;
   private final ProcessadorEstoqueFactory processadorEstoqueFactory;
+  private final TokenService tokenService;
 
   @Override
   @Transactional
@@ -80,16 +82,28 @@ public class CarrinhoApplicationService implements CarrinhoService {
 
   @Override
   @Transactional
-  public void deletaItemDoCarrinho(UUID idCliente, UUID idCarrinho, UUID idItem) {
+  public void deletaItemDoCarrinho(String emailUsuario, UUID idCarrinho, UUID idItem) {
+
     log.info("[start] deletaItemDoCarrinho - buscaCarrinhoPorId");
-    clienteRepository.buscaClientePorId(idCliente);
+
     Carrinho carrinho = carrinhoRepository.buscaCarrinhoPorId(idCarrinho);
+
     if (carrinho.getStatusCarrinho() != StatusCarrinho.ATIVO) {
       throw APIException.build(HttpStatus.BAD_REQUEST,
               "Carrinho não permite modificação");
     }
+
+    boolean pertence = carrinhoRepository
+            .carrinhoPertenceAoUsuario(idCarrinho, emailUsuario);
+
+    if (!pertence) {
+      throw APIException.build(HttpStatus.FORBIDDEN,
+              "Carrinho não pertence ao usuário autenticado");
+    }
+
     carrinho.removeItem(idItem);
     carrinhoRepository.salva(carrinho);
+
     log.info("[finish] deletaItemDoCarrinho - buscaCarrinhoPorId");
   }
 }

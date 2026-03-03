@@ -15,4 +15,5 @@ public interface CarrinhoRepository {
 
   List<Carrinho> buscarTodosOsCarrinhos(UUID idCliente);
 
+  boolean carrinhoPertenceAoUsuario(UUID idCarrinho, String email);
 }
