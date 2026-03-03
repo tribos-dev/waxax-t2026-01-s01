@@ -14,6 +14,7 @@ public class PagamentoResponse {
   private final UUID pedidoId;
   private final StatusPagamento statusPagamento;
   private final LocalDateTime dataPagamento;
+  private final LocalDateTime dataConfirmacao;
   private final BigDecimal valor;
 
   public PagamentoResponse(Pagamento pagamento) {
@@ -21,6 +22,7 @@ public class PagamentoResponse {
     this.pedidoId = pagamento.getPedido().getId();
     this.statusPagamento = pagamento.getStatusPagamento();
     this.dataPagamento = pagamento.getDataPagamento();
+    this.dataConfirmacao = pagamento.getDataConfirmacao();
     this.valor = pagamento.getValor();
   }
 }
