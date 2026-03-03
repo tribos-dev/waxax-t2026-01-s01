@@ -1,15 +1,6 @@
 package br.com.wakax.wakax_ecommerce.carrinho.application.service;
 
-import java.util.List;
-import java.util.UUID;
-
 import br.com.wakax.wakax_ecommerce.auth.security.service.TokenService;
-import br.com.wakax.wakax_ecommerce.carrinho.domain.StatusCarrinho;
-import br.com.wakax.wakax_ecommerce.handler.APIException;
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import br.com.wakax.wakax_ecommerce.carrinho.api.request.ItemCarrinhoRequest;
 import br.com.wakax.wakax_ecommerce.carrinho.api.response.CarrinhoResponse;
 import br.com.wakax.wakax_ecommerce.carrinho.api.response.CarrinhosListAllResponse;
@@ -17,12 +8,20 @@ import br.com.wakax.wakax_ecommerce.carrinho.application.factory.ProcessadorEsto
 import br.com.wakax.wakax_ecommerce.carrinho.application.repository.CarrinhoRepository;
 import br.com.wakax.wakax_ecommerce.carrinho.application.strategy.ProcessadorEstoque;
 import br.com.wakax.wakax_ecommerce.carrinho.domain.Carrinho;
+import br.com.wakax.wakax_ecommerce.carrinho.domain.StatusCarrinho;
 import br.com.wakax.wakax_ecommerce.cliente.application.repository.ClienteRepository;
 import br.com.wakax.wakax_ecommerce.cliente.domain.Cliente;
+import br.com.wakax.wakax_ecommerce.handler.APIException;
 import br.com.wakax.wakax_ecommerce.produto.application.repository.ProdutoRepository;
 import br.com.wakax.wakax_ecommerce.produto.domain.Produto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.UUID;
 
 @Log4j2
 @Service
@@ -92,18 +91,14 @@ public class CarrinhoApplicationService implements CarrinhoService {
       throw APIException.build(HttpStatus.BAD_REQUEST,
               "Carrinho não permite modificação");
     }
-
     boolean pertence = carrinhoRepository
             .carrinhoPertenceAoUsuario(idCarrinho, emailUsuario);
-
     if (!pertence) {
       throw APIException.build(HttpStatus.FORBIDDEN,
               "Carrinho não pertence ao usuário autenticado");
     }
-
     carrinho.removeItem(idItem);
     carrinhoRepository.salva(carrinho);
-
     log.info("[finish] deletaItemDoCarrinho - buscaCarrinhoPorId");
   }
 }
