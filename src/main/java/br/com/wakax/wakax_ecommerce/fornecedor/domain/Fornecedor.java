@@ -1,12 +1,16 @@
 package br.com.wakax.wakax_ecommerce.fornecedor.domain;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import javax.persistence.*;
 import javax.validation.constraints.*;
 
 import br.com.wakax.wakax_ecommerce.fornecedor.application.api.request.FornecedorRequest;
+import br.com.wakax.wakax_ecommerce.fornecedor.application.api.request.FornecedorUpdateRequest;
+import br.com.wakax.wakax_ecommerce.pessoa.domain.Endereco;
 import br.com.wakax.wakax_ecommerce.pessoa.domain.Pessoa;
 import lombok.*;
 
@@ -65,5 +69,27 @@ public class Fornecedor {
     this.inscricaoEstadual = request.getInscricaoEstadual();
     this.razaoSocial = request.getRazaoSocial();
     this.nomeFantasia = request.getNomeFantasia();
+  }
+
+  public void FornecedorUpdate(FornecedorUpdateRequest request) {
+    Optional.ofNullable(request.getInscricaoEstadual())
+            .ifPresent(this::setInscricaoEstadual);
+
+    Optional.ofNullable(request.getRazaoSocial())
+            .ifPresent(this::setRazaoSocial);
+
+    Optional.ofNullable(request.getNomeFantasia())
+            .ifPresent(this::setNomeFantasia);
+
+    Optional.ofNullable(request.getEmails())
+            .ifPresent(pessoa::setEmails);
+
+    Optional.ofNullable(request.getTelefones())
+            .ifPresent(pessoa::setTelefones);
+
+    Optional.ofNullable(request.getEnderecos())
+            .ifPresent(pessoa::setEnderecos);
+
+    this.dataEdicao = LocalDateTime.now();
   }
 }
