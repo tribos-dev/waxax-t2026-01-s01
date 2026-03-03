@@ -8,6 +8,6 @@ import br.com.wakax.wakax_ecommerce.pagamento.application.api.response.Pagamento
 public interface PagamentoService {
 
   PagamentoResponse processaPagamento(PagamentoRequest novoPagamento);
-
   PagamentoResponse buscaPagamentoPorId(UUID idPagamento);
+  PagamentoResponse confirmarPagamento(UUID idPagamento);
 }

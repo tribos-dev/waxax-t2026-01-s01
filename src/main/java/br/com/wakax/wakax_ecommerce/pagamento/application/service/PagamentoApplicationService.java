@@ -65,4 +65,9 @@ public class PagamentoApplicationService implements PagamentoService {
     log.debug("[finish] PagamentoApplicationService - buscaPagamentoPorId");
     return new PagamentoResponse(pagamento);
   }
+
+  @Override
+  public PagamentoResponse confirmarPagamento(UUID idPagamento) {
+    return null;
+  }
 }

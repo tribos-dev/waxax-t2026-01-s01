@@ -16,39 +16,43 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Pagamento {
-  @Id @GeneratedValue private UUID id;
+    @Id
+    @GeneratedValue
+    private UUID id;
 
-  @OneToOne(optional = false)
-  @JoinColumn(nullable = false, unique = true)
-  @NotNull
-  private Pedido pedido;
+    @OneToOne(optional = false)
+    @JoinColumn(nullable = false, unique = true)
+    @NotNull
+    private Pedido pedido;
 
-  @Enumerated(EnumType.STRING)
-  @Column(nullable = false)
-  @NotNull
-  private StatusPagamento statusPagamento;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    @NotNull
+    private StatusPagamento statusPagamento;
 
-  @Column(nullable = false)
-  @NotNull
-  private LocalDateTime dataPagamento;
+    @Column(nullable = false)
+    @NotNull
+    private LocalDateTime dataPagamento;
 
-  @Column(nullable = false)
-  @NotNull
-  @PositiveOrZero
-  private BigDecimal valor;
+    @Column(nullable = false)
+    @NotNull
+    @PositiveOrZero
+    private BigDecimal valor;
+    private LocalDateTime dataConfirmacao;
 
-  public Pagamento(Pedido pedido) {
-    this.pedido = pedido;
-    this.statusPagamento = StatusPagamento.AGUARDANDO;
-    this.dataPagamento = LocalDateTime.now();
-    this.valor = pedido.getValorTotal();
-  }
+    public Pagamento(Pedido pedido) {
+        this.pedido = pedido;
+        this.statusPagamento = StatusPagamento.AGUARDANDO;
+        this.dataPagamento = LocalDateTime.now();
+        this.valor = pedido.getValorTotal();
+    }
 
-  public void confirmarPagamento() {
-    this.statusPagamento = StatusPagamento.PAGO;
-  }
+    public void confirmarPagamento() {
+        this.statusPagamento = StatusPagamento.PAGO;
+        this.dataConfirmacao = LocalDateTime.now();
+    }
 
-  public void aguardarPagamento() {
-    this.statusPagamento = StatusPagamento.AGUARDANDO;
-  }
+    public void aguardarPagamento() {
+        this.statusPagamento = StatusPagamento.AGUARDANDO;
+    }
 }
