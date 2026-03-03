@@ -7,11 +7,15 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.never;
+
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
+import br.com.wakax.wakax_ecommerce.handler.APIException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -196,4 +200,69 @@ class CarrinhoApplicationServiceTest {
     verify(clienteRepository).buscaClientePorId(cliente.getId());
     verify(carrinhoRepository).buscarTodosOsCarrinhos(cliente.getId());
   }
+
+  @Test
+  void deveDeletarItemDeUmCarrinhoAtivoQuePertenceAoUsuario() {
+
+    Cliente cliente = CarrinhoDataHelper.criaCliente();
+    Carrinho carrinho = CarrinhoDataHelper.criaCarrinhoAtivoComUmItem(cliente);
+    UUID idItem = carrinho.getItensCarrinho().get(0).getId();
+    String email = cliente.getPessoa().getEmails().get(0);
+
+    when(carrinhoRepository.buscaCarrinhoPorId(carrinho.getId()))
+            .thenReturn(carrinho);
+
+    when(carrinhoRepository.carrinhoPertenceAoUsuario(carrinho.getId(), email))
+            .thenReturn(true);
+
+    applicationService.deletaItemDoCarrinho(email, carrinho.getId(), idItem);
+
+    verify(carrinhoRepository, times(1))
+            .buscaCarrinhoPorId(carrinho.getId());
+
+    verify(carrinhoRepository, times(1))
+            .carrinhoPertenceAoUsuario(carrinho.getId(), email);
+
+    verify(carrinhoRepository, times(1))
+            .salva(carrinho);
+  }
+
+  @Test
+  void naoDeveDeletarItemSeCarrinhoNaoEstiverAtivo() {
+
+    Cliente cliente = CarrinhoDataHelper.criaCliente();
+    Carrinho carrinho = CarrinhoDataHelper.criaCarrinhoFinalizadoComUmItem(cliente);
+    UUID idItem = carrinho.getItensCarrinho().get(0).getId();
+    String email = cliente.getPessoa().getEmails().get(0);
+
+    when(carrinhoRepository.buscaCarrinhoPorId(carrinho.getId()))
+            .thenReturn(carrinho);
+
+    assertThrows(APIException.class,
+            () -> applicationService.deletaItemDoCarrinho(email, carrinho.getId(), idItem));
+
+    verify(carrinhoRepository, never()).salva(any());
+  }
+
+  @Test
+  void naoDeveDeletarItemSeCarrinhoNaoPertencerAoUsuario() {
+
+    Cliente cliente = CarrinhoDataHelper.criaCliente();
+    Carrinho carrinho = CarrinhoDataHelper.criaCarrinhoAtivoComUmItem(cliente);
+    UUID idItem = carrinho.getItensCarrinho().get(0).getId();
+    String email = "outro@email.com";
+
+    when(carrinhoRepository.buscaCarrinhoPorId(carrinho.getId()))
+            .thenReturn(carrinho);
+
+    when(carrinhoRepository.carrinhoPertenceAoUsuario(carrinho.getId(), email))
+            .thenReturn(false);
+
+    assertThrows(APIException.class,
+            () -> applicationService.deletaItemDoCarrinho(email, carrinho.getId(), idItem));
+
+    verify(carrinhoRepository, never()).salva(any());
+  }
+
+
 }
