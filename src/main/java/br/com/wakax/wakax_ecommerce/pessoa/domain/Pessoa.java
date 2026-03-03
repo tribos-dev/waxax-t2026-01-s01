@@ -104,8 +104,16 @@ public class Pessoa {
     }
 
     if (request.getEnderecos() != null && !request.getEnderecos().isEmpty()) {
-      request.getEnderecos().forEach(novoEndereco -> novoEndereco.setPessoa(this));
-      this.enderecos.addAll(request.getEnderecos());
+      request
+          .getEnderecos()
+          .forEach(
+              novoEndereco -> {
+                if (novoEndereco.isPrincipal()) {
+                  desmarcarEnderecoPrincipalAtual();
+                }
+                novoEndereco.setPessoa(this);
+                this.enderecos.add(novoEndereco);
+              });
     }
   }
 
@@ -119,5 +127,16 @@ public class Pessoa {
     if (!this.emails.contains(email)) {
       throw new APIException(HttpStatus.BAD_REQUEST, ErrorCode.EMAIL_INFORMADO_NAO_ENCONTRADO);
     }
+  }
+
+  public void adicionarEndereco(Endereco novoEndereco) {
+    if (novoEndereco.isPrincipal()) {
+      desmarcarEnderecoPrincipalAtual();
+    }
+    this.enderecos.add(novoEndereco);
+  }
+
+  private void desmarcarEnderecoPrincipalAtual() {
+    this.enderecos.stream().filter(Endereco::isPrincipal).forEach(e -> e.setPrincipal(false));
   }
 }
