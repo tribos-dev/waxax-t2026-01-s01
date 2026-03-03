@@ -2,6 +2,8 @@ package br.com.wakax.wakax_ecommerce.fornecedor.application.service;
 
 import java.util.UUID;
 
+import br.com.wakax.wakax_ecommerce.fornecedor.application.api.request.FornecedorUpdateRequest;
+import br.com.wakax.wakax_ecommerce.fornecedor.application.api.response.FornecedorUpdateResponse;
 import org.springframework.stereotype.Service;
 
 import br.com.wakax.wakax_ecommerce.fornecedor.application.api.request.FornecedorRequest;
@@ -34,5 +36,15 @@ public class FornecedorApplicationService implements FornecedorService {
     Fornecedor fornecedor = fornecedorRepository.buscaFornecedorPorId(idFornecedor);
     log.debug("[finish] FornecedorApplicationService - buscaFornecedorPorId");
     return new FornecedorListResponse(fornecedor);
+  }
+
+  @Override
+  public FornecedorUpdateResponse atualizarFornecedor(UUID idFornecedor, FornecedorUpdateRequest atualizaFornecedor) {
+    log.debug("[start] FornecedorApplicationService - atualizarFornecedor");
+    Fornecedor fornecedor = fornecedorRepository.buscaFornecedorPorId(idFornecedor);
+    fornecedor.FornecedorUpdate(atualizaFornecedor);
+    fornecedorRepository.atualiza(fornecedor);
+    log.debug("[finish] FornecedorApplicationService - atualizarFornecedor");
+    return new FornecedorUpdateResponse(fornecedor);
   }
 }
