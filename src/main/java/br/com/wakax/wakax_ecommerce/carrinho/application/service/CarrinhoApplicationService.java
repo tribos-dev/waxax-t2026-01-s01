@@ -94,8 +94,8 @@ public class CarrinhoApplicationService implements CarrinhoService {
     boolean pertence = carrinhoRepository
             .carrinhoPertenceAoUsuario(idCarrinho, emailUsuario);
     if (!pertence) {
-      throw APIException.build(HttpStatus.FORBIDDEN,
-              "Carrinho não pertence ao usuário autenticado");
+      throw APIException.build(HttpStatus.BAD_REQUEST,
+              "Item do carrinho não encontrado");
     }
     carrinho.removeItem(idItem);
     carrinhoRepository.salva(carrinho);
