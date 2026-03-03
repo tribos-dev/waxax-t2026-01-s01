@@ -9,4 +9,6 @@ public interface FornecedorRepository {
   Fornecedor salva(Fornecedor fornecedor);
 
   Fornecedor buscaFornecedorPorId(UUID id);
+
+  Fornecedor atualiza(Fornecedor fornecedor);
 }
