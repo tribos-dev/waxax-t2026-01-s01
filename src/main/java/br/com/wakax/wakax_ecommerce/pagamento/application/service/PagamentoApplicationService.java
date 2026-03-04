@@ -2,6 +2,8 @@ package br.com.wakax.wakax_ecommerce.pagamento.application.service;
 
 import java.util.UUID;
 
+import br.com.wakax.wakax_ecommerce.estoque.application.repository.EstoqueRepository;
+import br.com.wakax.wakax_ecommerce.estoque.domain.Estoque;
 import br.com.wakax.wakax_ecommerce.pagamento.domain.StatusPagamento;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -27,6 +29,7 @@ public class PagamentoApplicationService implements PagamentoService {
   private final PagamentoRepository pagamentoRepository;
   private final PedidoRepository pedidoRepository;
   private final ProcessadorPagamentoFactory processadorFactory;
+  private final EstoqueRepository estoqueRepository;
 
   @Override
   @Transactional
@@ -68,15 +71,35 @@ public class PagamentoApplicationService implements PagamentoService {
   }
 
   @Override
+  @Transactional
   public PagamentoResponse confirmarPagamento(UUID idPagamento) {
     log.debug("[start] PagamentoApplicationService - confirmarPagamento");
     Pagamento pagamento = pagamentoRepository.buscaPagamentoPorId(idPagamento);
-    if (pagamento.getStatusPagamento() != StatusPagamento.AGUARDANDO) {
-      throw new APIException(HttpStatus.CONFLICT, ErrorCode.PAGAMENTO_JA_CONFIRMADO, pagamento.getStatusPagamento());
-    }
+    validarPagamentoAguardando(pagamento);
     pagamento.confirmarPagamento();
+    Pedido pedido = pagamento.getPedido();
+    pedido.marcarComoPago();
+    reservarEstoqueDoPedido(pedido);
+    pedidoRepository.salva(pedido);
     pagamentoRepository.salva(pagamento);
     log.debug("[finish] PagamentoApplicationService - confirmarPagamento");
     return new PagamentoResponse(pagamento);
+  }
+
+  private void validarPagamentoAguardando(Pagamento pagamento) {
+    if (pagamento.getStatusPagamento() != StatusPagamento.AGUARDANDO) {
+      throw new APIException(HttpStatus.CONFLICT,
+              ErrorCode.PAGAMENTO_JA_CONFIRMADO,
+              pagamento.getStatusPagamento());
+    }
+  }
+  private void reservarEstoqueDoPedido(Pedido pedido) {
+    pedido.getItensPedido().forEach(item -> {
+      Estoque estoque = estoqueRepository.buscaEstoquePorIdProduto(item.getProduto().getId()).orElseThrow(() -> new APIException(HttpStatus.NOT_FOUND,
+                      ErrorCode.ESTOQUE_NAO_ENCONTRADO,
+                      item.getProduto().getId()));
+      estoque.reservaQuantidade(item.getQuantidade());
+      estoqueRepository.salva(estoque);
+    });
   }
 }
