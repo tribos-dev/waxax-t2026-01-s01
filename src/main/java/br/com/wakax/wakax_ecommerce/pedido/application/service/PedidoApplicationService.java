@@ -4,6 +4,10 @@ import java.util.UUID;
 
 import javax.transaction.Transactional;
 
+import br.com.wakax.wakax_ecommerce.cliente.domain.Cliente;
+import br.com.wakax.wakax_ecommerce.handler.APIException;
+import br.com.wakax.wakax_ecommerce.pessoa.domain.StatusPessoa;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import br.com.wakax.wakax_ecommerce.carrinho.application.repository.CarrinhoRepository;
@@ -28,6 +32,11 @@ public class PedidoApplicationService implements PedidoService {
   public PedidoResponse cadastraPedido(PedidoRequest request) {
     log.info("[start] PedidoApplicationService - cadastraPedido");
     Carrinho carrinho = carrinhoRepository.buscaCarrinhoPorId(request.getIdCarrinho());
+    Cliente cliente = carrinho.getCliente();
+    if(cliente.getPessoa().getStatus() == StatusPessoa.INATIVO){
+      throw APIException.build(HttpStatus.CONFLICT,
+              "Cliente está inativo e não pode realizar pedidos");
+    }
     Pedido pedido = new Pedido(request, carrinho);
     pedidoRepository.salva(pedido);
     log.debug("[finish] PedidoApplicationService - cadastraPedido");
