@@ -2,6 +2,7 @@ package br.com.wakax.wakax_ecommerce.pagamento.application.service;
 
 import java.util.UUID;
 
+import br.com.wakax.wakax_ecommerce.pagamento.domain.StatusPagamento;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -70,6 +71,9 @@ public class PagamentoApplicationService implements PagamentoService {
   public PagamentoResponse confirmarPagamento(UUID idPagamento) {
     log.debug("[start] PagamentoApplicationService - confirmarPagamento");
     Pagamento pagamento = pagamentoRepository.buscaPagamentoPorId(idPagamento);
+    if (pagamento.getStatusPagamento() != StatusPagamento.AGUARDANDO) {
+      throw new APIException(HttpStatus.CONFLICT, ErrorCode.PAGAMENTO_JA_CONFIRMADO, pagamento.getStatusPagamento());
+    }
     pagamento.confirmarPagamento();
     pagamentoRepository.salva(pagamento);
     log.debug("[finish] PagamentoApplicationService - confirmarPagamento");
