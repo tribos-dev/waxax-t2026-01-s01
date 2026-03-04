@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import br.com.wakax.wakax_ecommerce.pagamento.application.api.request.CancelaPagamentoRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -56,6 +57,7 @@ class PagamentoApplicationServiceTest {
   private Pagamento pagamento;
   private UUID pedidoId;
   private UUID pagamentoId;
+  private CancelaPagamentoRequest cancelaPagamentoRequest;
 
   @BeforeEach
   void setUp() {
@@ -66,6 +68,9 @@ class PagamentoApplicationServiceTest {
     pedido = PagamentoDataHelper.criaPedidoValido();
     pagamento = PagamentoDataHelper.criaPagamentoValido(pedido);
     pagamento.setId(pagamentoId);
+    cancelaPagamentoRequest = PagamentoDataHelper.criaCancelaPagamentoRequest(pagamentoId, CancelaPagamentoRequest.builder().build());
+
+
   }
 
   @Test
@@ -364,4 +369,26 @@ class PagamentoApplicationServiceTest {
     assertEquals(ErrorCode.PEDIDO_NAO_POSSUI_PAGAMENTO, exception.getErrorCode());
     verify(pagamentoRepository).buscaPagamentoPorPedidoId(pedidoId);
   }
+
+    @Test
+    void deveCancelarPagamentoComSucesso() {
+        when(pagamentoRepository.buscaPagamentoPorId(pagamentoId)).thenReturn(pagamento);
+        when(pagamentoRepository.salva(any(Pagamento.class))).thenAnswer(i -> i.getArgument(0));
+        when(pedidoRepository.salva(any(Pedido.class))).thenAnswer(i -> i.getArgument(0));
+
+        pagamentoApplicationService.cancelaPagamento(pagamentoId, cancelaPagamentoRequest);
+
+        ArgumentCaptor<Pagamento> pagamentoCaptor = ArgumentCaptor.forClass(Pagamento.class);
+        ArgumentCaptor<Pedido> pedidoCaptor = ArgumentCaptor.forClass(Pedido.class);
+
+        verify(pagamentoRepository).salva(pagamentoCaptor.capture());
+        verify(pedidoRepository).salva(pedidoCaptor.capture());
+
+        Pagamento pagamentoSalvo = pagamentoCaptor.getValue();
+        Pedido pedidoSalvo = pedidoCaptor.getValue();
+
+        assertEquals(StatusPagamento.FALHOU, pagamentoSalvo.getStatusPagamento());
+        assertEquals(StatusPedido.AGUARDANDO_PAGAMENTO, pedidoSalvo.getStatus());
+        assertEquals("Desisti da compra", pagamentoSalvo.getMotivoCancelamento());
+    }
 }

@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.UUID;
 
 import br.com.wakax.wakax_ecommerce.cliente.domain.Cliente;
+import br.com.wakax.wakax_ecommerce.pagamento.application.api.request.CancelaPagamentoRequest;
 import br.com.wakax.wakax_ecommerce.pagamento.application.api.request.PagamentoRequest;
 import br.com.wakax.wakax_ecommerce.pagamento.domain.Pagamento;
 import br.com.wakax.wakax_ecommerce.pagamento.domain.StatusPagamento;
@@ -79,4 +80,11 @@ public final class PagamentoDataHelper {
   public static PagamentoRequest criaPagamentoRequestValido(UUID pedidoId) {
     return PagamentoRequest.builder().pedidoId(pedidoId).build();
   }
+
+    public static CancelaPagamentoRequest criaCancelaPagamentoRequest(UUID idPagamento, CancelaPagamentoRequest cancelaPagamentoRequest) {
+        return CancelaPagamentoRequest.builder()
+                .pedidoId(UUID.fromString("550e8400-e29b-41d4-a716-446655440000"))
+                .motivoCancelamento("Desisti da compra")
+                .build();
+    }
 }

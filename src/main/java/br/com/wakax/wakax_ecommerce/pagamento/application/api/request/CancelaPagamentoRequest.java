@@ -2,6 +2,7 @@ package br.com.wakax.wakax_ecommerce.pagamento.application.api.request;
 
 import java.util.UUID;
 
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 import lombok.*;
@@ -16,6 +17,6 @@ public class CancelaPagamentoRequest {
     @NotNull(message = "{validacao.pedido}")
     private UUID pedidoId;
 
-    @NotNull
+    @NotBlank
     private String motivoCancelamento;
 }

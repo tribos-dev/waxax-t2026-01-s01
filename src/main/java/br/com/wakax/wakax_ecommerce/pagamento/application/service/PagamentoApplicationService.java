@@ -113,7 +113,7 @@ public class PagamentoApplicationService implements PagamentoService {
         log.info("[finish] PagamentoApplicationService - cancelaPagamento");
     }
 
-    private void validaStatusPagamento(Pagamento pagamento) {
+    public void validaStatusPagamento(Pagamento pagamento) {
       if (pagamento.getStatusPagamento() == StatusPagamento.PAGO){
           throw new APIException(HttpStatus.CONFLICT, ErrorCode.PAGAMENTO_JA_PROCESSADO);
       }

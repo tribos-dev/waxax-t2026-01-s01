@@ -7,9 +7,7 @@ import java.util.UUID;
 import javax.persistence.*;
 import javax.validation.constraints.*;
 
-import br.com.wakax.wakax_ecommerce.pagamento.application.api.PagamentoController;
 import br.com.wakax.wakax_ecommerce.pagamento.application.api.request.CancelaPagamentoRequest;
-import br.com.wakax.wakax_ecommerce.pagamento.application.api.response.PagamentoResponse;
 import br.com.wakax.wakax_ecommerce.pedido.domain.Pedido;
 import lombok.*;
 
