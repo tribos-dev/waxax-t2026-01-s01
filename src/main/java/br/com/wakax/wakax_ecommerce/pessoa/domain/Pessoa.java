@@ -7,12 +7,14 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
+import br.com.wakax.wakax_ecommerce.handler.APIException;
 import br.com.wakax.wakax_ecommerce.pessoa.application.api.request.DadosPessoa;
 import br.com.wakax.wakax_ecommerce.pessoa.application.api.request.PessoaRequest;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.http.HttpStatus;
 
 @Builder
 @Entity
@@ -78,4 +80,12 @@ public class Pessoa {
       this.enderecos.forEach(endereco -> endereco.setPessoa(this));
     }
   }
+
+  public void desativar() {
+    if (this.status == StatusPessoa.INATIVO) {
+      throw APIException.build(HttpStatus.CONFLICT, "Cliente já está inativo");
+    }
+    this.status = StatusPessoa.INATIVO;
+  }
+
 }
