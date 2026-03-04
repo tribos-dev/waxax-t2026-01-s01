@@ -14,6 +14,8 @@ import br.com.wakax.wakax_ecommerce.cliente.domain.Cliente;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 
+import static br.com.wakax.wakax_ecommerce.pessoa.domain.StatusPessoa.INATIVO;
+
 @Service
 @Log4j2
 @RequiredArgsConstructor
@@ -43,5 +45,15 @@ public class ClienteApplicationService implements ClienteService {
     Page<Cliente> clientes = clienteRepository.buscaTodosOsClientes(pageable);
     log.debug("[finish] ClienteApplicationService - buscarTodosOsClientes");
     return clientes;
+  }
+
+  @Override
+  public ClienteResponse desativaCliente(UUID idCliente) {
+    log.info("[start] ClienteApplicationService - desativaCliente");
+    Cliente cliente = clienteRepository.buscaClientePorId(idCliente);
+    cliente.getPessoa().setStatus(INATIVO);
+    clienteRepository.salva(cliente);
+    log.info("[finish] ClienteApplicationService - desativaCliente");
+    return new ClienteResponse(cliente);
   }
 }

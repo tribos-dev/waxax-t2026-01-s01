@@ -46,4 +46,12 @@ public class ClienteController implements ClienteApi {
     log.debug("[finish] ClienteController - buscarTodosOsClientes");
     return PageResponse.from(response);
   }
+
+  @Override
+  public ClienteResponse desativaCliente(UUID idCliente) {
+    log.info("[start] ClienteController - desativaCliente");
+    ClienteResponse clienteResponse = clienteService.desativaCliente(idCliente);
+    log.info("[finish] ClienteController - desativaCliente");
+    return clienteResponse;
+  }
 }

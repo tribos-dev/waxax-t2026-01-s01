@@ -26,4 +26,8 @@ public interface ClienteApi {
   @GetMapping("/clientes")
   PageResponse<ClienteListAllResponse> buscarTodosOsClientes(
       @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size);
+
+  @PatchMapping("/desativar/{idCliente}")
+  @ResponseStatus(HttpStatus.OK)
+  ClienteResponse desativaCliente(@PathVariable UUID idCliente);
 }

@@ -15,4 +15,6 @@ public interface ClienteService {
   ClienteResponse buscaClienteEspecifico(UUID idCliente);
 
   Page<Cliente> buscarTodosOsClientes(Pageable pageable);
+
+    ClienteResponse desativaCliente(UUID idCliente);
 }
