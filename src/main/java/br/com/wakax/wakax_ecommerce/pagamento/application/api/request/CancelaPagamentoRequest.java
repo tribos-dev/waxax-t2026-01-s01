@@ -14,9 +14,8 @@ import lombok.*;
 @AllArgsConstructor
 public class CancelaPagamentoRequest {
 
-    @NotNull(message = "{validacao.pedido}")
-    private UUID pedidoId;
+  @NotNull(message = "{validacao.pedido}")
+  private UUID pedidoId;
 
-    @NotBlank
-    private String motivoCancelamento;
+  @NotBlank private String motivoCancelamento;
 }

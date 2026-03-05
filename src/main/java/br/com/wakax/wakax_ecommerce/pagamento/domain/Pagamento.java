@@ -38,31 +38,32 @@ public class Pagamento {
   @PositiveOrZero
   private BigDecimal valor;
 
-    @Column(nullable = false)
-    @NotNull
-    private String motivoCancelamento;
+  @Column(nullable = false)
+  @NotNull
+  private String motivoCancelamento;
 
   public Pagamento(Pedido pedido) {
     this.pedido = pedido;
     this.statusPagamento = StatusPagamento.AGUARDANDO;
     this.dataPagamento = LocalDateTime.now();
     this.valor = pedido.getValorTotal();
-     this.motivoCancelamento = motivoCancelamento;
+    this.motivoCancelamento = motivoCancelamento;
   }
 
-    public static Pagamento mudaStatus(Pagamento pagamento, CancelaPagamentoRequest cancelaPagamentoRequest) {
-        Pagamento pagamentoAlterado = new Pagamento(
-                pagamento.getId(),
-                pagamento.getPedido(),
-                StatusPagamento.FALHOU,
-                pagamento.getDataPagamento(),
-                pagamento.getValor(),
-                cancelaPagamentoRequest.getMotivoCancelamento()
-        );
-      return pagamentoAlterado;
-    }
+  public static Pagamento mudaStatus(
+      Pagamento pagamento, CancelaPagamentoRequest cancelaPagamentoRequest) {
+    Pagamento pagamentoAlterado =
+        new Pagamento(
+            pagamento.getId(),
+            pagamento.getPedido(),
+            StatusPagamento.FALHOU,
+            pagamento.getDataPagamento(),
+            pagamento.getValor(),
+            cancelaPagamentoRequest.getMotivoCancelamento());
+    return pagamentoAlterado;
+  }
 
-    public void confirmarPagamento() {
+  public void confirmarPagamento() {
     this.statusPagamento = StatusPagamento.PAGO;
   }
 

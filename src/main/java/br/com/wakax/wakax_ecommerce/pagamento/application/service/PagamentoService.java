@@ -20,5 +20,5 @@ public interface PagamentoService {
 
   PagamentoPedidoResponse buscaPagamentoPorIdPedido(UUID idPedido);
 
-    void cancelaPagamento(UUID idPagamento, CancelaPagamentoRequest cancelaPagamentoRequest);
+  void cancelaPagamento(UUID idPagamento, CancelaPagamentoRequest cancelaPagamentoRequest);
 }

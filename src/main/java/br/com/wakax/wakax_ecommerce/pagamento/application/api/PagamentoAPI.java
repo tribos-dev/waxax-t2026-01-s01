@@ -4,10 +4,10 @@ import java.util.UUID;
 
 import javax.validation.Valid;
 
-import br.com.wakax.wakax_ecommerce.pagamento.application.api.request.CancelaPagamentoRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import br.com.wakax.wakax_ecommerce.pagamento.application.api.request.CancelaPagamentoRequest;
 import br.com.wakax.wakax_ecommerce.pagamento.application.api.request.PagamentoRequest;
 import br.com.wakax.wakax_ecommerce.pagamento.application.api.response.PagamentoPageResponse;
 import br.com.wakax.wakax_ecommerce.pagamento.application.api.response.PagamentoPedidoResponse;
@@ -35,9 +35,8 @@ public interface PagamentoAPI {
   PagamentoPedidoResponse buscaPagamentoPorIdPedido(@PathVariable UUID idPedido);
 
   @PatchMapping("/cancelaPagamento/{idPagamento}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    void cancelaPagamento (
-            @PathVariable UUID idPagamento,
-            @Valid @RequestBody CancelaPagamentoRequest cancelaPagamentoRequest);
-
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  void cancelaPagamento(
+      @PathVariable UUID idPagamento,
+      @Valid @RequestBody CancelaPagamentoRequest cancelaPagamentoRequest);
 }

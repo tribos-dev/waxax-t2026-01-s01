@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import br.com.wakax.wakax_ecommerce.pagamento.application.api.request.CancelaPagamentoRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,6 +23,7 @@ import org.springframework.http.HttpStatus;
 
 import br.com.wakax.wakax_ecommerce.handler.APIException;
 import br.com.wakax.wakax_ecommerce.handler.ErrorCode;
+import br.com.wakax.wakax_ecommerce.pagamento.application.api.request.CancelaPagamentoRequest;
 import br.com.wakax.wakax_ecommerce.pagamento.application.api.request.PagamentoRequest;
 import br.com.wakax.wakax_ecommerce.pagamento.application.api.response.PagamentoPageResponse;
 import br.com.wakax.wakax_ecommerce.pagamento.application.api.response.PagamentoResponse;
@@ -68,9 +68,9 @@ class PagamentoApplicationServiceTest {
     pedido = PagamentoDataHelper.criaPedidoValido();
     pagamento = PagamentoDataHelper.criaPagamentoValido(pedido);
     pagamento.setId(pagamentoId);
-    cancelaPagamentoRequest = PagamentoDataHelper.criaCancelaPagamentoRequest(pagamentoId, CancelaPagamentoRequest.builder().build());
-
-
+    cancelaPagamentoRequest =
+        PagamentoDataHelper.criaCancelaPagamentoRequest(
+            pagamentoId, CancelaPagamentoRequest.builder().build());
   }
 
   @Test
@@ -370,41 +370,43 @@ class PagamentoApplicationServiceTest {
     verify(pagamentoRepository).buscaPagamentoPorPedidoId(pedidoId);
   }
 
-    @Test
-    void deveCancelarPagamentoComSucesso() {
-        when(pagamentoRepository.buscaPagamentoPorId(pagamentoId)).thenReturn(pagamento);
-        when(pagamentoRepository.salva(any(Pagamento.class))).thenAnswer(i -> i.getArgument(0));
-        when(pedidoRepository.salva(any(Pedido.class))).thenAnswer(i -> i.getArgument(0));
+  @Test
+  void deveCancelarPagamentoComSucesso() {
+    when(pagamentoRepository.buscaPagamentoPorId(pagamentoId)).thenReturn(pagamento);
+    when(pagamentoRepository.salva(any(Pagamento.class))).thenAnswer(i -> i.getArgument(0));
+    when(pedidoRepository.salva(any(Pedido.class))).thenAnswer(i -> i.getArgument(0));
 
-        pagamentoApplicationService.cancelaPagamento(pagamentoId, cancelaPagamentoRequest);
+    pagamentoApplicationService.cancelaPagamento(pagamentoId, cancelaPagamentoRequest);
 
-        ArgumentCaptor<Pagamento> pagamentoCaptor = ArgumentCaptor.forClass(Pagamento.class);
-        ArgumentCaptor<Pedido> pedidoCaptor = ArgumentCaptor.forClass(Pedido.class);
+    ArgumentCaptor<Pagamento> pagamentoCaptor = ArgumentCaptor.forClass(Pagamento.class);
+    ArgumentCaptor<Pedido> pedidoCaptor = ArgumentCaptor.forClass(Pedido.class);
 
-        verify(pagamentoRepository).salva(pagamentoCaptor.capture());
-        verify(pedidoRepository).salva(pedidoCaptor.capture());
+    verify(pagamentoRepository).salva(pagamentoCaptor.capture());
+    verify(pedidoRepository).salva(pedidoCaptor.capture());
 
-        Pagamento pagamentoSalvo = pagamentoCaptor.getValue();
-        Pedido pedidoSalvo = pedidoCaptor.getValue();
+    Pagamento pagamentoSalvo = pagamentoCaptor.getValue();
+    Pedido pedidoSalvo = pedidoCaptor.getValue();
 
-        assertEquals(StatusPagamento.FALHOU, pagamentoSalvo.getStatusPagamento());
-        assertEquals(StatusPedido.AGUARDANDO_PAGAMENTO, pedidoSalvo.getStatus());
-        assertEquals("Desisti da compra", pagamentoSalvo.getMotivoCancelamento());
-    }
+    assertEquals(StatusPagamento.FALHOU, pagamentoSalvo.getStatusPagamento());
+    assertEquals(StatusPedido.AGUARDANDO_PAGAMENTO, pedidoSalvo.getStatus());
+    assertEquals("Desisti da compra", pagamentoSalvo.getMotivoCancelamento());
+  }
 
-    @Test
-    void deveLancarErroQuandoPagamentoJaEstiverPago() {
-        pagamento.setStatusPagamento(StatusPagamento.PAGO);
-        when(pagamentoRepository.buscaPagamentoPorId(pagamentoId)).thenReturn(pagamento);
+  @Test
+  void deveLancarErroQuandoPagamentoJaEstiverPago() {
+    pagamento.setStatusPagamento(StatusPagamento.PAGO);
+    when(pagamentoRepository.buscaPagamentoPorId(pagamentoId)).thenReturn(pagamento);
 
-        APIException ex = assertThrows(APIException.class, () ->
-                pagamentoApplicationService.cancelaPagamento(pagamentoId, cancelaPagamentoRequest)
-        );
+    APIException ex =
+        assertThrows(
+            APIException.class,
+            () ->
+                pagamentoApplicationService.cancelaPagamento(pagamentoId, cancelaPagamentoRequest));
 
-        assertEquals(HttpStatus.CONFLICT, ex.getStatusException());
-        assertEquals(ErrorCode.PAGAMENTO_JA_PROCESSADO, ex.getErrorCode());
+    assertEquals(HttpStatus.CONFLICT, ex.getStatusException());
+    assertEquals(ErrorCode.PAGAMENTO_JA_PROCESSADO, ex.getErrorCode());
 
-        verify(pagamentoRepository, never()).salva(any());
-        verify(pedidoRepository, never()).salva(any());
-    }
+    verify(pagamentoRepository, never()).salva(any());
+    verify(pedidoRepository, never()).salva(any());
+  }
 }

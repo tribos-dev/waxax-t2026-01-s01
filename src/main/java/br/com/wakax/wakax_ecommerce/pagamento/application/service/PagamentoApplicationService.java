@@ -2,7 +2,6 @@ package br.com.wakax.wakax_ecommerce.pagamento.application.service;
 
 import java.util.UUID;
 
-import br.com.wakax.wakax_ecommerce.pagamento.application.api.request.CancelaPagamentoRequest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -13,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import br.com.wakax.wakax_ecommerce.handler.APIException;
 import br.com.wakax.wakax_ecommerce.handler.ErrorCode;
+import br.com.wakax.wakax_ecommerce.pagamento.application.api.request.CancelaPagamentoRequest;
 import br.com.wakax.wakax_ecommerce.pagamento.application.api.request.PagamentoRequest;
 import br.com.wakax.wakax_ecommerce.pagamento.application.api.response.PagamentoPageResponse;
 import br.com.wakax.wakax_ecommerce.pagamento.application.api.response.PagamentoPedidoResponse;
@@ -101,21 +101,21 @@ public class PagamentoApplicationService implements PagamentoService {
     return new PagamentoPedidoResponse(pagamento);
   }
 
-    @Override
-    public void cancelaPagamento(UUID idPagamento, CancelaPagamentoRequest cancelaPagamentoRequest) {
-        log.info("[start] PagamentoApplicationService - cancelaPagamento");
-        Pagamento pagamento = pagamentoRepository.buscaPagamentoPorId(idPagamento);
-        validaStatusPagamento(pagamento);
-        Pagamento pagamentoAlterado = Pagamento.mudaStatus(pagamento, cancelaPagamentoRequest);
-        pagamentoRepository.salva(pagamentoAlterado);
-        Pedido pedidoAlterado = Pedido.mudaStatusAguardandoPagamento(pagamentoAlterado.getPedido());
-        pedidoRepository.salva(pedidoAlterado);
-        log.info("[finish] PagamentoApplicationService - cancelaPagamento");
-    }
+  @Override
+  public void cancelaPagamento(UUID idPagamento, CancelaPagamentoRequest cancelaPagamentoRequest) {
+    log.info("[start] PagamentoApplicationService - cancelaPagamento");
+    Pagamento pagamento = pagamentoRepository.buscaPagamentoPorId(idPagamento);
+    validaStatusPagamento(pagamento);
+    Pagamento pagamentoAlterado = Pagamento.mudaStatus(pagamento, cancelaPagamentoRequest);
+    pagamentoRepository.salva(pagamentoAlterado);
+    Pedido pedidoAlterado = Pedido.mudaStatusAguardandoPagamento(pagamentoAlterado.getPedido());
+    pedidoRepository.salva(pedidoAlterado);
+    log.info("[finish] PagamentoApplicationService - cancelaPagamento");
+  }
 
-    public void validaStatusPagamento(Pagamento pagamento) {
-      if (pagamento.getStatusPagamento() == StatusPagamento.PAGO){
-          throw new APIException(HttpStatus.CONFLICT, ErrorCode.PAGAMENTO_JA_PROCESSADO);
-      }
+  public void validaStatusPagamento(Pagamento pagamento) {
+    if (pagamento.getStatusPagamento() == StatusPagamento.PAGO) {
+      throw new APIException(HttpStatus.CONFLICT, ErrorCode.PAGAMENTO_JA_PROCESSADO);
     }
+  }
 }
