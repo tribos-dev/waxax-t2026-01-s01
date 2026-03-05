@@ -6,77 +6,113 @@ import java.util.ArrayList;
 import java.util.UUID;
 
 import br.com.wakax.wakax_ecommerce.cliente.domain.Cliente;
+import br.com.wakax.wakax_ecommerce.estoque.domain.Estoque;
 import br.com.wakax.wakax_ecommerce.pagamento.application.api.request.PagamentoRequest;
 import br.com.wakax.wakax_ecommerce.pagamento.domain.Pagamento;
 import br.com.wakax.wakax_ecommerce.pagamento.domain.StatusPagamento;
 import br.com.wakax.wakax_ecommerce.pedido.domain.FormaPagamento;
+import br.com.wakax.wakax_ecommerce.pedido.domain.ItemPedido;
 import br.com.wakax.wakax_ecommerce.pedido.domain.Pedido;
 import br.com.wakax.wakax_ecommerce.pedido.domain.StatusPedido;
 import br.com.wakax.wakax_ecommerce.pessoa.domain.Endereco;
 import br.com.wakax.wakax_ecommerce.pessoa.domain.Pessoa;
 import br.com.wakax.wakax_ecommerce.pessoa.domain.StatusPessoa;
+import br.com.wakax.wakax_ecommerce.produto.domain.Produto;
 
 public final class PagamentoDataHelper {
 
-  private PagamentoDataHelper() {}
+    private PagamentoDataHelper() {
+    }
 
-  public static Pedido criaPedidoValido() {
-    return Pedido.builder()
-        .id(UUID.fromString("a1b2c3d4-e5f6-7890-abcd-ef1234567890"))
-        .cliente(criaClienteValido())
-        .enderecoEntrega(criaEnderecoValido())
-        .formaPagamento(FormaPagamento.PIX)
-        .status(StatusPedido.AGUARDANDO_PAGAMENTO)
-        .valorTotal(new BigDecimal("299.99"))
-        .dataPedido(LocalDateTime.now())
-        .itensPedido(new ArrayList<>())
-        .build();
-  }
+    public static Pedido criaPedidoValido() {
+        return Pedido.builder()
+                .id(UUID.fromString("a1b2c3d4-e5f6-7890-abcd-ef1234567890"))
+                .cliente(criaClienteValido())
+                .enderecoEntrega(criaEnderecoValido())
+                .formaPagamento(FormaPagamento.PIX)
+                .status(StatusPedido.AGUARDANDO_PAGAMENTO)
+                .valorTotal(new BigDecimal("299.99"))
+                .dataPedido(LocalDateTime.now())
+                .itensPedido(new ArrayList<>())
+                .build();
+    }
 
-  public static Cliente criaClienteValido() {
-    return Cliente.builder()
-        .id(UUID.fromString("b2c3d4e5-1234-5678-9abc-def123456789"))
-        .pessoa(criaPessoaValida())
-        .dataCriacao(LocalDateTime.now())
-        .dataEdicao(LocalDateTime.now())
-        .build();
-  }
+    public static Cliente criaClienteValido() {
+        return Cliente.builder()
+                .id(UUID.fromString("b2c3d4e5-1234-5678-9abc-def123456789"))
+                .pessoa(criaPessoaValida())
+                .dataCriacao(LocalDateTime.now())
+                .dataEdicao(LocalDateTime.now())
+                .build();
+    }
 
-  public static Pessoa criaPessoaValida() {
-    return new Pessoa(
-        UUID.fromString("c3d4e5f6-1234-5678-9abc-def123456789"),
-        "João Silva",
-        "123.456.789-00",
-        new ArrayList<>(),
-        new ArrayList<>(),
-        new ArrayList<>(),
-        StatusPessoa.ATIVO);
-  }
+    public static Pessoa criaPessoaValida() {
+        return new Pessoa(
+                UUID.fromString("c3d4e5f6-1234-5678-9abc-def123456789"),
+                "João Silva",
+                "123.456.789-00",
+                new ArrayList<>(),
+                new ArrayList<>(),
+                new ArrayList<>(),
+                StatusPessoa.ATIVO);
+    }
 
-  public static Endereco criaEnderecoValido() {
-    return Endereco.builder()
-        .id(UUID.fromString("d4e5f6a7-1234-5678-9abc-def123456789"))
-        .cep("01234-567")
-        .logradouro("Rua das Flores")
-        .numero("123")
-        .complemento("Apto 45")
-        .bairro("Centro")
-        .cidade("São Paulo")
-        .estado("SP")
-        .build();
-  }
+    public static Endereco criaEnderecoValido() {
+        return Endereco.builder()
+                .id(UUID.fromString("d4e5f6a7-1234-5678-9abc-def123456789"))
+                .cep("01234-567")
+                .logradouro("Rua das Flores")
+                .numero("123")
+                .complemento("Apto 45")
+                .bairro("Centro")
+                .cidade("São Paulo")
+                .estado("SP")
+                .build();
+    }
 
-  public static Pagamento criaPagamentoValido(Pedido pedido) {
-    return Pagamento.builder()
-        .id(UUID.fromString("e5f6a7b8-1234-5678-9abc-def123456789"))
-        .pedido(pedido)
-        .statusPagamento(StatusPagamento.AGUARDANDO)
-        .dataPagamento(LocalDateTime.now())
-        .valor(pedido.getValorTotal())
-        .build();
-  }
+    public static Pagamento criaPagamentoValido(Pedido pedido) {
+        return Pagamento.builder()
+                .id(UUID.fromString("e5f6a7b8-1234-5678-9abc-def123456789"))
+                .pedido(pedido)
+                .statusPagamento(StatusPagamento.AGUARDANDO)
+                .dataPagamento(LocalDateTime.now())
+                .valor(pedido.getValorTotal())
+                .build();
+    }
 
-  public static PagamentoRequest criaPagamentoRequestValido(UUID pedidoId) {
-    return PagamentoRequest.builder().pedidoId(pedidoId).build();
-  }
+    public static PagamentoRequest criaPagamentoRequestValido(UUID pedidoId) {
+        return PagamentoRequest.builder().pedidoId(pedidoId).build();
+    }
+
+    public static Produto criaProdutoValido() {
+        return Produto.builder()
+                .id(UUID.fromString("f6a7b8c9-1234-5678-9abc-def123456789"))
+                .descricao("Notebook Lenovo")
+                .status(br.com.wakax.wakax_ecommerce.produto.domain.StatusProduto.ATIVO)
+                .pesoLiquido(new BigDecimal("1.00"))
+                .pesoBruto(new BigDecimal("1.20"))
+                .precos(new ArrayList<>())
+                .dataDeCadastro(LocalDateTime.now())
+                .build();
+    }
+
+    public static ItemPedido criaItemPedidoValido(Pedido pedido) {
+        return ItemPedido.builder()
+                .id(UUID.fromString("a7b8c9d0-1234-5678-9abc-def123456789"))
+                .produto(criaProdutoValido())
+                .quantidade(2)
+                .valorUnitario(new BigDecimal("149.99"))
+                .pedido(pedido)
+                .build();
+    }
+
+    public static Estoque criaEstoqueValido(UUID produtoId) {
+        return Estoque.builder()
+                .id(UUID.fromString("b8c9d0e1-1234-5678-9abc-def123456789"))
+                .produto(Produto.builder().id(produtoId).build())
+                .quantidadeDisponivel(10)
+                .custoMedio(new BigDecimal("100.00"))
+                .custoTotal(new BigDecimal("1000.00"))
+                .build();
+    }
 }
