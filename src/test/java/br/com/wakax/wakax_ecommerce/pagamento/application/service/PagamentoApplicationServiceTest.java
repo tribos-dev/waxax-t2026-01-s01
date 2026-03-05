@@ -391,4 +391,20 @@ class PagamentoApplicationServiceTest {
         assertEquals(StatusPedido.AGUARDANDO_PAGAMENTO, pedidoSalvo.getStatus());
         assertEquals("Desisti da compra", pagamentoSalvo.getMotivoCancelamento());
     }
+
+    @Test
+    void deveLancarErroQuandoPagamentoJaEstiverPago() {
+        pagamento.setStatusPagamento(StatusPagamento.PAGO);
+        when(pagamentoRepository.buscaPagamentoPorId(pagamentoId)).thenReturn(pagamento);
+
+        APIException ex = assertThrows(APIException.class, () ->
+                pagamentoApplicationService.cancelaPagamento(pagamentoId, cancelaPagamentoRequest)
+        );
+
+        assertEquals(HttpStatus.CONFLICT, ex.getStatusException());
+        assertEquals(ErrorCode.PAGAMENTO_JA_PROCESSADO, ex.getErrorCode());
+
+        verify(pagamentoRepository, never()).salva(any());
+        verify(pedidoRepository, never()).salva(any());
+    }
 }
