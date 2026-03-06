@@ -67,9 +67,13 @@ class ClienteApplicationServiceTest {
 
     Endereco enderecoFake = Endereco.builder().logradouro("Rua das Flores").numero("123").build();
     List<Endereco> listaEnderecos = new ArrayList<>(List.of(enderecoFake));
+    List<String> emails = List.of("teste@email.com");
+    List<String> telefones = List.of("11999999999");
 
     when(clienteMock.getPessoa()).thenReturn(pessoaMock);
     when(pessoaMock.getNome()).thenReturn("Rodrigo Dev");
+    when(pessoaMock.getEmails()).thenReturn(emails);
+    when(pessoaMock.getTelefones()).thenReturn(telefones);
     when(pessoaMock.getEnderecos()).thenReturn(listaEnderecos);
     when(clienteMock.getDataEdicao()).thenReturn(LocalDateTime.now());
 
@@ -79,10 +83,14 @@ class ClienteApplicationServiceTest {
         clienteApplicationService.atualizarCliente(idCliente, request);
 
     assertNotNull(response);
-    assertNotNull(response.getEndereco());
+    assertNotNull(response.getEnderecos());
+    assertEquals(1, response.getEnderecos().size());
+    assertEquals("Rodrigo Dev", response.getNome());
+    assertEquals(emails, response.getEmails());
+    assertEquals(telefones, response.getTelefones());
 
-    assertEquals("Rua das Flores", response.getEndereco().getLogradouro());
-    assertEquals("123", response.getEndereco().getNumero());
+    assertEquals("Rua das Flores", response.getEnderecos().get(0).getLogradouro());
+    assertEquals("123", response.getEnderecos().get(0).getNumero());
 
     verify(clienteRepository, times(1)).salva(clienteMock);
   }
