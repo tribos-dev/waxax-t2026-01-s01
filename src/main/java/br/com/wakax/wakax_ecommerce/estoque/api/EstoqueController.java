@@ -2,6 +2,7 @@ package br.com.wakax.wakax_ecommerce.estoque.api;
 
 import java.util.UUID;
 
+import br.com.wakax.wakax_ecommerce.estoque.api.request.RemoveEstoqueRequest;
 import br.com.wakax.wakax_ecommerce.estoque.api.response.EstoqueListagemResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
@@ -41,5 +42,11 @@ public class EstoqueController implements EstoqueAPI {
         EstoqueListagemResponse response = estoqueService.listarTodoEstoque(quantidadeMinima, apenasEmFalta);
         log.info("[finish] EstoqueController - listarTodoEstoque");
         return ResponseEntity.ok(response);
+    }
+
+    @Override
+    public void removeQuantidadeEstoque(UUID idProduto, RemoveEstoqueRequest request) {
+        log.info("[start] EstoqueController - removeQuantidadeEstoque");
+        log.debug("[finish] EstoqueController - removeQuantidadeEstoque");
     }
 }
