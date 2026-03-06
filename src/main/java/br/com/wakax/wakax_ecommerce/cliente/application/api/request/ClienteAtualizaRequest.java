@@ -13,11 +13,9 @@ public class ClienteAtualizaRequest {
   @Size(max = 150, message = "Nome deve ter no máximo 150 caracteres")
   private String nome;
 
-  @Email private String emailAntigo;
-  @Email private String emailNovo;
+  private List<@Email @Size(max = 150) String> emails;
 
-  private String telefoneAntigo;
-  private String telefoneNovo;
+  private List<@Size(max = 20) String> telefones;
 
   private List<Endereco> enderecos;
 }

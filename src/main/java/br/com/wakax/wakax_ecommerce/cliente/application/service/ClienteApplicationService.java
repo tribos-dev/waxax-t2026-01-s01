@@ -56,6 +56,6 @@ public class ClienteApplicationService implements ClienteService {
     cliente.alterar(clienteRequest);
     clienteRepository.salva(cliente);
     log.debug("[finish] ClienteApplicationService - atualizarCliente");
-    return new ClienteAtualizaResponse(cliente, clienteRequest);
+    return new ClienteAtualizaResponse(cliente);
   }
 }

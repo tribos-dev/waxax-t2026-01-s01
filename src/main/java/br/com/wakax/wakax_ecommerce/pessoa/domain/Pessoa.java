@@ -4,15 +4,10 @@ import java.util.List;
 import java.util.UUID;
 
 import javax.persistence.*;
-import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
-import org.springframework.http.HttpStatus;
-
 import br.com.wakax.wakax_ecommerce.cliente.application.api.request.ClienteAtualizaRequest;
-import br.com.wakax.wakax_ecommerce.handler.APIException;
-import br.com.wakax.wakax_ecommerce.handler.ErrorCode;
 import br.com.wakax.wakax_ecommerce.pessoa.application.api.request.DadosPessoa;
 import br.com.wakax.wakax_ecommerce.pessoa.application.api.request.PessoaRequest;
 import lombok.AllArgsConstructor;
@@ -91,16 +86,12 @@ public class Pessoa {
       this.nome = request.getNome();
     }
 
-    if (request.getEmailNovo() != null && request.getEmailAntigo() != null) {
-      validarExistenciaEmail(request.getEmailAntigo());
-      int index = this.emails.indexOf(request.getEmailAntigo());
-      this.emails.set(index, request.getEmailNovo());
+    if (request.getEmails() != null && !request.getEmails().isEmpty()) {
+      this.emails = request.getEmails();
     }
 
-    if (request.getTelefoneNovo() != null && request.getTelefoneAntigo() != null) {
-      validarExistenciaTelefone(request.getTelefoneAntigo());
-      int index = this.telefones.indexOf(request.getTelefoneAntigo());
-      this.telefones.set(index, request.getTelefoneNovo());
+    if (request.getTelefones() != null && !request.getTelefones().isEmpty()) {
+      this.telefones = request.getTelefones();
     }
 
     if (request.getEnderecos() != null && !request.getEnderecos().isEmpty()) {
@@ -114,18 +105,6 @@ public class Pessoa {
                 novoEndereco.setPessoa(this);
                 this.enderecos.add(novoEndereco);
               });
-    }
-  }
-
-  private void validarExistenciaTelefone(String telefoneAntigo) {
-    if (!this.telefones.contains(telefoneAntigo)) {
-      throw new APIException(HttpStatus.BAD_REQUEST, ErrorCode.TELEFONE_INFORMADO_NAO_ENCONTRADO);
-    }
-  }
-
-  private void validarExistenciaEmail(@Email String email) {
-    if (!this.emails.contains(email)) {
-      throw new APIException(HttpStatus.BAD_REQUEST, ErrorCode.EMAIL_INFORMADO_NAO_ENCONTRADO);
     }
   }
 
