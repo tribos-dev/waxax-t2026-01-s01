@@ -100,6 +100,7 @@ public class EstoqueApplicationService implements EstoqueService {
         log.info("[start] EstoqueApplicationService - removeQuantidadeEstoque");
         Estoque estoque = buscaEstoqueExistente(idProduto);
         estoque.removeQuantidade(request.quantidade());
+        estoqueRepository.salva(estoque);
         log.debug("[finish] EstoqueApplicationService - removeQuantidadeEstoque");
     }
 
