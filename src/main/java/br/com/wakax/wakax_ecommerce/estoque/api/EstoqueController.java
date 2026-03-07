@@ -47,6 +47,7 @@ public class EstoqueController implements EstoqueAPI {
     @Override
     public void removeQuantidadeEstoque(UUID idProduto, RemoveEstoqueRequest request) {
         log.info("[start] EstoqueController - removeQuantidadeEstoque");
+        estoqueService.removeQuantidadeEstoque(idProduto, request);
         log.debug("[finish] EstoqueController - removeQuantidadeEstoque");
     }
 }
