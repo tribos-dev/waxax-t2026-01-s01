@@ -7,6 +7,7 @@ import javax.validation.Valid;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.com.wakax.wakax_ecommerce.pedido.application.api.request.PedidoRequest;
+import br.com.wakax.wakax_ecommerce.pedido.application.api.request.StatusPedidoRequest;
 import br.com.wakax.wakax_ecommerce.pedido.application.api.response.PedidoResponse;
 import br.com.wakax.wakax_ecommerce.pedido.application.service.PedidoService;
 import lombok.RequiredArgsConstructor;
@@ -32,5 +33,12 @@ public class PedidoController implements PedidoAPI {
     PedidoResponse response = pedidoService.buscaPedidoPorId(idPedido);
     log.debug("[finish] PedidoController - buscaPedidoPorId");
     return response;
+  }
+
+  @Override
+  public void atualizaStatus(UUID idPedido, StatusPedidoRequest statusPedidoRequest) {
+    log.debug("[start] PedidoController - atualizaStatus");
+    pedidoService.atualizaStatusPedido(idPedido, statusPedidoRequest);
+    log.debug("[finish] PedidoController - atualizaStatus");
   }
 }
