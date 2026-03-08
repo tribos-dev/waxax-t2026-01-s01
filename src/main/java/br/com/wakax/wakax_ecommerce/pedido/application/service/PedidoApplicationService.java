@@ -4,14 +4,20 @@ import java.util.UUID;
 
 import javax.transaction.Transactional;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import br.com.wakax.wakax_ecommerce.carrinho.application.repository.CarrinhoRepository;
 import br.com.wakax.wakax_ecommerce.carrinho.domain.Carrinho;
+import br.com.wakax.wakax_ecommerce.estoque.application.repository.EstoqueRepository;
+import br.com.wakax.wakax_ecommerce.estoque.domain.Estoque;
 import br.com.wakax.wakax_ecommerce.pedido.application.api.request.PedidoRequest;
+import br.com.wakax.wakax_ecommerce.pedido.application.api.request.StatusPedidoRequest;
 import br.com.wakax.wakax_ecommerce.pedido.application.api.response.PedidoResponse;
 import br.com.wakax.wakax_ecommerce.pedido.application.repository.PedidoRepository;
 import br.com.wakax.wakax_ecommerce.pedido.domain.Pedido;
+import br.com.wakax.wakax_ecommerce.pedido.domain.PedidoStatusEvent;
+import br.com.wakax.wakax_ecommerce.pedido.domain.StatusPedido;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 
@@ -22,6 +28,8 @@ public class PedidoApplicationService implements PedidoService {
 
   private final PedidoRepository pedidoRepository;
   private final CarrinhoRepository carrinhoRepository;
+  private final EstoqueRepository estoqueRepository;
+  private final ApplicationEventPublisher eventPublisher;
 
   @Override
   @Transactional
@@ -40,5 +48,45 @@ public class PedidoApplicationService implements PedidoService {
     var pedido = pedidoRepository.buscaPedidoPorId(idPedido);
     log.debug("[finish] PedidoApplicationService - buscaPedidoPorId");
     return new PedidoResponse(pedido);
+  }
+
+  @Override
+  @Transactional
+  public void atualizaStatusPedido(UUID idPedido, StatusPedidoRequest statusPedidoRequest) {
+    log.info("[start] PedidoApplicationService - atualizaStatusPedido");
+    Pedido pedido = pedidoRepository.buscaPedidoPorId(idPedido);
+    StatusPedido novoStatus = statusPedidoRequest.getNovoStatus();
+    pedido.atualizarStatus(novoStatus);
+    processaAcoesDeStatus(pedido, novoStatus);
+    pedidoRepository.salva(pedido);
+    log.info("[finish] PedidoApplicationService - atualizaStatusPedido");
+  }
+
+  private void processaAcoesDeStatus(Pedido pedido, StatusPedido novoStatus) {
+    if (novoStatus == StatusPedido.CANCELADO) {
+      log.info("[estoque] Iniciando liberação de estoque para o pedido: {}", pedido.getId());
+
+      pedido
+          .getItensPedido()
+          .forEach(
+              item -> {
+                Estoque estoque =
+                    estoqueRepository
+                        .buscaEstoquePorIdProduto(item.getProduto().getId())
+                        .orElseThrow();
+                estoque.liberaReserva(item.getQuantidade());
+                estoqueRepository.salva(estoque);
+                log.info(
+                    "[estoque] Liberado: {} unidades para o produto: {}",
+                    item.getQuantidade(),
+                    item.getProduto().getDescricao());
+              });
+    }
+
+    if (novoStatus == StatusPedido.ENVIADO) {
+      log.info("[envio] Notificando cliente sobre o envio: {}", pedido.getCliente().getId());
+    }
+
+    eventPublisher.publishEvent(new PedidoStatusEvent(pedido, novoStatus));
   }
 }
