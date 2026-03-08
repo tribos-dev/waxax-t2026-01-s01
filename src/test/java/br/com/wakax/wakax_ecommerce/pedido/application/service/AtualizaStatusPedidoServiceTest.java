@@ -41,7 +41,10 @@ class AtualizaStatusPedidoServiceTest {
   @Mock private PedidoRepository pedidoRepository;
   @Mock private EstoqueRepository estoqueRepository;
   @Mock private ApplicationEventPublisher eventPublisher;
-  @Mock private br.com.wakax.wakax_ecommerce.carrinho.application.repository.CarrinhoRepository carrinhoRepository;
+
+  @Mock
+  private br.com.wakax.wakax_ecommerce.carrinho.application.repository.CarrinhoRepository
+      carrinhoRepository;
 
   @InjectMocks private PedidoApplicationService service;
 
@@ -106,7 +109,6 @@ class AtualizaStatusPedidoServiceTest {
     verify(pedidoRepository, never()).salva(any());
     verify(eventPublisher, never()).publishEvent(any());
   }
-
 
   private Pedido criarPedido(StatusPedido status) {
     Cliente cliente = mock(Cliente.class);
