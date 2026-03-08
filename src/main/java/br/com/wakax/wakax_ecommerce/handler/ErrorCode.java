@@ -29,7 +29,8 @@ public enum ErrorCode {
   PEDIDO_NAO_POSSUI_RASTREIO("pedido.nao.possui.rastreio"),
   STATUS_PAGAMENTO_INVALIDO("status.de.pagamento.invalido"),
   EMAIL_INFORMADO_NAO_ENCONTRADO("email.informado.nao.encontrado"),
-  TELEFONE_INFORMADO_NAO_ENCONTRADO("telefone.informado.nao.encontrado");
+  TELEFONE_INFORMADO_NAO_ENCONTRADO("telefone.informado.nao.encontrado"),
+  TRANSICAO_STATUS_INVALIDA("transicao.status.invalida");
 
   private final String code;
 
