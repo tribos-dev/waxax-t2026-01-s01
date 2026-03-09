@@ -47,10 +47,10 @@ public class CarrinhoController implements CarrinhoAPI {
   }
 
   @Override
-  public void deletaItemDoCarrinho(String token, UUID idCarrinho, UUID idProduto) {
+  public void deletaItemDoCarrinho(String token, UUID idCarrinho, UUID idItem) {
     log.info("[start] CarrinhoController - deletaItemDoCarrinho");
     String usuario = getUsuarioByToken(token);
-    carrinhoService.deletaItemDoCarrinho(usuario, idCarrinho, idProduto);
+    carrinhoService.deletaItemDoCarrinho(usuario, idCarrinho, idItem);
     log.info("[finish] CarrinhoController - deletaItemDoCarrinho");
   }
 

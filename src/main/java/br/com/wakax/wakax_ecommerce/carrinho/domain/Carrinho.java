@@ -73,7 +73,25 @@ public class Carrinho {
     }
   }
 
-  public void removeItem(UUID idItem) {
+  public void removeItem(UUID idItem, String email) {
+
+    boolean pertenceAoUsuario =
+            this.cliente
+                    .getPessoa()
+                    .getEmails()
+                    .contains(email);
+
+    if (!pertenceAoUsuario) {
+      throw new APIException(
+              HttpStatus.BAD_REQUEST,
+              ErrorCode.ITEM_CARRINHO_NAO_ENCONTRADO);
+    }
+
+    if (this.statusCarrinho != StatusCarrinho.ATIVO) {
+      throw APIException.build(
+              HttpStatus.BAD_REQUEST,
+              "Carrinho não permite modificação");
+    }
 
     ItemCarrinho item = this.itensCarrinho.stream()
             .filter(i -> i.getId().equals(idItem))

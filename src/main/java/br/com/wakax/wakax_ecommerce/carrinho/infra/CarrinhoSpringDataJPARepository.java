@@ -15,14 +15,4 @@ public interface CarrinhoSpringDataJPARepository extends JpaRepository<Carrinho,
 
   List<Carrinho> findAllByClienteIdOrderByDataCriacaoDesc(UUID idCliente);
 
-  @Query("""
-       select count(c) > 0
-       from Carrinho c
-       join c.cliente cl
-       join cl.pessoa p
-       join p.emails e
-       where c.id = :idCarrinho
-       and lower(e) = lower(:email)
-       """)
-  boolean existsByIdAndEmail(UUID idCarrinho, String email);
 }
