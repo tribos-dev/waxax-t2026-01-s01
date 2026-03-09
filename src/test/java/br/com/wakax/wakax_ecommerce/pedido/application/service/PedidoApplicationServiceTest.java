@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
+import br.com.wakax.wakax_ecommerce.pessoa.domain.StatusPessoa;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -32,6 +33,7 @@ import br.com.wakax.wakax_ecommerce.pessoa.domain.Endereco;
 import br.com.wakax.wakax_ecommerce.pessoa.domain.Pessoa;
 import br.com.wakax.wakax_ecommerce.produto.domain.Preco;
 import br.com.wakax.wakax_ecommerce.produto.domain.Produto;
+import org.springframework.http.HttpStatus;
 
 @ExtendWith(MockitoExtension.class)
 class PedidoApplicationServiceTest {
@@ -290,4 +292,36 @@ class PedidoApplicationServiceTest {
     verifyNoMoreInteractions(pedidoRepository);
     verifyNoInteractions(carrinhoRepository);
   }
+
+  @Test
+  void deveLancarExcecaoQuandoClienteEstiverInativo() {
+    UUID idCarrinho = UUID.randomUUID();
+
+    PedidoRequest request = mock(PedidoRequest.class);
+    when(request.getIdCarrinho()).thenReturn(idCarrinho);
+
+    Carrinho carrinho = mock(Carrinho.class);
+    Cliente cliente = mock(Cliente.class);
+    Pessoa pessoa = mock(Pessoa.class);
+
+    when(carrinho.getCliente()).thenReturn(cliente);
+    when(cliente.getPessoa()).thenReturn(pessoa);
+    when(pessoa.getStatus()).thenReturn(StatusPessoa.INATIVO);
+
+    when(carrinhoRepository.buscaCarrinhoPorId(idCarrinho))
+            .thenReturn(carrinho);
+
+    APIException ex =
+            assertThrows(APIException.class,
+                    () -> applicationService.cadastraPedido(request));
+
+    assertEquals(HttpStatus.CONFLICT, ex.getStatusException());
+    assertEquals("Cliente está inativo e não pode realizar pedidos",
+            ex.getMessage());
+
+    verify(pedidoRepository, never()).salva(any());
+  }
+
+
+
 }
