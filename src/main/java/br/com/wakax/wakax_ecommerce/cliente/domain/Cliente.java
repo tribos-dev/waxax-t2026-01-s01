@@ -6,6 +6,7 @@ import java.util.UUID;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 
+import br.com.wakax.wakax_ecommerce.cliente.application.api.request.ClienteAtualizaRequest;
 import br.com.wakax.wakax_ecommerce.cliente.application.api.request.ClienteRequest;
 import br.com.wakax.wakax_ecommerce.pessoa.domain.Pessoa;
 import lombok.*;
@@ -45,5 +46,10 @@ public class Cliente {
 
   public Cliente(ClienteRequest request) {
     this.pessoa = Pessoa.criarDe(request);
+  }
+
+  public void alterar(ClienteAtualizaRequest request) {
+    this.pessoa.alterar(request);
+    this.dataEdicao = LocalDateTime.now();
   }
 }
