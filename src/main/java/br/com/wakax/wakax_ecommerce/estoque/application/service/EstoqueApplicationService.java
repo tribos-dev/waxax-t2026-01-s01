@@ -65,8 +65,8 @@ public class EstoqueApplicationService implements EstoqueService {
     return disponivel;
   }
 
-    @Override
-    @Transactional
+  @Override
+  @Transactional
   public void reservaQuantidade(UUID idProduto, Integer quantidade) {
     log.info("[start] EstoqueApplicationService - reservaQuantidade");
     Estoque estoque = buscaEstoqueExistente(idProduto);
