@@ -29,8 +29,7 @@ public enum ErrorCode {
   PEDIDO_NAO_POSSUI_RASTREIO("pedido.nao.possui.rastreio"),
   STATUS_PAGAMENTO_INVALIDO("status.de.pagamento.invalido"),
   EMAIL_INFORMADO_NAO_ENCONTRADO("email.informado.nao.encontrado"),
-  TELEFONE_INFORMADO_NAO_ENCONTRADO("telefone.informado.nao.encontrado");
-  STATUS_PAGAMENTO_INVALIDO("status.de.pagamento.invalido"),
+  TELEFONE_INFORMADO_NAO_ENCONTRADO("telefone.informado.nao.encontrado"),
   LIMITE_DE_TENTATIVAS_EXCEDIDO("limite.de.tentativas.excedido"),
   PAGAMENTO_JA_PROCESSADO_COM_SUCESSO("pagamento.ja.processado.com.sucesso"),
   PAGAMENTO_NAO_PODE_SER_REPROCESSADO("pagamento.nao.pode.ser.reprocessado");
