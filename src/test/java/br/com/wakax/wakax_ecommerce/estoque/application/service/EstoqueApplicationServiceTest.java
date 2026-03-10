@@ -1,58 +1,82 @@
 package br.com.wakax.wakax_ecommerce.estoque.application.service;
 
-import br.com.wakax.wakax_ecommerce.estoque.api.response.EstoqueListagemResponse;
-import br.com.wakax.wakax_ecommerce.estoque.application.repository.EstoqueRepository;
-import br.com.wakax.wakax_ecommerce.estoque.domain.Estoque;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
+import java.math.BigDecimal;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.math.BigDecimal;
-import java.util.Collections;
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import br.com.wakax.wakax_ecommerce.estoque.api.request.RemoveEstoqueRequest;
+import br.com.wakax.wakax_ecommerce.estoque.api.response.EstoqueListagemResponse;
+import br.com.wakax.wakax_ecommerce.estoque.application.repository.EstoqueRepository;
+import br.com.wakax.wakax_ecommerce.estoque.domain.Estoque;
 
 @ExtendWith(MockitoExtension.class)
 class EstoqueApplicationServiceTest {
 
-    @Mock
-    private EstoqueRepository estoqueRepository;
+  @Mock private EstoqueRepository estoqueRepository;
 
-    @InjectMocks
-    private EstoqueApplicationService estoqueService;
+  @InjectMocks private EstoqueApplicationService estoqueService;
 
-    @Test
-    void deveListarTodoEstoqueComSucesso() {
-        List<Estoque> estoques = EstoqueDataHelper.listaEstoquePadrao();
-        when(estoqueRepository.buscarComFiltro(null, null)).thenReturn(estoques);
-        EstoqueListagemResponse response = estoqueService.listarTodoEstoque(null, null);
-        assertNotNull(response);
-        assertEquals(2, response.getItens().size());
-        assertEquals("Mouse", response.getItens().get(0).getDescricaoProduto());
-        assertEquals("Notebook", response.getItens().get(1).getDescricaoProduto());
-        verify(estoqueRepository, times(1)).buscarComFiltro(null, null);
-    }
+  @Test
+  void deveListarTodoEstoqueComSucesso() {
+    List<Estoque> estoques = EstoqueDataHelper.listaEstoquePadrao();
+    when(estoqueRepository.buscarComFiltro(null, null)).thenReturn(estoques);
+    EstoqueListagemResponse response = estoqueService.listarTodoEstoque(null, null);
+    assertNotNull(response);
+    assertEquals(2, response.getItens().size());
+    assertEquals("Mouse", response.getItens().get(0).getDescricaoProduto());
+    assertEquals("Notebook", response.getItens().get(1).getDescricaoProduto());
+    verify(estoqueRepository, times(1)).buscarComFiltro(null, null);
+  }
 
-    @Test
-    void deveRetornarListaVaziaQuandoNaoHaEstoque() {
-        when(estoqueRepository.buscarComFiltro(null, null)).thenReturn(Collections.emptyList());
-        EstoqueListagemResponse response = estoqueService.listarTodoEstoque(null, null);
-        assertNotNull(response);
-        assertTrue(response.getItens().isEmpty());
-        assertEquals(0, BigDecimal.ZERO.compareTo(response.getValorTotalInventario()));
-        verify(estoqueRepository).buscarComFiltro(null, null);
-    }
+  @Test
+  void deveRetornarListaVaziaQuandoNaoHaEstoque() {
+    when(estoqueRepository.buscarComFiltro(null, null)).thenReturn(Collections.emptyList());
+    EstoqueListagemResponse response = estoqueService.listarTodoEstoque(null, null);
+    assertNotNull(response);
+    assertTrue(response.getItens().isEmpty());
+    assertEquals(0, BigDecimal.ZERO.compareTo(response.getValorTotalInventario()));
+    verify(estoqueRepository).buscarComFiltro(null, null);
+  }
 
-    @Test
-    void deveCalcularValorTotalDoInventario() {
-        List<Estoque> estoques = EstoqueDataHelper.listaEstoquePadrao();
-        when(estoqueRepository.buscarComFiltro(null, null)).thenReturn(estoques);
-        EstoqueListagemResponse response = estoqueService.listarTodoEstoque(null, null);
-        assertEquals(0, new BigDecimal("90").compareTo(response.getValorTotalInventario()));
-        verify(estoqueRepository).buscarComFiltro(null, null);
-    }
+  @Test
+  void deveCalcularValorTotalDoInventario() {
+    List<Estoque> estoques = EstoqueDataHelper.listaEstoquePadrao();
+    when(estoqueRepository.buscarComFiltro(null, null)).thenReturn(estoques);
+    EstoqueListagemResponse response = estoqueService.listarTodoEstoque(null, null);
+    assertEquals(0, new BigDecimal("90").compareTo(response.getValorTotalInventario()));
+    verify(estoqueRepository).buscarComFiltro(null, null);
+  }
+
+  @Test
+  void deveExecutarBaixaDeEstoque() {
+    UUID idProduto = UUID.randomUUID();
+    Estoque estoqueMock =
+        Estoque.builder()
+            .id(UUID.randomUUID())
+            .quantidadeDisponivel(20)
+            .custoMedio(BigDecimal.TEN)
+            .custoTotal(new BigDecimal("200"))
+            .build();
+
+    RemoveEstoqueRequest request = new RemoveEstoqueRequest(5);
+
+    when(estoqueRepository.buscaEstoquePorIdProduto(idProduto))
+        .thenReturn(Optional.of(estoqueMock));
+
+    estoqueService.removeQuantidadeEstoque(idProduto, request);
+
+    verify(estoqueRepository, times(1)).salva(any(Estoque.class));
+    assertEquals(15, estoqueMock.getQuantidadeDisponivel());
+  }
 }
