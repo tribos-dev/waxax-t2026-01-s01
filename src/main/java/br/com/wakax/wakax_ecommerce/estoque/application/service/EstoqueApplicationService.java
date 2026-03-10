@@ -95,16 +95,6 @@ public class EstoqueApplicationService implements EstoqueService {
     return EstoqueListagemResponse.of(estoques);
   }
 
-  @Override
-  @Transactional
-  public void removeQuantidadeEstoque(UUID idProduto, RemoveEstoqueRequest request) {
-    log.info("[start] EstoqueApplicationService - removeQuantidadeEstoque");
-    Estoque estoque = buscaEstoqueExistente(idProduto);
-    estoque.removeQuantidade(request.quantidade());
-    estoqueRepository.salva(estoque);
-    log.debug("[finish] EstoqueApplicationService - removeQuantidadeEstoque");
-  }
-
   private void validaSeJaExisteEstoque(UUID idProduto) {
     estoqueRepository
         .buscaEstoquePorIdProduto(idProduto)
