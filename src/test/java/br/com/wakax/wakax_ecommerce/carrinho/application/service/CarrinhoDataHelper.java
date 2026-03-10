@@ -135,6 +135,7 @@ public final class CarrinhoDataHelper {
             .carrinho(carrinho)
             .produto(produto)
             .quantidade(2)
+            .precoUnitario(produto.getPrecoPadrao())
             .build();
 
     carrinho.getItensCarrinho().add(item);
@@ -150,6 +151,7 @@ public final class CarrinhoDataHelper {
             .carrinho(carrinho)
             .produto(produto)
             .quantidade(2)
+            .precoUnitario(produto.getPrecoPadrao())
             .build();
 
     carrinho.getItensCarrinho().add(item);
