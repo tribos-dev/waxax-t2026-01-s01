@@ -9,8 +9,7 @@ import org.springframework.stereotype.Service;
 
 import br.com.wakax.wakax_ecommerce.carrinho.application.repository.CarrinhoRepository;
 import br.com.wakax.wakax_ecommerce.carrinho.domain.Carrinho;
-import br.com.wakax.wakax_ecommerce.estoque.application.repository.EstoqueRepository;
-import br.com.wakax.wakax_ecommerce.estoque.domain.Estoque;
+import br.com.wakax.wakax_ecommerce.estoque.application.service.EstoqueService;
 import br.com.wakax.wakax_ecommerce.pedido.application.api.request.PedidoRequest;
 import br.com.wakax.wakax_ecommerce.pedido.application.api.request.StatusPedidoRequest;
 import br.com.wakax.wakax_ecommerce.pedido.application.api.response.PedidoResponse;
@@ -28,7 +27,7 @@ public class PedidoApplicationService implements PedidoService {
 
   private final PedidoRepository pedidoRepository;
   private final CarrinhoRepository carrinhoRepository;
-  private final EstoqueRepository estoqueRepository;
+  private final EstoqueService estoqueService;
   private final ApplicationEventPublisher eventPublisher;
 
   @Override
@@ -64,29 +63,31 @@ public class PedidoApplicationService implements PedidoService {
 
   private void processaAcoesDeStatus(Pedido pedido, StatusPedido novoStatus) {
     if (novoStatus == StatusPedido.CANCELADO) {
-      log.info("[estoque] Iniciando liberação de estoque para o pedido: {}", pedido.getId());
-
-      pedido
-          .getItensPedido()
-          .forEach(
-              item -> {
-                Estoque estoque =
-                    estoqueRepository
-                        .buscaEstoquePorIdProduto(item.getProduto().getId())
-                        .orElseThrow();
-                estoque.liberaReserva(item.getQuantidade());
-                estoqueRepository.salva(estoque);
-                log.info(
-                    "[estoque] Liberado: {} unidades para o produto: {}",
-                    item.getQuantidade(),
-                    item.getProduto().getDescricao());
-              });
+      liberaReservaDeProdutoNoEstoque(pedido);
     }
 
     if (novoStatus == StatusPedido.ENVIADO) {
-      log.info("[envio] Notificando cliente sobre o envio: {}", pedido.getCliente().getId());
+      notificaCliente(pedido);
     }
 
     eventPublisher.publishEvent(new PedidoStatusEvent(pedido, novoStatus));
+  }
+
+  private void liberaReservaDeProdutoNoEstoque(Pedido pedido) {
+    log.info("[estoque] Iniciando liberação de estoque para o pedido: {}", pedido.getId());
+    pedido
+        .getItensPedido()
+        .forEach(
+            item -> {
+              estoqueService.liberaReserva(item.getProduto().getId(), item.getQuantidade());
+              log.info(
+                  "[estoque] Liberado: {} unidades para o produto: {}",
+                  item.getQuantidade(),
+                  item.getProduto().getDescricao());
+            });
+  }
+
+  private void notificaCliente(Pedido pedido) {
+    log.info("[envio] Notificando cliente sobre o envio: {}", pedido.getCliente().getId());
   }
 }
