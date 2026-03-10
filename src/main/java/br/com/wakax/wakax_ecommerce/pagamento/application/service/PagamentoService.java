@@ -6,6 +6,7 @@ import br.com.wakax.wakax_ecommerce.pagamento.application.api.request.PagamentoR
 import br.com.wakax.wakax_ecommerce.pagamento.application.api.response.PagamentoPageResponse;
 import br.com.wakax.wakax_ecommerce.pagamento.application.api.response.PagamentoPedidoResponse;
 import br.com.wakax.wakax_ecommerce.pagamento.application.api.response.PagamentoResponse;
+import br.com.wakax.wakax_ecommerce.pagamento.application.api.response.ReprocessarPagamentoResponse;
 import br.com.wakax.wakax_ecommerce.pagamento.domain.StatusPagamento;
 
 public interface PagamentoService {
@@ -18,4 +19,6 @@ public interface PagamentoService {
       StatusPagamento statusPagamento, int page, int size);
 
   PagamentoPedidoResponse buscaPagamentoPorIdPedido(UUID idPedido);
+
+  ReprocessarPagamentoResponse reprocessaPagamento(UUID idPagamento);
 }
