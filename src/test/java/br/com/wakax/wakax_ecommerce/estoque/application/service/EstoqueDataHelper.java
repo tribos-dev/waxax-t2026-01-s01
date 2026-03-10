@@ -66,16 +66,16 @@ public class EstoqueDataHelper {
     return EstoqueResponse.builder().descricaoProduto(descricao).quantidadeDisponivel(qtd).build();
   }
 
-    public static Estoque createEstoque(Integer qtd, String custoMedio, String custoTotal) {
-        return Estoque.builder()
-                .id(UUID.fromString("f47ac10b-58cc-4372-a567-0e02b2c3d479"))
-                .quantidadeDisponivel(qtd)
-                .custoMedio(new BigDecimal(custoMedio))
-                .custoTotal(new BigDecimal(custoTotal))
-                .build();
-    }
+  public static Estoque createEstoque(Integer qtd, String custoMedio, String custoTotal) {
+    return Estoque.builder()
+        .id(UUID.fromString("f47ac10b-58cc-4372-a567-0e02b2c3d479"))
+        .quantidadeDisponivel(qtd)
+        .custoMedio(new BigDecimal(custoMedio))
+        .custoTotal(new BigDecimal(custoTotal))
+        .build();
+  }
 
-    public static RemoveEstoqueRequest createRequest(Integer qtd) {
-        return new RemoveEstoqueRequest(qtd);
-    }
+  public static RemoveEstoqueRequest createRequest(Integer qtd) {
+    return new RemoveEstoqueRequest(qtd);
+  }
 }
