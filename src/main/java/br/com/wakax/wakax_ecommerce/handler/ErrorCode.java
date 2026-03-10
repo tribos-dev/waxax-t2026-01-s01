@@ -27,7 +27,10 @@ public enum ErrorCode {
   PEDIDO_NAO_POSSUI_PAGAMENTO("pedido.nao.possui.pagamento"),
   CLIENTE_NAO_E_DONO_DO_PEDIDO("cliente.nao.e.dono.do.pedido"),
   PEDIDO_NAO_POSSUI_RASTREIO("pedido.nao.possui.rastreio"),
-  STATUS_PAGAMENTO_INVALIDO("status.de.pagamento.invalido");
+  STATUS_PAGAMENTO_INVALIDO("status.de.pagamento.invalido"),
+  LIMITE_DE_TENTATIVAS_EXCEDIDO("limite.de.tentativas.excedido"),
+  PAGAMENTO_JA_PROCESSADO_COM_SUCESSO("pagamento.ja.processado.com.sucesso"),
+  PAGAMENTO_NAO_PODE_SER_REPROCESSADO("pagamento.nao.pode.ser.reprocessado");
 
   private final String code;
 
