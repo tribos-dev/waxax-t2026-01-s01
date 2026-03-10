@@ -2,6 +2,9 @@ package br.com.wakax.wakax_ecommerce.pagamento.application.service;
 
 import java.util.UUID;
 
+import br.com.wakax.wakax_ecommerce.estoque.api.request.RemoveEstoqueRequest;
+import br.com.wakax.wakax_ecommerce.estoque.application.service.EstoqueApplicationService;
+import br.com.wakax.wakax_ecommerce.estoque.domain.Estoque;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -35,6 +38,7 @@ public class PagamentoApplicationService implements PagamentoService {
   private final PedidoRepository pedidoRepository;
   private final ProcessadorPagamentoFactory processadorFactory;
   private PagamentoInfraRepository pagamentoInfraRepository;
+  private final EstoqueApplicationService estoqueApplicationService;
 
   @Override
   @Transactional
@@ -55,7 +59,7 @@ public class PagamentoApplicationService implements PagamentoService {
     return new PagamentoResponse(pagamento);
   }
 
-  private void verificarSeExistePagamento(UUID pedidoId) {
+    private void verificarSeExistePagamento(UUID pedidoId) {
     pagamentoRepository
         .buscaPagamentoPorPedidoId(pedidoId)
         .ifPresent(
