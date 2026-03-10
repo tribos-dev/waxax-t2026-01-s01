@@ -62,28 +62,41 @@ public class Pagamento {
     this.statusPagamento = StatusPagamento.AGUARDANDO;
   }
 
-  public void prepararReprocessamento() {
 
+  public void prepararReprocessamento() {
+    validarPagamentoJaProcessado();
+    validarStatusParaReprocessamento();
+    validarLimiteTentativas();
+    this.tentativasPagamento++;
+    this.statusPagamento = StatusPagamento.AGUARDANDO;
+    this.dataPagamento = LocalDateTime.now();
+  }
+
+  public void validarPagamentoJaProcessado(){
     if (this.statusPagamento == StatusPagamento.PAGO) {
       throw new APIException(
               HttpStatus.CONFLICT,
               ErrorCode.PAGAMENTO_JA_PROCESSADO_COM_SUCESSO,
               this.getStatusPagamento());
     }
+  }
+
+  public void validarStatusParaReprocessamento(){
     if (this.statusPagamento != StatusPagamento.FALHOU) {
       throw new APIException(
               HttpStatus.CONFLICT,
               ErrorCode.PAGAMENTO_NAO_PODE_SER_REPROCESSADO,
               this.getStatusPagamento());
     }
+  }
+
+  public void validarLimiteTentativas(){
     if (this.tentativasPagamento >= MAX_TENTATIVAS) {
       throw new APIException(
               HttpStatus.CONFLICT,
               ErrorCode.LIMITE_DE_TENTATIVAS_EXCEDIDO,
               this.getStatusPagamento());
     }
-    this.tentativasPagamento++;
-    this.statusPagamento = StatusPagamento.AGUARDANDO;
-    this.dataPagamento = LocalDateTime.now();
   }
+
 }
