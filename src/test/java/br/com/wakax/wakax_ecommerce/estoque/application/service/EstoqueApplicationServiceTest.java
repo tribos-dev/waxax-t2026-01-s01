@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import br.com.wakax.wakax_ecommerce.handler.APIException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -58,25 +59,44 @@ class EstoqueApplicationServiceTest {
     verify(estoqueRepository).buscarComFiltro(null, null);
   }
 
-  @Test
-  void deveExecutarBaixaDeEstoque() {
-    UUID idProduto = UUID.randomUUID();
-    Estoque estoqueMock =
-        Estoque.builder()
-            .id(UUID.randomUUID())
-            .quantidadeDisponivel(20)
-            .custoMedio(BigDecimal.TEN)
-            .custoTotal(new BigDecimal("200"))
-            .build();
+    @Test
+    void deveExecutarBaixaDeEstoque() {
+        var estoque = EstoqueDataHelper.createEstoque(20, "10.00", "200.00");
+        var request = EstoqueDataHelper.createRequest(5);
 
-    RemoveEstoqueRequest request = new RemoveEstoqueRequest(5);
+        when(estoqueRepository.buscaEstoquePorIdProduto(any())).thenReturn(Optional.of(estoque));
 
-    when(estoqueRepository.buscaEstoquePorIdProduto(idProduto))
-        .thenReturn(Optional.of(estoqueMock));
+        estoqueService.removeQuantidadeEstoque(UUID.fromString("f47ac10b-58cc-4372-a567-0e02b2c3d479"), request);
 
-    estoqueService.removeQuantidadeEstoque(idProduto, request);
+        verify(estoqueRepository, times(1)).salva(estoque);
+        assertEquals(15, estoque.getQuantidadeDisponivel());
+    }
 
-    verify(estoqueRepository, times(1)).salva(any(Estoque.class));
-    assertEquals(15, estoqueMock.getQuantidadeDisponivel());
-  }
+    @Test
+    void deveZerarEstoqueECustosCompletamente() {
+        var estoque = EstoqueDataHelper.createEstoque(15, "10.00", "150.00");
+        var request = EstoqueDataHelper.createRequest(15);
+
+        when(estoqueRepository.buscaEstoquePorIdProduto(any())).thenReturn(Optional.of(estoque));
+
+        estoqueService.removeQuantidadeEstoque(UUID.fromString("f47ac10b-58cc-4372-a567-0e02b2c3d479"), request);
+
+        assertEquals(0, estoque.getQuantidadeDisponivel());
+        assertEquals(BigDecimal.ZERO, estoque.getCustoTotal());
+        verify(estoqueRepository).salva(estoque);
+    }
+
+    @Test
+    void deveFalharPorQuantidadeInsuficiente() {
+        var estoque = EstoqueDataHelper.createEstoque(10, "10.00", "100.00");
+        var request = EstoqueDataHelper.createRequest(15);
+
+        when(estoqueRepository.buscaEstoquePorIdProduto(any())).thenReturn(Optional.of(estoque));
+
+        assertThrows(APIException.class, () ->
+                estoqueService.removeQuantidadeEstoque(UUID.fromString("f47ac10b-58cc-4372-a567-0e02b2c3d479"), request));
+
+        verify(estoqueRepository, never()).salva(any()); // Garante consistência: não salvou!
+        assertEquals(10, estoque.getQuantidadeDisponivel());
+    }
 }
