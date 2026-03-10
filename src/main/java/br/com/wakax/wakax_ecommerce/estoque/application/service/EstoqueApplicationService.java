@@ -64,8 +64,7 @@ public class EstoqueApplicationService implements EstoqueService {
     log.info("[finish] EstoqueApplicationService - temQuantidadeDisponivel");
     return disponivel;
   }
-  
-  
+
   public void reservaQuantidade(UUID idProduto, Integer quantidade) {
     log.info("[start] EstoqueApplicationService - reservaQuantidade");
     Estoque estoque = buscaEstoqueExistente(idProduto);
@@ -93,8 +92,8 @@ public class EstoqueApplicationService implements EstoqueService {
     log.info("[finish] listarTodoEstoque - Total: {}", estoques.size());
     return EstoqueListagemResponse.of(estoques);
   }
-  
-   @Override
+
+  @Override
   @Transactional
   public void removeQuantidadeEstoque(UUID idProduto, RemoveEstoqueRequest request) {
     log.info("[start] EstoqueApplicationService - removeQuantidadeEstoque");
@@ -102,7 +101,7 @@ public class EstoqueApplicationService implements EstoqueService {
     estoque.removeQuantidade(request.quantidade());
     estoqueRepository.salva(estoque);
     log.debug("[finish] EstoqueApplicationService - removeQuantidadeEstoque");
-}
+  }
 
   private void validaSeJaExisteEstoque(UUID idProduto) {
     estoqueRepository
@@ -112,3 +111,4 @@ public class EstoqueApplicationService implements EstoqueService {
               throw new APIException(HttpStatus.CONFLICT, ErrorCode.ESTOQUE_JA_EXISTE);
             });
   }
+}

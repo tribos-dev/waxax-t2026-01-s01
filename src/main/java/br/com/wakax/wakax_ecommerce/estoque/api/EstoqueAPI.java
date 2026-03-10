@@ -29,7 +29,7 @@ public interface EstoqueAPI {
   ResponseEntity<EstoqueListagemResponse> listarTodoEstoque(
       @RequestParam(value = "quantidadeMinima", required = false) Integer quantidadeMinima,
       @RequestParam(value = "apenasEmFalta", required = false) Boolean apenasEmFalta);
-  
+
   @PatchMapping("/produto/{idProduto}/remocao")
   @ResponseStatus(HttpStatus.NO_CONTENT)
   void removeQuantidadeEstoque(
