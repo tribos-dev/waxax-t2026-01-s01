@@ -33,6 +33,5 @@ public interface EstoqueAPI {
   @PatchMapping("/produto/{idProduto}/remocao")
   @ResponseStatus(HttpStatus.NO_CONTENT)
   void removeQuantidadeEstoque(
-      // @RequestHeader(name = "Authorization", required = true) String token,
       @PathVariable UUID idProduto, @Valid @RequestBody RemoveEstoqueRequest request);
 }
