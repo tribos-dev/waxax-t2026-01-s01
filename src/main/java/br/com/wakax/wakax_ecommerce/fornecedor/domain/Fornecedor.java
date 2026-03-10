@@ -1,16 +1,13 @@
 package br.com.wakax.wakax_ecommerce.fornecedor.domain;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 import javax.persistence.*;
 import javax.validation.constraints.*;
 
 import br.com.wakax.wakax_ecommerce.fornecedor.application.api.request.FornecedorRequest;
-import br.com.wakax.wakax_ecommerce.fornecedor.application.api.request.FornecedorUpdateRequest;
-import br.com.wakax.wakax_ecommerce.pessoa.domain.Endereco;
+import br.com.wakax.wakax_ecommerce.fornecedor.application.api.request.FornecedorAtualizaResponse;
 import br.com.wakax.wakax_ecommerce.pessoa.domain.Pessoa;
 import lombok.*;
 
@@ -71,24 +68,26 @@ public class Fornecedor {
     this.nomeFantasia = request.getNomeFantasia();
   }
 
-  public void FornecedorUpdate(FornecedorUpdateRequest request) {
-    Optional.ofNullable(request.getInscricaoEstadual())
-            .ifPresent(this::setInscricaoEstadual);
+  public void atualizacaoFornecedor(FornecedorAtualizaResponse request) {
 
-    Optional.ofNullable(request.getRazaoSocial())
-            .ifPresent(this::setRazaoSocial);
-
-    Optional.ofNullable(request.getNomeFantasia())
-            .ifPresent(this::setNomeFantasia);
-
-    Optional.ofNullable(request.getEmails())
-            .ifPresent(pessoa::setEmails);
-
-    Optional.ofNullable(request.getTelefones())
-            .ifPresent(pessoa::setTelefones);
-
-    Optional.ofNullable(request.getEnderecos())
-            .ifPresent(pessoa::setEnderecos);
+    if (request.getInscricaoEstadual() != null) {
+      this.inscricaoEstadual = request.getInscricaoEstadual();
+    }
+    if (request.getRazaoSocial() != null) {
+      this.razaoSocial = request.getRazaoSocial();
+    }
+    if (request.getNomeFantasia() != null) {
+      this.nomeFantasia = request.getNomeFantasia();
+    }
+    if (request.getEmails() != null) {
+      this.pessoa.setEmails(request.getEmails());
+    }
+    if (request.getTelefones() != null) {
+      this.pessoa.setTelefones(request.getTelefones());
+    }
+    if (request.getEnderecos() != null) {
+      this.pessoa.setEnderecos(request.getEnderecos());
+    }
 
     this.dataEdicao = LocalDateTime.now();
   }

@@ -8,8 +8,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
-import br.com.wakax.wakax_ecommerce.fornecedor.application.api.request.FornecedorUpdateRequest;
-import br.com.wakax.wakax_ecommerce.fornecedor.application.api.response.FornecedorUpdateResponse;
+import br.com.wakax.wakax_ecommerce.fornecedor.application.api.request.FornecedorAtualizaResponse;
 import br.com.wakax.wakax_ecommerce.pessoa.domain.Pessoa;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -40,7 +39,7 @@ class FornecedorApplicationServiceTest {
   private FornecedorRequest fornecedorRequest;
   private Fornecedor fornecedor;
   private UUID fornecedorId;
-  private FornecedorUpdateRequest fornecedorUpdateRequest;
+  private FornecedorAtualizaResponse fornecedorUpdateRequest;
 
   private Pessoa criarPessoaPadrao() {
     return Pessoa.builder()
@@ -63,8 +62,8 @@ class FornecedorApplicationServiceTest {
             .build();
   }
 
-  private FornecedorUpdateRequest criarRequestAtualizacao() {
-    return new FornecedorUpdateRequest(
+  private FornecedorAtualizaResponse criarRequestAtualizacao() {
+    return new FornecedorAtualizaResponse(
             List.of("novo@email.com"),
             List.of("11999999999"),
             List.of(),
@@ -201,7 +200,7 @@ class FornecedorApplicationServiceTest {
 
     UUID idFornecedor = UUID.randomUUID();
     Fornecedor fornecedor = criarFornecedorExistente(idFornecedor);
-    FornecedorUpdateRequest request = criarRequestAtualizacao();
+    FornecedorAtualizaResponse request = criarRequestAtualizacao();
 
     when(fornecedorRepository.buscaFornecedorPorId(idFornecedor))
             .thenReturn(fornecedor);
@@ -209,7 +208,7 @@ class FornecedorApplicationServiceTest {
     when(fornecedorRepository.atualiza(any()))
             .thenAnswer(invocation -> invocation.getArgument(0));
 
-    FornecedorUpdateResponse response =
+    br.com.wakax.wakax_ecommerce.fornecedor.application.api.response.FornecedorAtualizaResponse response =
             fornecedorApplicationService.atualizarFornecedor(idFornecedor, request);
 
     assertNotNull(response);
@@ -225,7 +224,7 @@ class FornecedorApplicationServiceTest {
   void deveLancarExcecaoAoAtualizarQuandoFornecedorNaoEncontrado() {
 
     UUID idFornecedor = UUID.randomUUID();
-    FornecedorUpdateRequest request = criarRequestAtualizacao();
+    FornecedorAtualizaResponse request = criarRequestAtualizacao();
 
     when(fornecedorRepository.buscaFornecedorPorId(idFornecedor))
             .thenThrow(new APIException(
