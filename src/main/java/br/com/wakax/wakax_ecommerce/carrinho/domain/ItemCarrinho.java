@@ -37,14 +37,18 @@ public class ItemCarrinho {
   @Min(1)
   private Integer quantidade;
 
+  @Column(nullable = false)
+  @NotNull
+  private BigDecimal precoUnitario;
+
   public ItemCarrinho(Carrinho carrinho, Produto produto, ItemCarrinhoRequest itemCarrinhoRequest) {
     this.carrinho = carrinho;
     this.produto = produto;
     this.quantidade = itemCarrinhoRequest.getQuantidade();
+    this.precoUnitario = produto.getPrecoPadrao();
   }
 
   public BigDecimal getValorTotalDoItem() {
-    BigDecimal valorUnitario = this.produto.getPrecoPadrao();
-    return valorUnitario.multiply(new BigDecimal(this.quantidade));
+    return this.precoUnitario.multiply(new BigDecimal(this.quantidade));
   }
 }

@@ -1,5 +1,6 @@
 package br.com.wakax.wakax_ecommerce.estoque.infra;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -46,5 +47,21 @@ public class EstoqueInfraRepository implements EstoqueRepository {
                 () -> new APIException(HttpStatus.NOT_FOUND, ErrorCode.ESTOQUE_NAO_ENCONTRADO));
     log.debug("[finish] EstoqueInfraRepository - buscaEstoquePorId");
     return estoque;
+  }
+
+  @Override
+  public List<Estoque> buscaTodosEstoques() {
+    return estoqueJPARepository.findAll();
+  }
+
+  @Override
+  public List<Estoque> buscarComFiltro(Integer quantidadeMinima, Boolean apenasEmFalta) {
+    if (Boolean.TRUE.equals(apenasEmFalta)) {
+      return estoqueJPARepository.findByQuantidadeDisponivelEquals(0);
+    }
+    if (quantidadeMinima != null) {
+      return estoqueJPARepository.findByQuantidadeDisponivelGreaterThanEqual(quantidadeMinima);
+    }
+    return estoqueJPARepository.findAll();
   }
 }

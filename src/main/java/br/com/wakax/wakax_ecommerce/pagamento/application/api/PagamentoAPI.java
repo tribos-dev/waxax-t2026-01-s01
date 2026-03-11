@@ -1,26 +1,37 @@
 package br.com.wakax.wakax_ecommerce.pagamento.application.api;
 
-import java.util.UUID;
-
-import javax.validation.Valid;
-
+import br.com.wakax.wakax_ecommerce.pagamento.application.api.request.PagamentoRequest;
+import br.com.wakax.wakax_ecommerce.pagamento.application.api.response.PagamentoPageResponse;
+import br.com.wakax.wakax_ecommerce.pagamento.application.api.response.PagamentoPedidoResponse;
+import br.com.wakax.wakax_ecommerce.pagamento.application.api.response.PagamentoResponse;
+import br.com.wakax.wakax_ecommerce.pagamento.domain.StatusPagamento;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
-import br.com.wakax.wakax_ecommerce.pagamento.application.api.request.PagamentoRequest;
-import br.com.wakax.wakax_ecommerce.pagamento.application.api.response.PagamentoResponse;
+import javax.validation.Valid;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/pagamento")
 public interface PagamentoAPI {
-  @PostMapping
-  @ResponseStatus(HttpStatus.CREATED)
-  PagamentoResponse processaPagamento(@Valid @RequestBody PagamentoRequest novoPagamento);
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    PagamentoResponse processaPagamento(@Valid @RequestBody PagamentoRequest novoPagamento);
 
-  @GetMapping("/{idPagamento}")
-  PagamentoResponse buscaPagamentoPorId(@PathVariable UUID idPagamento);
+    @GetMapping("/{idPagamento}")
+    PagamentoResponse buscaPagamentoPorId(@PathVariable UUID idPagamento);
 
-  @PostMapping("/{idPagamento}/confirmar")
-  PagamentoResponse confirmarPagamento(@PathVariable UUID idPagamento);
+    @GetMapping()
+    @ResponseStatus(HttpStatus.OK)
+    PagamentoPageResponse buscaPagamentosPaginado(
+            @RequestParam(value = "status", required = false) StatusPagamento statusPagamento,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size);
+
+    @GetMapping("/pedido/{idPedido}")
+    PagamentoPedidoResponse buscaPagamentoPorIdPedido(@PathVariable UUID idPedido);
+
+    @PostMapping("/{idPagamento}/confirmar")
+    PagamentoResponse confirmarPagamento(@PathVariable UUID idPagamento);
 
 }

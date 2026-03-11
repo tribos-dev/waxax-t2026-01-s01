@@ -2,9 +2,11 @@ package br.com.wakax.wakax_ecommerce.estoque.api;
 
 import java.util.UUID;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.com.wakax.wakax_ecommerce.estoque.api.request.EstoqueRequest;
+import br.com.wakax.wakax_ecommerce.estoque.api.response.EstoqueListagemResponse;
 import br.com.wakax.wakax_ecommerce.estoque.api.response.EstoqueResponse;
 import br.com.wakax.wakax_ecommerce.estoque.application.service.EstoqueService;
 import lombok.RequiredArgsConstructor;
@@ -31,5 +33,15 @@ public class EstoqueController implements EstoqueAPI {
     EstoqueResponse response = estoqueService.buscaEstoquePorIdProduto(idProduto);
     log.debug("[finish] EstoqueController - buscaEstoquePorIdProduto");
     return response;
+  }
+
+  @Override
+  public ResponseEntity<EstoqueListagemResponse> listarTodoEstoque(
+      Integer quantidadeMinima, Boolean apenasEmFalta) {
+    log.info("[start] EstoqueController - listarTodoEstoque");
+    EstoqueListagemResponse response =
+        estoqueService.listarTodoEstoque(quantidadeMinima, apenasEmFalta);
+    log.info("[finish] EstoqueController - listarTodoEstoque");
+    return ResponseEntity.ok(response);
   }
 }

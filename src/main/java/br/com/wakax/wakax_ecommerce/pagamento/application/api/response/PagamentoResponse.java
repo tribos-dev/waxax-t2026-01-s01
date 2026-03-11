@@ -6,6 +6,7 @@ import java.util.UUID;
 
 import br.com.wakax.wakax_ecommerce.pagamento.domain.Pagamento;
 import br.com.wakax.wakax_ecommerce.pagamento.domain.StatusPagamento;
+import br.com.wakax.wakax_ecommerce.pedido.domain.FormaPagamento;
 import lombok.Getter;
 
 @Getter
@@ -16,6 +17,7 @@ public class PagamentoResponse {
   private final LocalDateTime dataPagamento;
   private final LocalDateTime dataConfirmacao;
   private final BigDecimal valor;
+  private final FormaPagamento metodoPagamento;
 
   public PagamentoResponse(Pagamento pagamento) {
     this.idPagamento = pagamento.getId();
@@ -24,5 +26,6 @@ public class PagamentoResponse {
     this.dataPagamento = pagamento.getDataPagamento();
     this.dataConfirmacao = pagamento.getDataConfirmacao();
     this.valor = pagamento.getValor();
+    this.metodoPagamento = pagamento.getPedido().getFormaPagamento();
   }
 }

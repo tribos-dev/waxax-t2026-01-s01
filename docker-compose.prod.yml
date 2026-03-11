@@ -3,15 +3,12 @@
 # qualquer alteração feita aqui irá impactar diretamente no funcionamento do CI/CD e da aplicação em produção.
 services:
   wakax:
-    container_name: wakax
-    image: ghcr.io/${IMAGE_NAME}:latest
+    container_name: wakax-prod
+    image: ghcr.io/${IMAGE_NAME}:prod-latest
     ports:
       - "${WAKAX_PORT}:8080"
     environment:
-      - AWS_REGION=${AWS_REGION}
-      - ENVIRONMENT=${ENVIRONMENT:-prod}
-      - AWS_PARAMETER_STORE_IMPORT=aws-parameterstore:/${ENVIRONMENT:-prod}/wakax/
-      - APP_PROFILE=${APP_PROFILE:-${ENVIRONMENT:-prod}}
+      - AWS_PARAMETER_STORE_IMPORT=${AWS_PARAMETER_STORE_IMPORT}
     healthcheck:
       test: ["CMD", "curl", "-f", "${HEALTH_URL}"]
       start_period: 60s

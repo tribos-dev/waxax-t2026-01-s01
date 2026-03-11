@@ -1,26 +1,11 @@
 package br.com.wakax.wakax_ecommerce.pagamento.application.service;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
-
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-
 import br.com.wakax.wakax_ecommerce.estoque.application.repository.EstoqueRepository;
 import br.com.wakax.wakax_ecommerce.estoque.domain.Estoque;
-import br.com.wakax.wakax_ecommerce.pedido.domain.ItemPedido;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.HttpStatus;
-
 import br.com.wakax.wakax_ecommerce.handler.APIException;
 import br.com.wakax.wakax_ecommerce.handler.ErrorCode;
 import br.com.wakax.wakax_ecommerce.pagamento.application.api.request.PagamentoRequest;
+import br.com.wakax.wakax_ecommerce.pagamento.application.api.response.PagamentoPageResponse;
 import br.com.wakax.wakax_ecommerce.pagamento.application.api.response.PagamentoResponse;
 import br.com.wakax.wakax_ecommerce.pagamento.application.factory.ProcessadorPagamentoFactory;
 import br.com.wakax.wakax_ecommerce.pagamento.application.repository.PagamentoRepository;
@@ -31,8 +16,29 @@ import br.com.wakax.wakax_ecommerce.pagamento.domain.Pagamento;
 import br.com.wakax.wakax_ecommerce.pagamento.domain.StatusPagamento;
 import br.com.wakax.wakax_ecommerce.pedido.application.repository.PedidoRepository;
 import br.com.wakax.wakax_ecommerce.pedido.domain.FormaPagamento;
+import br.com.wakax.wakax_ecommerce.pedido.domain.ItemPedido;
 import br.com.wakax.wakax_ecommerce.pedido.domain.Pedido;
 import br.com.wakax.wakax_ecommerce.pedido.domain.StatusPedido;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
+
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class PagamentoApplicationServiceTest {
@@ -284,74 +290,174 @@ class PagamentoApplicationServiceTest {
     }
 
     @Test
-    void deveConfirmarPagamentoComSucesso() {
-        pagamento.aguardarPagamento();
-        when(pagamentoRepository.buscaPagamentoPorId(pagamentoId)).thenReturn(pagamento);
-        when(estoqueRepository.buscaEstoquePorIdProduto(itemPedido.getProduto().getId())).thenReturn(Optional.of(estoque));
-        when(pagamentoRepository.salva(any(Pagamento.class))).thenReturn(pagamento);
-        PagamentoResponse response = pagamentoApplicationService.confirmarPagamento(pagamentoId);
+    void deveBuscarPagamentosSemFiltroComPaginacao() {
+        int page = 0;
+        int size = 10;
+        Pagamento pagamanto1 = PagamentoDataHelper.criaPagamentoValido(pedido);
+        pagamanto1.setValor(new BigDecimal("100.00"));
+        Pagamento pagamanto2 = PagamentoDataHelper.criaPagamentoValido(pedido);
+        pagamanto2.setValor(new BigDecimal("200.00"));
+
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Pagamento> pagamentos = new PageImpl<>(List.of(pagamanto1, pagamanto2), pageable, 2);
+
+        doReturn(pagamentos)
+                .when(pagamentoRepository)
+                .buscaPagamentosPaginado(isNull(), any(Pageable.class));
+
+        PagamentoPageResponse pagamentoPageResponse =
+                pagamentoApplicationService.buscaPagamentosPaginado(null, page, size);
+
+        assertNotNull(pagamentoPageResponse);
+        assertEquals(2, pagamentoPageResponse.getTotalPagamentos());
+        assertEquals(1, pagamentoPageResponse.getTotalPaginas());
+        assertTrue(
+                new BigDecimal("300.0").compareTo(pagamentoPageResponse.getValorTotalPagamentos()) == 0);
+
+        ArgumentCaptor<Pageable> pageableCaptor = ArgumentCaptor.forClass(Pageable.class);
+        verify(pagamentoRepository).buscaPagamentosPaginado(isNull(), pageableCaptor.capture());
+        Pageable pageableEnviado = pageableCaptor.getValue();
+        assertEquals(page, pageableEnviado.getPageNumber());
+        assertTrue(pageableEnviado.getSort().getOrderFor("dataPagamento").isDescending());
+    }
+
+    @Test
+    void deveBuscarPagamentosComFiltroEPaginacao() {
+        int page = 0;
+        int size = 10;
+        Pagamento pagamanto1 = PagamentoDataHelper.criaPagamentoValido(pedido);
+        pagamanto1.setValor(new BigDecimal("100.00"));
+        Pagamento pagamanto2 = PagamentoDataHelper.criaPagamentoValido(pedido);
+        pagamanto2.setValor(new BigDecimal("200.00"));
+
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Pagamento> pagamentos = new PageImpl<>(List.of(pagamanto1, pagamanto2), pageable, 2);
+
+        doReturn(pagamentos)
+                .when(pagamentoRepository)
+                .buscaPagamentosPaginado(eq(StatusPagamento.PAGO), any(Pageable.class));
+
+        PagamentoPageResponse pagamentoPageResponse =
+                pagamentoApplicationService.buscaPagamentosPaginado(
+                        StatusPagamento.valueOf("PAGO"), page, size);
+
+        assertNotNull(pagamentoPageResponse);
+        assertEquals(2, pagamentoPageResponse.getTotalPagamentos());
+        assertEquals(1, pagamentoPageResponse.getTotalPaginas());
+        assertTrue(
+                new BigDecimal("300.0").compareTo(pagamentoPageResponse.getValorTotalPagamentos()) == 0);
+
+        ArgumentCaptor<Pageable> pageableCaptor = ArgumentCaptor.forClass(Pageable.class);
+        verify(pagamentoRepository)
+                .buscaPagamentosPaginado(eq(StatusPagamento.PAGO), pageableCaptor.capture());
+        Pageable pageableEnviado = pageableCaptor.getValue();
+        assertEquals(page, pageableEnviado.getPageNumber());
+        assertTrue(pageableEnviado.getSort().getOrderFor("dataPagamento").isDescending());
+    }
+
+    @Test
+    void deveBuscarPagamentoPorIdPedidoComSucesso() {
+        when(pagamentoRepository.buscaPagamentoPorPedidoId(pedidoId))
+                .thenReturn(Optional.of(pagamento));
+
+        var response = pagamentoApplicationService.buscaPagamentoPorIdPedido(pedidoId);
+
         assertNotNull(response);
-        assertEquals(StatusPagamento.PAGO, response.getStatusPagamento());
+        assertEquals(pagamento.getStatusPagamento(), response.getStatusPagamento());
+        assertEquals(pagamento.getValor(), response.getValor());
+        verify(pagamentoRepository).buscaPagamentoPorPedidoId(pedidoId);
     }
 
     @Test
-    void deveRegistrarDataDeConfirmacaoAoConfirmarPagamento() {
-        pagamento.aguardarPagamento();
-        when(pagamentoRepository.buscaPagamentoPorId(pagamentoId)).thenReturn(pagamento);
-        when(estoqueRepository.buscaEstoquePorIdProduto(itemPedido.getProduto().getId())).thenReturn(Optional.of(estoque));
-        when(pagamentoRepository.salva(any(Pagamento.class))).thenReturn(pagamento);
-        pagamentoApplicationService.confirmarPagamento(pagamentoId);
-        assertNotNull(pagamento.getDataConfirmacao());
-    }
+    void deveLancarExcecaoQuandoPedidoNaoPossuiPagamento() {
+        when(pagamentoRepository.buscaPagamentoPorPedidoId(pedidoId)).thenReturn(Optional.empty());
 
-    @Test
-    void deveLiberarPedidoAoConfirmarPagamento() {
-        pagamento.aguardarPagamento();
-        when(pagamentoRepository.buscaPagamentoPorId(pagamentoId)).thenReturn(pagamento);
-        when(estoqueRepository.buscaEstoquePorIdProduto(itemPedido.getProduto().getId())).thenReturn(Optional.of(estoque));
-        when(pagamentoRepository.salva(any(Pagamento.class))).thenReturn(pagamento);
-        pagamentoApplicationService.confirmarPagamento(pagamentoId);
-        assertEquals(StatusPedido.PAGO, pedido.getStatus());
-        verify(pedidoRepository).salva(pedido);
-    }
+        APIException exception =
+                assertThrows(
+                        APIException.class,
+                        () -> pagamentoApplicationService.buscaPagamentoPorIdPedido(pedidoId));
 
-    @Test
-    void deveReservarEstoqueDeItensDoPedidoAoConfirmarPagamento() {
-        pagamento.aguardarPagamento();
-        when(pagamentoRepository.buscaPagamentoPorId(pagamentoId)).thenReturn(pagamento);
-        when(estoqueRepository.buscaEstoquePorIdProduto(itemPedido.getProduto().getId())).thenReturn(Optional.of(estoque));
-        when(pagamentoRepository.salva(any(Pagamento.class))).thenReturn(pagamento);
-        pagamentoApplicationService.confirmarPagamento(pagamentoId);
-        verify(estoqueRepository).buscaEstoquePorIdProduto(itemPedido.getProduto().getId());
-        verify(estoqueRepository).salva(estoque);
-
-    }
-
-    @Test
-    void deveLancarExcecaoQuandoPagamentoJaConfirmado() {
-        pagamento.confirmarPagamento();
-        when(pagamentoRepository.buscaPagamentoPorId(pagamentoId)).thenReturn(pagamento);
-        APIException exception = assertThrows(APIException.class, () -> pagamentoApplicationService.confirmarPagamento(pagamentoId));
-        assertEquals(HttpStatus.CONFLICT, exception.getStatusException());
-        assertEquals(ErrorCode.PAGAMENTO_JA_CONFIRMADO, exception.getErrorCode());
-    }
-
-    @Test
-    void naoDeveInteragirComEstoqueQuandoPagamentoJaConfirmado() {
-        pagamento.confirmarPagamento();
-        when(pagamentoRepository.buscaPagamentoPorId(pagamentoId)).thenReturn(pagamento);
-        assertThrows(APIException.class, () -> pagamentoApplicationService.confirmarPagamento(pagamentoId));
-        verify(estoqueRepository, never()).buscaEstoquePorIdProduto(any());
-        verify(estoqueRepository, never()).salva(any());
-    }
-
-    @Test
-    void naoDeveSalvarPedidoNemPagamentoQuandoPagamentoJaConfirmado() {
-        pagamento.confirmarPagamento();
-        when(pagamentoRepository.buscaPagamentoPorId(pagamentoId)).thenReturn(pagamento);
-        assertThrows(APIException.class, () -> pagamentoApplicationService.confirmarPagamento(pagamentoId));
-        verify(pedidoRepository, never()).salva(any());
-        verify(pagamentoRepository, never()).salva(any());
+        assertEquals(HttpStatus.NOT_FOUND, exception.getStatusException());
+        assertEquals(ErrorCode.PEDIDO_NAO_POSSUI_PAGAMENTO, exception.getErrorCode());
+        verify(pagamentoRepository).buscaPagamentoPorPedidoId(pedidoId);
     }
 }
+
+assertEquals(StatusPagamento.AGUARDANDO, pagamentoTeste.getStatusPagamento());
+
+assertEquals(StatusPedido.AGUARDANDO_PAGAMENTO, pedido.getStatus());
+        }
+
+@Test
+void deveConfirmarPagamentoComSucesso() {
+    pagamento.aguardarPagamento();
+    when(pagamentoRepository.buscaPagamentoPorId(pagamentoId)).thenReturn(pagamento);
+    when(estoqueRepository.buscaEstoquePorIdProduto(itemPedido.getProduto().getId())).thenReturn(Optional.of(estoque));
+    when(pagamentoRepository.salva(any(Pagamento.class))).thenReturn(pagamento);
+    PagamentoResponse response = pagamentoApplicationService.confirmarPagamento(pagamentoId);
+    assertNotNull(response);
+    assertEquals(StatusPagamento.PAGO, response.getStatusPagamento());
+}
+
+@Test
+void deveRegistrarDataDeConfirmacaoAoConfirmarPagamento() {
+    pagamento.aguardarPagamento();
+    when(pagamentoRepository.buscaPagamentoPorId(pagamentoId)).thenReturn(pagamento);
+    when(estoqueRepository.buscaEstoquePorIdProduto(itemPedido.getProduto().getId())).thenReturn(Optional.of(estoque));
+    when(pagamentoRepository.salva(any(Pagamento.class))).thenReturn(pagamento);
+    pagamentoApplicationService.confirmarPagamento(pagamentoId);
+    assertNotNull(pagamento.getDataConfirmacao());
+}
+
+@Test
+void deveLiberarPedidoAoConfirmarPagamento() {
+    pagamento.aguardarPagamento();
+    when(pagamentoRepository.buscaPagamentoPorId(pagamentoId)).thenReturn(pagamento);
+    when(estoqueRepository.buscaEstoquePorIdProduto(itemPedido.getProduto().getId())).thenReturn(Optional.of(estoque));
+    when(pagamentoRepository.salva(any(Pagamento.class))).thenReturn(pagamento);
+    pagamentoApplicationService.confirmarPagamento(pagamentoId);
+    assertEquals(StatusPedido.PAGO, pedido.getStatus());
+    verify(pedidoRepository).salva(pedido);
+}
+
+@Test
+void deveReservarEstoqueDeItensDoPedidoAoConfirmarPagamento() {
+    pagamento.aguardarPagamento();
+    when(pagamentoRepository.buscaPagamentoPorId(pagamentoId)).thenReturn(pagamento);
+    when(estoqueRepository.buscaEstoquePorIdProduto(itemPedido.getProduto().getId())).thenReturn(Optional.of(estoque));
+    when(pagamentoRepository.salva(any(Pagamento.class))).thenReturn(pagamento);
+    pagamentoApplicationService.confirmarPagamento(pagamentoId);
+    verify(estoqueRepository).buscaEstoquePorIdProduto(itemPedido.getProduto().getId());
+    verify(estoqueRepository).salva(estoque);
+
+}
+
+@Test
+void deveLancarExcecaoQuandoPagamentoJaConfirmado() {
+    pagamento.confirmarPagamento();
+    when(pagamentoRepository.buscaPagamentoPorId(pagamentoId)).thenReturn(pagamento);
+    APIException exception = assertThrows(APIException.class, () -> pagamentoApplicationService.confirmarPagamento(pagamentoId));
+    assertEquals(HttpStatus.CONFLICT, exception.getStatusException());
+    assertEquals(ErrorCode.PAGAMENTO_JA_CONFIRMADO, exception.getErrorCode());
+}
+
+@Test
+void naoDeveInteragirComEstoqueQuandoPagamentoJaConfirmado() {
+    pagamento.confirmarPagamento();
+    when(pagamentoRepository.buscaPagamentoPorId(pagamentoId)).thenReturn(pagamento);
+    assertThrows(APIException.class, () -> pagamentoApplicationService.confirmarPagamento(pagamentoId));
+    verify(estoqueRepository, never()).buscaEstoquePorIdProduto(any());
+    verify(estoqueRepository, never()).salva(any());
+}
+
+@Test
+void naoDeveSalvarPedidoNemPagamentoQuandoPagamentoJaConfirmado() {
+    pagamento.confirmarPagamento();
+    when(pagamentoRepository.buscaPagamentoPorId(pagamentoId)).thenReturn(pagamento);
+    assertThrows(APIException.class, () -> pagamentoApplicationService.confirmarPagamento(pagamentoId));
+    verify(pedidoRepository, never()).salva(any());
+    verify(pagamentoRepository, never()).salva(any());
+}
+}
+
 

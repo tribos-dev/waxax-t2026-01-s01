@@ -1,5 +1,6 @@
 package br.com.wakax.wakax_ecommerce.estoque.application.repository;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -11,4 +12,8 @@ public interface EstoqueRepository {
   Optional<Estoque> buscaEstoquePorIdProduto(UUID idProduto);
 
   Estoque buscaEstoquePorId(UUID idEstoque);
+
+  List<Estoque> buscaTodosEstoques();
+
+  List<Estoque> buscarComFiltro(Integer quantidadeMinima, Boolean apenasEmFalta);
 }

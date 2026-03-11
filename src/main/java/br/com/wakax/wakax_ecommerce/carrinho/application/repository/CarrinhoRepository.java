@@ -1,5 +1,6 @@
 package br.com.wakax.wakax_ecommerce.carrinho.application.repository;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -11,4 +12,6 @@ public interface CarrinhoRepository {
   Carrinho salva(Carrinho carrinho);
 
   Carrinho buscaCarrinhoPorId(UUID idCarrinho);
+
+  List<Carrinho> buscarTodosOsCarrinhos(UUID idCliente);
 }

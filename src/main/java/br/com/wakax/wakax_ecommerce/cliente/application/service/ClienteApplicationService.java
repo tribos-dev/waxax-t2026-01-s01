@@ -2,9 +2,14 @@ package br.com.wakax.wakax_ecommerce.cliente.application.service;
 
 import java.util.UUID;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import br.com.wakax.wakax_ecommerce.cliente.application.api.request.ClienteAtualizaRequest;
 import br.com.wakax.wakax_ecommerce.cliente.application.api.request.ClienteRequest;
+import br.com.wakax.wakax_ecommerce.cliente.application.api.response.ClienteAtualizaResponse;
 import br.com.wakax.wakax_ecommerce.cliente.application.api.response.ClienteResponse;
 import br.com.wakax.wakax_ecommerce.cliente.application.repository.ClienteRepository;
 import br.com.wakax.wakax_ecommerce.cliente.domain.Cliente;
@@ -31,5 +36,26 @@ public class ClienteApplicationService implements ClienteService {
     Cliente cliente = clienteRepository.buscaClientePorId(idCliente);
     log.debug("[finish] ClienteApplicationService - buscaClienteEspecifico");
     return new ClienteResponse(cliente);
+  }
+
+  @Override
+  @Transactional(readOnly = true)
+  public Page<Cliente> buscarTodosOsClientes(Pageable pageable) {
+    log.info("[start] ClienteApplicationService - buscarTodosOsClientes");
+    Page<Cliente> clientes = clienteRepository.buscaTodosOsClientes(pageable);
+    log.debug("[finish] ClienteApplicationService - buscarTodosOsClientes");
+    return clientes;
+  }
+
+  @Override
+  @Transactional
+  public ClienteAtualizaResponse atualizarCliente(
+      UUID idCliente, ClienteAtualizaRequest clienteRequest) {
+    log.info("[start] ClienteApplicationService - atualizarCliente");
+    Cliente cliente = clienteRepository.buscaClientePorId(idCliente);
+    cliente.alterar(clienteRequest);
+    clienteRepository.salva(cliente);
+    log.debug("[finish] ClienteApplicationService - atualizarCliente");
+    return new ClienteAtualizaResponse(cliente);
   }
 }

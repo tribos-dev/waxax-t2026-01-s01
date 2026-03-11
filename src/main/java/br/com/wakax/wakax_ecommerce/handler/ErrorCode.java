@@ -24,7 +24,13 @@ public enum ErrorCode {
   QUANTIDADE_INSUFICIENTE_ESTOQUE("quantidade.insuficiente.estoque"),
   QUANTIDADE_INVALIDA("quantidade.invalida"),
   CUSTO_INVALIDO("custo.invalido"),
-  ESTOQUE_INVALIDO("estoque.invalido");
+  ESTOQUE_INVALIDO("estoque.invalido"),
+  PEDIDO_NAO_POSSUI_PAGAMENTO("pedido.nao.possui.pagamento"),
+  CLIENTE_NAO_E_DONO_DO_PEDIDO("cliente.nao.e.dono.do.pedido"),
+  PEDIDO_NAO_POSSUI_RASTREIO("pedido.nao.possui.rastreio"),
+  STATUS_PAGAMENTO_INVALIDO("status.de.pagamento.invalido"),
+  EMAIL_INFORMADO_NAO_ENCONTRADO("email.informado.nao.encontrado"),
+  TELEFONE_INFORMADO_NAO_ENCONTRADO("telefone.informado.nao.encontrado");
 
   private final String code;
 
