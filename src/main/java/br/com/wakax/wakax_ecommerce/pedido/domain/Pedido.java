@@ -70,6 +70,10 @@ public class Pedido {
     this.valorTotal = calcularValorTotal();
   }
 
+  public void mudaStatusAguardandoPagamento() {
+    this.status = StatusPedido.AGUARDANDO_PAGAMENTO;
+  }
+
   private List<ItemPedido> mapearItensCarrinhoParaPedido(List<ItemCarrinho> itensCarrinho) {
     return itensCarrinho.stream().map(this::mapearItem).collect(Collectors.toList());
   }
