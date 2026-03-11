@@ -14,6 +14,7 @@ import br.com.wakax.wakax_ecommerce.estoque.application.repository.EstoqueReposi
 import br.com.wakax.wakax_ecommerce.estoque.domain.Estoque;
 import br.com.wakax.wakax_ecommerce.handler.APIException;
 import br.com.wakax.wakax_ecommerce.handler.ErrorCode;
+import br.com.wakax.wakax_ecommerce.pedido.domain.ItemPedido;
 import br.com.wakax.wakax_ecommerce.produto.application.repository.ProdutoRepository;
 import br.com.wakax.wakax_ecommerce.produto.domain.Produto;
 import lombok.RequiredArgsConstructor;
@@ -82,6 +83,35 @@ public class EstoqueApplicationService implements EstoqueService {
     estoque.liberaReserva(quantidade);
     estoqueRepository.salva(estoque);
     log.info("[finish] EstoqueApplicationService - liberaReserva");
+  }
+
+  @Override
+  @Transactional
+  public void liberaReservaDePedido(List<ItemPedido> itensPedido) {
+    log.info(
+        "[start] EstoqueApplicationService - liberaReservaDePedido - Total de itens: {}",
+        itensPedido.size());
+    itensPedido.forEach(
+        item -> {
+          UUID idProduto = item.getProduto().getId();
+          Integer quantidade = item.getQuantidade();
+          log.info(
+              "[estoque] Processando liberação - Produto ID: {} | Descrição: {} | Quantidade: {}",
+              idProduto,
+              item.getProduto().getDescricao(),
+              quantidade);
+          Estoque estoque = buscaEstoqueExistente(idProduto);
+          Integer quantidadeAntes = estoque.getQuantidadeDisponivel();
+          log.info("[estoque] Quantidade disponível ANTES: {}", quantidadeAntes);
+          estoque.liberaReserva(quantidade);
+          Integer quantidadeDepois = estoque.getQuantidadeDisponivel();
+          log.info("[estoque] Quantidade disponível DEPOIS: {}", quantidadeDepois);
+          estoqueRepository.salva(estoque);
+          log.info(
+              "[estoque] Liberação concluída - Diferença: {}",
+              (quantidadeDepois - quantidadeAntes));
+        });
+    log.info("[finish] EstoqueApplicationService - liberaReservaDePedido");
   }
 
   @Override

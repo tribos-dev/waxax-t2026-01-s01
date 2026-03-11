@@ -4,7 +4,6 @@ import java.util.UUID;
 
 import javax.transaction.Transactional;
 
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import br.com.wakax.wakax_ecommerce.carrinho.application.repository.CarrinhoRepository;
@@ -15,7 +14,6 @@ import br.com.wakax.wakax_ecommerce.pedido.application.api.request.StatusPedidoR
 import br.com.wakax.wakax_ecommerce.pedido.application.api.response.PedidoResponse;
 import br.com.wakax.wakax_ecommerce.pedido.application.repository.PedidoRepository;
 import br.com.wakax.wakax_ecommerce.pedido.domain.Pedido;
-import br.com.wakax.wakax_ecommerce.pedido.domain.PedidoStatusEvent;
 import br.com.wakax.wakax_ecommerce.pedido.domain.StatusPedido;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -28,7 +26,6 @@ public class PedidoApplicationService implements PedidoService {
   private final PedidoRepository pedidoRepository;
   private final CarrinhoRepository carrinhoRepository;
   private final EstoqueService estoqueService;
-  private final ApplicationEventPublisher eventPublisher;
 
   @Override
   @Transactional
@@ -37,6 +34,9 @@ public class PedidoApplicationService implements PedidoService {
     Carrinho carrinho = carrinhoRepository.buscaCarrinhoPorId(request.getIdCarrinho());
     Pedido pedido = new Pedido(request, carrinho);
     pedidoRepository.salva(pedido);
+    carrinho.finalizar();
+    carrinhoRepository.salva(carrinho);
+    log.info("[pedido] Pedido criado e carrinho finalizado: {}", carrinho.getId());
     log.debug("[finish] PedidoApplicationService - cadastraPedido");
     return new PedidoResponse(pedido);
   }
@@ -54,40 +54,25 @@ public class PedidoApplicationService implements PedidoService {
   public void atualizaStatusPedido(UUID idPedido, StatusPedidoRequest statusPedidoRequest) {
     log.info("[start] PedidoApplicationService - atualizaStatusPedido");
     Pedido pedido = pedidoRepository.buscaPedidoPorId(idPedido);
+    StatusPedido statusAnterior = pedido.getStatus();
     StatusPedido novoStatus = statusPedidoRequest.getNovoStatus();
+
+    log.info("[pedido] Mudando status de {} para {}", statusAnterior, novoStatus);
     pedido.atualizarStatus(novoStatus);
-    processaAcoesDeStatus(pedido, novoStatus);
+    processaAcoesDeStatus(pedido, statusAnterior, novoStatus);
     pedidoRepository.salva(pedido);
     log.info("[finish] PedidoApplicationService - atualizaStatusPedido");
   }
 
-  private void processaAcoesDeStatus(Pedido pedido, StatusPedido novoStatus) {
-    if (novoStatus == StatusPedido.CANCELADO) {
+  private void processaAcoesDeStatus(
+      Pedido pedido, StatusPedido statusAnterior, StatusPedido novoStatus) {
+    if (novoStatus == StatusPedido.CANCELADO && statusAnterior != StatusPedido.CANCELADO) {
       liberaReservaDeProdutoNoEstoque(pedido);
     }
-
-    if (novoStatus == StatusPedido.ENVIADO) {
-      notificaCliente(pedido);
-    }
-
-    eventPublisher.publishEvent(new PedidoStatusEvent(pedido, novoStatus));
   }
 
   private void liberaReservaDeProdutoNoEstoque(Pedido pedido) {
     log.info("[estoque] Iniciando liberação de estoque para o pedido: {}", pedido.getId());
-    pedido
-        .getItensPedido()
-        .forEach(
-            item -> {
-              estoqueService.liberaReserva(item.getProduto().getId(), item.getQuantidade());
-              log.info(
-                  "[estoque] Liberado: {} unidades para o produto: {}",
-                  item.getQuantidade(),
-                  item.getProduto().getDescricao());
-            });
-  }
-
-  private void notificaCliente(Pedido pedido) {
-    log.info("[envio] Notificando cliente sobre o envio: {}", pedido.getCliente().getId());
+    estoqueService.liberaReservaDePedido(pedido.getItensPedido());
   }
 }
