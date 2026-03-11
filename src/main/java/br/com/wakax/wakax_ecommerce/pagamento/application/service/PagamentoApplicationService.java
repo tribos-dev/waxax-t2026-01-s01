@@ -105,7 +105,6 @@ public class PagamentoApplicationService implements PagamentoService {
   public void cancelaPagamento(UUID idPagamento, CancelaPagamentoRequest cancelaPagamentoRequest) {
     log.info("[start] PagamentoApplicationService - cancelaPagamento");
     Pagamento pagamento = pagamentoRepository.buscaPagamentoPorId(idPagamento);
-    // validaStatusPagamento(pagamento);
     pagamento.mudaStatusParaFalhou(cancelaPagamentoRequest);
     pagamentoRepository.salva(pagamento);
     Pedido pedido = pagamento.getPedido();
