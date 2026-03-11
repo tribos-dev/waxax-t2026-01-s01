@@ -88,14 +88,14 @@ public class EstoqueApplicationService implements EstoqueService {
   @Override
   @Transactional
   public void liberaReservaDePedido(List<ItemPedido> itensPedido) {
-    log.info("[start] EstoqueApplicationService - liberaReservaDePedido");
+    log.debug("[start] EstoqueApplicationService - liberaReservaDePedido");
     itensPedido.forEach(
         item -> {
           Estoque estoque = buscaEstoqueExistente(item.getProduto().getId());
           estoque.liberaReserva(item.getQuantidade());
           estoqueRepository.salva(estoque);
         });
-    log.info("[finish] EstoqueApplicationService - liberaReservaDePedido");
+    log.debug("[finish] EstoqueApplicationService - liberaReservaDePedido");
   }
 
   @Override

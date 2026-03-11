@@ -52,7 +52,7 @@ public class ClienteController implements ClienteApi {
   @Override
   public ClienteAtualizaResponse atualizarCliente(
       UUID idCliente, ClienteAtualizaRequest clienteRequest) {
-    log.info("[start] ClienteController - atualizarCliente");
+    log.debug("[start] ClienteController - atualizarCliente");
     ClienteAtualizaResponse response = clienteService.atualizarCliente(idCliente, clienteRequest);
     log.debug("[finish] ClienteController - atualizarCliente");
     return response;

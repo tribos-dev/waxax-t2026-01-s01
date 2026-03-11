@@ -52,14 +52,14 @@ public class PedidoApplicationService implements PedidoService {
   @Override
   @Transactional
   public void atualizaStatusPedido(UUID idPedido, StatusPedidoRequest statusPedidoRequest) {
-    log.info("[start] PedidoApplicationService - atualizaStatusPedido");
+    log.debug("[start] PedidoApplicationService - atualizaStatusPedido");
     Pedido pedido = pedidoRepository.buscaPedidoPorId(idPedido);
     StatusPedido statusAnterior = pedido.getStatus();
     StatusPedido novoStatus = statusPedidoRequest.getNovoStatus();
     pedido.atualizarStatus(novoStatus);
     processaAcoesDeStatus(pedido, statusAnterior, novoStatus);
     pedidoRepository.salva(pedido);
-    log.info("[finish] PedidoApplicationService - atualizaStatusPedido");
+    log.debug("[finish] PedidoApplicationService - atualizaStatusPedido");
   }
 
   private void processaAcoesDeStatus(
@@ -70,7 +70,7 @@ public class PedidoApplicationService implements PedidoService {
   }
 
   private void liberaReservaDeProdutoNoEstoque(Pedido pedido) {
-    log.info("[estoque] Iniciando liberação de estoque para o pedido: {}", pedido.getId());
+    log.debug("[estoque] Iniciando liberação de estoque para o pedido: {}", pedido.getId());
     estoqueService.liberaReservaDePedido(pedido.getItensPedido());
   }
 }
