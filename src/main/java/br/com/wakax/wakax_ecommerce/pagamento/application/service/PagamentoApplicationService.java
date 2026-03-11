@@ -106,10 +106,15 @@ public class PagamentoApplicationService implements PagamentoService {
     log.info("[start] PagamentoApplicationService - cancelaPagamento");
     Pagamento pagamento = pagamentoRepository.buscaPagamentoPorId(idPagamento);
     validaStatusPagamento(pagamento);
-    Pagamento pagamentoAlterado = Pagamento.mudaStatus(pagamento, cancelaPagamentoRequest);
+      pagamento.mudaStatusParaFalhou(cancelaPagamentoRequest);
+      pagamentoRepository.salva(pagamento);
+      Pedido pedido = pagamento.getPedido();
+      pedido.mudaStatusAguardandoPagamento();
+      pedidoRepository.salva(pedido);
+    /*Pagamento pagamentoAlterado = Pagamento.mudaStatus(pagamento, cancelaPagamentoRequest);
     pagamentoRepository.salva(pagamentoAlterado);
-    Pedido pedidoAlterado = Pedido.mudaStatusAguardandoPagamento(pagamentoAlterado.getPedido());
-    pedidoRepository.salva(pedidoAlterado);
+    Pedido pedidoAlterado = Pedido.mudaStatusAguardandoPagamento(pagamentoAlterado.getPedido());*/
+    pedidoRepository.salva(pedido);
     log.info("[finish] PagamentoApplicationService - cancelaPagamento");
   }
 

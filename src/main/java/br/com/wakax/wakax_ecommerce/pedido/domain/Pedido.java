@@ -70,7 +70,11 @@ public class Pedido {
     this.valorTotal = calcularValorTotal();
   }
 
-  public static Pedido mudaStatusAguardandoPagamento(Pedido pedido) {
+    public void mudaStatusAguardandoPagamento() {
+        this.status = StatusPedido.AGUARDANDO_PAGAMENTO; // ou o status correspondente no seu enum
+    }
+
+  /*public static Pedido mudaStatusAguardandoPagamento(Pedido pedido) {
     Pedido pedidoAlterado =
         new Pedido(
             pedido.getId(),
@@ -83,7 +87,7 @@ public class Pedido {
             pedido.getEnderecoEntrega(),
             pedido.getRastreamento());
     return pedidoAlterado;
-  }
+  }*/
 
   private List<ItemPedido> mapearItensCarrinhoParaPedido(List<ItemCarrinho> itensCarrinho) {
     return itensCarrinho.stream().map(this::mapearItem).collect(Collectors.toList());
