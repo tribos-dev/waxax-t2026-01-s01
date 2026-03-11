@@ -51,7 +51,7 @@ public class FornecedorController implements FornecedorAPI {
   @Override
   public FornecedorAtualizaResponse atualizarFornecedor(UUID idFornecedor, FornecedorAtualizaRequest atualizaFornecedor) {
     log.debug("[start] FornecedorController - atualizarFornecedor");
-    br.com.wakax.wakax_ecommerce.fornecedor.application.api.response.FornecedorAtualizaResponse response = fornecedorService.atualizarFornecedor(idFornecedor, atualizaFornecedor);
+    FornecedorAtualizaResponse response = fornecedorService.atualizarFornecedor(idFornecedor, atualizaFornecedor);
     log.debug("[finish] FornecedorController - atualizarFornecedor");
     return response;
   }
