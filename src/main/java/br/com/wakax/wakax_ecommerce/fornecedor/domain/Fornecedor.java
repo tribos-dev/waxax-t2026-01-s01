@@ -69,26 +69,14 @@ public class Fornecedor {
   }
 
   public void atualizacaoFornecedor(FornecedorAtualizaRequest request) {
-
     if (request.getInscricaoEstadual() != null) {
       this.inscricaoEstadual = request.getInscricaoEstadual();
     }
-    if (request.getRazaoSocial() != null) {
-      this.razaoSocial = request.getRazaoSocial();
-    }
-    if (request.getNomeFantasia() != null) {
-      this.nomeFantasia = request.getNomeFantasia();
-    }
-    if (request.getEmails() != null) {
-      this.pessoa.setEmails(request.getEmails());
-    }
-    if (request.getTelefones() != null) {
-      this.pessoa.setTelefones(request.getTelefones());
-    }
-    if (request.getEnderecos() != null) {
-      this.pessoa.setEnderecos(request.getEnderecos());
-    }
-
+    this.razaoSocial = request.getRazaoSocial();
+    this.nomeFantasia = request.getNomeFantasia();
+    this.pessoa.setEmails(request.getEmails());
+    this.pessoa.setTelefones(request.getTelefones());
+    this.pessoa.setEnderecos(request.getEnderecos());
     this.dataEdicao = LocalDateTime.now();
   }
 }
