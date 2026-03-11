@@ -88,28 +88,12 @@ public class EstoqueApplicationService implements EstoqueService {
   @Override
   @Transactional
   public void liberaReservaDePedido(List<ItemPedido> itensPedido) {
-    log.info(
-        "[start] EstoqueApplicationService - liberaReservaDePedido - Total de itens: {}",
-        itensPedido.size());
+    log.info("[start] EstoqueApplicationService - liberaReservaDePedido");
     itensPedido.forEach(
         item -> {
-          UUID idProduto = item.getProduto().getId();
-          Integer quantidade = item.getQuantidade();
-          log.info(
-              "[estoque] Processando liberação - Produto ID: {} | Descrição: {} | Quantidade: {}",
-              idProduto,
-              item.getProduto().getDescricao(),
-              quantidade);
-          Estoque estoque = buscaEstoqueExistente(idProduto);
-          Integer quantidadeAntes = estoque.getQuantidadeDisponivel();
-          log.info("[estoque] Quantidade disponível ANTES: {}", quantidadeAntes);
-          estoque.liberaReserva(quantidade);
-          Integer quantidadeDepois = estoque.getQuantidadeDisponivel();
-          log.info("[estoque] Quantidade disponível DEPOIS: {}", quantidadeDepois);
+          Estoque estoque = buscaEstoqueExistente(item.getProduto().getId());
+          estoque.liberaReserva(item.getQuantidade());
           estoqueRepository.salva(estoque);
-          log.info(
-              "[estoque] Liberação concluída - Diferença: {}",
-              (quantidadeDepois - quantidadeAntes));
         });
     log.info("[finish] EstoqueApplicationService - liberaReservaDePedido");
   }

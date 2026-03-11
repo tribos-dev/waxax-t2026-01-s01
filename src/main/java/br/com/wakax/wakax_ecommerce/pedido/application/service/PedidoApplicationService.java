@@ -56,8 +56,6 @@ public class PedidoApplicationService implements PedidoService {
     Pedido pedido = pedidoRepository.buscaPedidoPorId(idPedido);
     StatusPedido statusAnterior = pedido.getStatus();
     StatusPedido novoStatus = statusPedidoRequest.getNovoStatus();
-
-    log.info("[pedido] Mudando status de {} para {}", statusAnterior, novoStatus);
     pedido.atualizarStatus(novoStatus);
     processaAcoesDeStatus(pedido, statusAnterior, novoStatus);
     pedidoRepository.salva(pedido);
