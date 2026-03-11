@@ -13,6 +13,7 @@ import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 
+import br.com.wakax.wakax_ecommerce.fornecedor.application.api.response.FornecedorAtualizaResponse;
 import br.com.wakax.wakax_ecommerce.pessoa.domain.Endereco;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -65,7 +66,7 @@ class FornecedorControllerTest {
     @Test
     void deveAtualizarFornecedorComSucesso() {
 
-        br.com.wakax.wakax_ecommerce.fornecedor.application.api.response.FornecedorAtualizaResponse responseMock = mock(br.com.wakax.wakax_ecommerce.fornecedor.application.api.response.FornecedorAtualizaResponse.class);
+        FornecedorAtualizaResponse responseMock = mock(FornecedorAtualizaResponse.class);
 
         when(fornecedorService.atualizarFornecedor(fornecedorId, request))
                 .thenReturn(responseMock);

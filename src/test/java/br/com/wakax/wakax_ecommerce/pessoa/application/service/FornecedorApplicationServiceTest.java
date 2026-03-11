@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.UUID;
 
 import br.com.wakax.wakax_ecommerce.fornecedor.application.api.request.FornecedorAtualizaRequest;
+import br.com.wakax.wakax_ecommerce.fornecedor.application.api.response.FornecedorAtualizaResponse;
 import br.com.wakax.wakax_ecommerce.pessoa.domain.Pessoa;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -208,7 +209,7 @@ class FornecedorApplicationServiceTest {
     when(fornecedorRepository.atualiza(any()))
             .thenAnswer(invocation -> invocation.getArgument(0));
 
-    br.com.wakax.wakax_ecommerce.fornecedor.application.api.response.FornecedorAtualizaResponse response =
+    FornecedorAtualizaResponse response =
             fornecedorApplicationService.atualizarFornecedor(idFornecedor, request);
 
     assertNotNull(response);
