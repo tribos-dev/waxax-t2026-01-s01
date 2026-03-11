@@ -1,6 +1,8 @@
 package br.com.wakax.wakax_ecommerce.cliente.application.api;
 
+import br.com.wakax.wakax_ecommerce.cliente.application.api.request.ClienteAtualizaRequest;
 import br.com.wakax.wakax_ecommerce.cliente.application.api.request.ClienteRequest;
+import br.com.wakax.wakax_ecommerce.cliente.application.api.response.ClienteAtualizaResponse;
 import br.com.wakax.wakax_ecommerce.cliente.application.api.response.ClienteListAllResponse;
 import br.com.wakax.wakax_ecommerce.cliente.application.api.response.ClienteResponse;
 import br.com.wakax.wakax_ecommerce.cliente.application.api.response.PageResponse;
@@ -24,6 +26,10 @@ public interface ClienteApi {
     @GetMapping("/clientes")
     PageResponse<ClienteListAllResponse> buscarTodosOsClientes(
             @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size);
+
+    @PatchMapping("/{idCliente}")
+    ClienteAtualizaResponse atualizarCliente(
+            @PathVariable UUID idCliente, @RequestBody @Valid ClienteAtualizaRequest clienteRequest);
 
     @PatchMapping("/{idCliente}/ativar")
     @ResponseStatus(HttpStatus.OK)

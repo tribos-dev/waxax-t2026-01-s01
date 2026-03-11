@@ -1,7 +1,9 @@
 package br.com.wakax.wakax_ecommerce.cliente.application.service;
 
 import br.com.wakax.wakax_ecommerce.carrinho.application.service.CarrinhoService;
+import br.com.wakax.wakax_ecommerce.cliente.application.api.request.ClienteAtualizaRequest;
 import br.com.wakax.wakax_ecommerce.cliente.application.api.request.ClienteRequest;
+import br.com.wakax.wakax_ecommerce.cliente.application.api.response.ClienteAtualizaResponse;
 import br.com.wakax.wakax_ecommerce.cliente.application.api.response.ClienteResponse;
 import br.com.wakax.wakax_ecommerce.cliente.application.repository.ClienteRepository;
 import br.com.wakax.wakax_ecommerce.cliente.domain.Cliente;
@@ -47,6 +49,18 @@ public class ClienteApplicationService implements ClienteService {
         Page<Cliente> clientes = clienteRepository.buscaTodosOsClientes(pageable);
         log.debug("[finish] ClienteApplicationService - buscarTodosOsClientes");
         return clientes;
+    }
+
+    @Override
+    @Transactional
+    public ClienteAtualizaResponse atualizarCliente(
+            UUID idCliente, ClienteAtualizaRequest clienteRequest) {
+        log.info("[start] ClienteApplicationService - atualizarCliente");
+        Cliente cliente = clienteRepository.buscaClientePorId(idCliente);
+        cliente.alterar(clienteRequest);
+        clienteRepository.salva(cliente);
+        log.debug("[finish] ClienteApplicationService - atualizarCliente");
+        return new ClienteAtualizaResponse(cliente);
 
     }
 

@@ -1,6 +1,8 @@
 package br.com.wakax.wakax_ecommerce.cliente.application.api;
 
+import br.com.wakax.wakax_ecommerce.cliente.application.api.request.ClienteAtualizaRequest;
 import br.com.wakax.wakax_ecommerce.cliente.application.api.request.ClienteRequest;
+import br.com.wakax.wakax_ecommerce.cliente.application.api.response.ClienteAtualizaResponse;
 import br.com.wakax.wakax_ecommerce.cliente.application.api.response.ClienteListAllResponse;
 import br.com.wakax.wakax_ecommerce.cliente.application.api.response.ClienteResponse;
 import br.com.wakax.wakax_ecommerce.cliente.application.api.response.PageResponse;
@@ -44,6 +46,16 @@ public class ClienteController implements ClienteApi {
         Page<ClienteListAllResponse> response = clientes.map(ClienteListAllResponse::new);
         log.debug("[finish] ClienteController - buscarTodosOsClientes");
         return PageResponse.from(response);
+    }
+
+    @Override
+    public ClienteAtualizaResponse atualizarCliente(
+            UUID idCliente, ClienteAtualizaRequest clienteRequest) {
+        log.info("[start] ClienteController - atualizarCliente");
+        ClienteAtualizaResponse response = clienteService.atualizarCliente(idCliente, clienteRequest);
+        log.debug("[finish] ClienteController - atualizarCliente");
+        return response;
+
     }
 
     @Override
