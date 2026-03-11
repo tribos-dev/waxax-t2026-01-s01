@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import br.com.wakax.wakax_ecommerce.cliente.domain.Cliente;
 import br.com.wakax.wakax_ecommerce.handler.APIException;
 import br.com.wakax.wakax_ecommerce.handler.ErrorCode;
+import br.com.wakax.wakax_ecommerce.pagamento.application.api.request.CancelaPagamentoRequest;
 import br.com.wakax.wakax_ecommerce.pagamento.application.api.request.PagamentoRequest;
 import br.com.wakax.wakax_ecommerce.pagamento.application.api.response.PagamentoPageResponse;
 import br.com.wakax.wakax_ecommerce.pagamento.application.api.response.PagamentoPedidoResponse;
@@ -101,6 +102,19 @@ public class PagamentoApplicationService implements PagamentoService {
                     new APIException(HttpStatus.NOT_FOUND, ErrorCode.PEDIDO_NAO_POSSUI_PAGAMENTO));
     log.debug("[finish] PagamentoApplicationService - buscaPagamentoPorIdPedido");
     return new PagamentoPedidoResponse(pagamento);
+  }
+
+  @Override
+  public void cancelaPagamento(UUID idPagamento, CancelaPagamentoRequest cancelaPagamentoRequest) {
+    log.info("[start] PagamentoApplicationService - cancelaPagamento");
+    Pagamento pagamento = pagamentoRepository.buscaPagamentoPorId(idPagamento);
+    pagamento.mudaStatusParaFalhou(cancelaPagamentoRequest);
+    pagamentoRepository.salva(pagamento);
+    Pedido pedido = pagamento.getPedido();
+    pedido.mudaStatusAguardandoPagamento();
+    pedidoRepository.salva(pedido);
+    pedidoRepository.salva(pedido);
+    log.info("[finish] PagamentoApplicationService - cancelaPagamento");
   }
 
   @Override

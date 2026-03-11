@@ -7,6 +7,11 @@ import java.util.UUID;
 import javax.persistence.*;
 import javax.validation.constraints.*;
 
+import org.springframework.http.HttpStatus;
+
+import br.com.wakax.wakax_ecommerce.handler.APIException;
+import br.com.wakax.wakax_ecommerce.handler.ErrorCode;
+import br.com.wakax.wakax_ecommerce.pagamento.application.api.request.CancelaPagamentoRequest;
 import br.com.wakax.wakax_ecommerce.handler.APIException;
 import br.com.wakax.wakax_ecommerce.handler.ErrorCode;
 import br.com.wakax.wakax_ecommerce.pedido.domain.Pedido;
@@ -41,6 +46,10 @@ public class Pagamento {
   private BigDecimal valor;
 
   @Column(nullable = false)
+  @NotNull
+  private String motivoCancelamento;
+
+  @Column(nullable = false)
   @Builder.Default
   @NotNull
   private int tentativasPagamento = 0;
@@ -52,6 +61,20 @@ public class Pagamento {
     this.statusPagamento = StatusPagamento.AGUARDANDO;
     this.dataPagamento = LocalDateTime.now();
     this.valor = pedido.getValorTotal();
+    this.motivoCancelamento = motivoCancelamento;
+  }
+
+  public void mudaStatusParaFalhou(CancelaPagamentoRequest request) {
+    validaStatusPagamento();
+
+    this.statusPagamento = StatusPagamento.FALHOU;
+    this.motivoCancelamento = request.getMotivoCancelamento();
+  }
+
+  private void validaStatusPagamento() {
+    if (this.statusPagamento == StatusPagamento.PAGO) {
+      throw new APIException(HttpStatus.CONFLICT, ErrorCode.PAGAMENTO_JA_PROCESSADO);
+    }
   }
 
   public void confirmarPagamento() {
