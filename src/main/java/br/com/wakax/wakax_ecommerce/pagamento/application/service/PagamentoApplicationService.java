@@ -102,7 +102,7 @@ public class PagamentoApplicationService implements PagamentoService {
 
   @Override
   public ReprocessarPagamentoResponse reprocessaPagamento(UUID idPagamento) {
-    log.info("[info] PagamentoApplicationService - reprocessaPagamento");
+    log.debug("[start] PagamentoApplicationService - reprocessaPagamento");
 
     Pagamento pagamento = pagamentoRepository.buscaPagamentoPorId(idPagamento);
     Pedido pedido = pagamento.getPedido();
@@ -114,7 +114,7 @@ public class PagamentoApplicationService implements PagamentoService {
 
     pedidoRepository.salva(pedido);
     pagamentoRepository.salva(pagamento);
-    log.info("[debug] PagamentoApplicationService - reprocessaPagamento");
+    log.debug("[finish] PagamentoApplicationService - reprocessaPagamento");
     return new ReprocessarPagamentoResponse(pagamento);
   }
 }
