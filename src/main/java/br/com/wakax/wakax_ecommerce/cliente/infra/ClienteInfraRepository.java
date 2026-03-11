@@ -19,37 +19,37 @@ import lombok.extern.log4j.Log4j2;
 @RequiredArgsConstructor
 @Log4j2
 public class ClienteInfraRepository implements ClienteRepository {
-    private final ClienteSpringDataJpaRepository clienteSpringDataJpaRepository;
+  private final ClienteSpringDataJpaRepository clienteSpringDataJpaRepository;
 
-    public Cliente salva(Cliente cliente) {
-        log.info("[start] ClienteInfraRepository - salva");
-        Cliente clienteSalvo = clienteSpringDataJpaRepository.save(cliente);
-        log.debug("[finish] ClienteInfraRepository - salva");
-        return clienteSalvo;
-    }
+  public Cliente salva(Cliente cliente) {
+    log.info("[start] ClienteInfraRepository - salva");
+    Cliente clienteSalvo = clienteSpringDataJpaRepository.save(cliente);
+    log.debug("[finish] ClienteInfraRepository - salva");
+    return clienteSalvo;
+  }
 
-    @Override
-    public Cliente buscaClientePorId(UUID idCliente) {
-        log.info("[start] ClienteInfraRepository - buscaClientePorId");
-        Cliente cliente =
-                clienteSpringDataJpaRepository
-                        .findById(idCliente)
-                        .orElseThrow(
-                                () -> new APIException(HttpStatus.NOT_FOUND, ErrorCode.CLIENTE_NAO_ENCONTRADO));
-        log.debug("[finish] ClienteInfraRepository - buscaClientePorId");
-        return cliente;
-    }
+  @Override
+  public Cliente buscaClientePorId(UUID idCliente) {
+    log.info("[start] ClienteInfraRepository - buscaClientePorId");
+    Cliente cliente =
+        clienteSpringDataJpaRepository
+            .findById(idCliente)
+            .orElseThrow(
+                () -> new APIException(HttpStatus.NOT_FOUND, ErrorCode.CLIENTE_NAO_ENCONTRADO));
+    log.debug("[finish] ClienteInfraRepository - buscaClientePorId");
+    return cliente;
+  }
 
-    @Override
-    public Page<Cliente> buscaTodosOsClientes(Pageable pageable) {
-        log.info("[start] ClienteInfraRepository - BuscaTodosOsClientes");
-        Page<Cliente> clientes = clienteSpringDataJpaRepository.buscaTodosOsClientes(pageable);
-        log.debug("[finish] ClienteInfraRepository - BuscaTodosOsClientes");
-        return clientes;
-    }
+  @Override
+  public Page<Cliente> buscaTodosOsClientes(Pageable pageable) {
+    log.info("[start] ClienteInfraRepository - BuscaTodosOsClientes");
+    Page<Cliente> clientes = clienteSpringDataJpaRepository.buscaTodosOsClientes(pageable);
+    log.debug("[finish] ClienteInfraRepository - BuscaTodosOsClientes");
+    return clientes;
+  }
 
-    @Override
-    public Optional<Cliente> findById(UUID idCliente) {
-        return clienteSpringDataJpaRepository.findById(idCliente);
-    }
+  @Override
+  public Optional<Cliente> findById(UUID idCliente) {
+    return clienteSpringDataJpaRepository.findById(idCliente);
+  }
 }

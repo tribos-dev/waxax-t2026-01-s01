@@ -1,5 +1,13 @@
 package br.com.wakax.wakax_ecommerce.cliente.application.service;
 
+import java.util.UUID;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import br.com.wakax.wakax_ecommerce.carrinho.application.service.CarrinhoService;
 import br.com.wakax.wakax_ecommerce.cliente.application.api.request.ClienteAtualizaRequest;
 import br.com.wakax.wakax_ecommerce.cliente.application.api.request.ClienteRequest;
@@ -11,86 +19,78 @@ import br.com.wakax.wakax_ecommerce.handler.APIException;
 import br.com.wakax.wakax_ecommerce.handler.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.UUID;
 
 @Service
 @Log4j2
 @RequiredArgsConstructor
 public class ClienteApplicationService implements ClienteService {
-    private final ClienteRepository clienteRepository;
-    private final CarrinhoService carrinhoService;
+  private final ClienteRepository clienteRepository;
+  private final CarrinhoService carrinhoService;
 
-    @Override
-    public ClienteResponse criaCliente(ClienteRequest clienteRequest) {
-        log.info("[start] ClienteApplicationService - criaCliente");
-        Cliente clienteCriado = clienteRepository.salva(new Cliente(clienteRequest));
-        log.debug("[finish] ClienteApplicationService - criaCliente");
-        return new ClienteResponse(clienteCriado);
+  @Override
+  public ClienteResponse criaCliente(ClienteRequest clienteRequest) {
+    log.info("[start] ClienteApplicationService - criaCliente");
+    Cliente clienteCriado = clienteRepository.salva(new Cliente(clienteRequest));
+    log.debug("[finish] ClienteApplicationService - criaCliente");
+    return new ClienteResponse(clienteCriado);
+  }
+
+  @Override
+  public ClienteResponse buscaClienteEspecifico(UUID idCliente) {
+    log.info("[start] ClienteApplicationService - buscaClienteEspecifico");
+    Cliente cliente = clienteRepository.buscaClientePorId(idCliente);
+    log.debug("[finish] ClienteApplicationService - buscaClienteEspecifico");
+    return new ClienteResponse(cliente);
+  }
+
+  @Override
+  @Transactional(readOnly = true)
+  public Page<Cliente> buscarTodosOsClientes(Pageable pageable) {
+    log.info("[start] ClienteApplicationService - buscarTodosOsClientes");
+    Page<Cliente> clientes = clienteRepository.buscaTodosOsClientes(pageable);
+    log.debug("[finish] ClienteApplicationService - buscarTodosOsClientes");
+    return clientes;
+  }
+
+  @Override
+  @Transactional
+  public ClienteAtualizaResponse atualizarCliente(
+      UUID idCliente, ClienteAtualizaRequest clienteRequest) {
+    log.info("[start] ClienteApplicationService - atualizarCliente");
+    Cliente cliente = clienteRepository.buscaClientePorId(idCliente);
+    cliente.alterar(clienteRequest);
+    clienteRepository.salva(cliente);
+    log.debug("[finish] ClienteApplicationService - atualizarCliente");
+    return new ClienteAtualizaResponse(cliente);
+  }
+
+  @Override
+  @Transactional
+  public ClienteResponse ativarCliente(UUID idCliente) {
+    log.info("[start] ClienteApplicationService - ativarCliente");
+    Cliente cliente = clienteRepository.buscaClientePorId(idCliente);
+    if (cliente.isAtivo()) {
+      throw new APIException(HttpStatus.BAD_REQUEST, ErrorCode.CLIENTE_JA_ATIVO);
     }
 
-    @Override
-    public ClienteResponse buscaClienteEspecifico(UUID idCliente) {
-        log.info("[start] ClienteApplicationService - buscaClienteEspecifico");
-        Cliente cliente = clienteRepository.buscaClientePorId(idCliente);
-        log.debug("[finish] ClienteApplicationService - buscaClienteEspecifico");
-        return new ClienteResponse(cliente);
+    cliente.ativar();
+    clienteRepository.salva(cliente);
+    carrinhoService.restaurarCarrinho(cliente.getId());
+    log.info("[finish] ClienteApplicationService - ativarCliente");
+    return new ClienteResponse(cliente);
+  }
+
+  @Override
+  @Transactional
+  public ClienteResponse inativarCliente(UUID idCliente) {
+    log.info("[start] ClienteApplicationService - inativarCliente");
+    Cliente cliente = clienteRepository.buscaClientePorId(idCliente);
+    if (!cliente.isAtivo()) {
+      throw new APIException(HttpStatus.BAD_REQUEST, ErrorCode.CLIENTE_JA_INATIVO);
     }
-
-    @Override
-    @Transactional(readOnly = true)
-    public Page<Cliente> buscarTodosOsClientes(Pageable pageable) {
-        log.info("[start] ClienteApplicationService - buscarTodosOsClientes");
-        Page<Cliente> clientes = clienteRepository.buscaTodosOsClientes(pageable);
-        log.debug("[finish] ClienteApplicationService - buscarTodosOsClientes");
-        return clientes;
-    }
-
-    @Override
-    @Transactional
-    public ClienteAtualizaResponse atualizarCliente(
-            UUID idCliente, ClienteAtualizaRequest clienteRequest) {
-        log.info("[start] ClienteApplicationService - atualizarCliente");
-        Cliente cliente = clienteRepository.buscaClientePorId(idCliente);
-        cliente.alterar(clienteRequest);
-        clienteRepository.salva(cliente);
-        log.debug("[finish] ClienteApplicationService - atualizarCliente");
-        return new ClienteAtualizaResponse(cliente);
-
-    }
-
-    @Override
-    @Transactional
-    public ClienteResponse ativarCliente(UUID idCliente) {
-        log.info("[start] ClienteApplicationService - ativarCliente");
-        Cliente cliente = clienteRepository.buscaClientePorId(idCliente);
-        if (cliente.isAtivo()) {
-            throw new APIException(HttpStatus.BAD_REQUEST, ErrorCode.CLIENTE_JA_ATIVO);
-        }
-
-        cliente.ativar();
-        clienteRepository.salva(cliente);
-        carrinhoService.restaurarCarrinho(cliente.getId());
-        log.info("[finish] ClienteApplicationService - ativarCliente");
-        return new ClienteResponse(cliente);
-    }
-
-    @Override
-    @Transactional
-    public ClienteResponse inativarCliente(UUID idCliente) {
-        log.info("[start] ClienteApplicationService - inativarCliente");
-        Cliente cliente = clienteRepository.buscaClientePorId(idCliente);
-        if (!cliente.isAtivo()) {
-            throw new APIException(HttpStatus.BAD_REQUEST, ErrorCode.CLIENTE_JA_INATIVO);
-        }
-        cliente.inativar();
-        clienteRepository.salva(cliente);
-        log.info("[finish] ClienteApplicationService - inativarCliente");
-        return new ClienteResponse(cliente);
-    }
+    cliente.inativar();
+    clienteRepository.salva(cliente);
+    log.info("[finish] ClienteApplicationService - inativarCliente");
+    return new ClienteResponse(cliente);
+  }
 }

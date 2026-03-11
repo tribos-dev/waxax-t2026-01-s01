@@ -27,62 +27,59 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Carrinho {
-    @Id
-    @GeneratedValue
-    private UUID id;
+  @Id @GeneratedValue private UUID id;
 
-    @ManyToOne(optional = false)
-    @JoinColumn(nullable = false)
-    @NotNull
-    private Cliente cliente;
+  @ManyToOne(optional = false)
+  @JoinColumn(nullable = false)
+  @NotNull
+  private Cliente cliente;
 
-    @Column(nullable = false)
-    @NotNull
-    private LocalDateTime dataCriacao;
+  @Column(nullable = false)
+  @NotNull
+  private LocalDateTime dataCriacao;
 
-    @OneToMany(mappedBy = "carrinho", cascade = CascadeType.ALL, orphanRemoval = true)
-    @NotNull
-    private List<ItemCarrinho> itensCarrinho;
+  @OneToMany(mappedBy = "carrinho", cascade = CascadeType.ALL, orphanRemoval = true)
+  @NotNull
+  private List<ItemCarrinho> itensCarrinho;
 
-    @NotNull
-    @Enumerated(EnumType.STRING)
-    private StatusCarrinho statusCarrinho;
+  @NotNull
+  @Enumerated(EnumType.STRING)
+  private StatusCarrinho statusCarrinho;
 
-    public Carrinho(Cliente cliente) {
-        this.cliente = cliente;
-        this.dataCriacao = LocalDateTime.now();
-        this.statusCarrinho = StatusCarrinho.ATIVO;
-        this.itensCarrinho = new ArrayList<>();
+  public Carrinho(Cliente cliente) {
+    this.cliente = cliente;
+    this.dataCriacao = LocalDateTime.now();
+    this.statusCarrinho = StatusCarrinho.ATIVO;
+    this.itensCarrinho = new ArrayList<>();
+  }
+
+  public void adicionaItemAoCarrinho(ItemCarrinhoRequest itemCarrinhoRequest, Produto produto) {
+    verificaSeCarrinhoEstaAtivo();
+    ItemCarrinho novoItem = new ItemCarrinho(this, produto, itemCarrinhoRequest);
+    this.itensCarrinho.add(novoItem);
+  }
+
+  public ItemCarrinho buscaItemPorId(UUID idItem) {
+    return this.itensCarrinho.stream()
+        .filter(item -> item.getId().equals(idItem))
+        .findFirst()
+        .orElseThrow(
+            () -> new APIException(HttpStatus.NOT_FOUND, ErrorCode.ITEM_CARRINHO_NAO_ENCONTRADO));
+  }
+
+  void verificaSeCarrinhoEstaAtivo() {
+    if (!this.statusCarrinho.equals(StatusCarrinho.ATIVO)) {
+      throw new APIException(HttpStatus.CONFLICT, ErrorCode.CARRINHO_NAO_ATIVO);
     }
+  }
 
-    public void adicionaItemAoCarrinho(ItemCarrinhoRequest itemCarrinhoRequest, Produto produto) {
-        verificaSeCarrinhoEstaAtivo();
-        ItemCarrinho novoItem = new ItemCarrinho(this, produto, itemCarrinhoRequest);
-        this.itensCarrinho.add(novoItem);
-    }
+  public BigDecimal calculaValorTotal() {
+    return itensCarrinho.stream()
+        .map(ItemCarrinho::getValorTotalDoItem)
+        .reduce(BigDecimal.ZERO, BigDecimal::add);
+  }
 
-    public ItemCarrinho buscaItemPorId(UUID idItem) {
-        return this.itensCarrinho.stream()
-                .filter(item -> item.getId().equals(idItem))
-                .findFirst()
-                .orElseThrow(
-                        () -> new APIException(HttpStatus.NOT_FOUND, ErrorCode.ITEM_CARRINHO_NAO_ENCONTRADO));
-    }
-
-    void verificaSeCarrinhoEstaAtivo() {
-        if (!this.statusCarrinho.equals(StatusCarrinho.ATIVO)) {
-            throw new APIException(HttpStatus.CONFLICT, ErrorCode.CARRINHO_NAO_ATIVO);
-        }
-    }
-
-    public BigDecimal calculaValorTotal() {
-        return itensCarrinho.stream()
-                .map(ItemCarrinho::getValorTotalDoItem)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-    }
-
-    public void ativar() {
-        this.statusCarrinho = StatusCarrinho.ATIVO;
-
-    }
+  public void ativar() {
+    this.statusCarrinho = StatusCarrinho.ATIVO;
+  }
 }

@@ -1,12 +1,12 @@
 package br.com.wakax.wakax_ecommerce.cliente.application.api.response;
 
+import java.time.LocalDateTime;
+import java.util.UUID;
+
 import br.com.wakax.wakax_ecommerce.cliente.domain.Cliente;
 import br.com.wakax.wakax_ecommerce.pessoa.domain.StatusPessoa;
 import lombok.Getter;
 import lombok.ToString;
-
-import java.time.LocalDateTime;
-import java.util.UUID;
 
 @Getter
 @ToString
