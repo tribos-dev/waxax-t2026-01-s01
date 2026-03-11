@@ -7,7 +7,7 @@ import javax.persistence.*;
 import javax.validation.constraints.*;
 
 import br.com.wakax.wakax_ecommerce.fornecedor.application.api.request.FornecedorRequest;
-import br.com.wakax.wakax_ecommerce.fornecedor.application.api.request.FornecedorAtualizaResponse;
+import br.com.wakax.wakax_ecommerce.fornecedor.application.api.request.FornecedorAtualizaRequest;
 import br.com.wakax.wakax_ecommerce.pessoa.domain.Pessoa;
 import lombok.*;
 
@@ -68,7 +68,7 @@ public class Fornecedor {
     this.nomeFantasia = request.getNomeFantasia();
   }
 
-  public void atualizacaoFornecedor(FornecedorAtualizaResponse request) {
+  public void atualizacaoFornecedor(FornecedorAtualizaRequest request) {
 
     if (request.getInscricaoEstadual() != null) {
       this.inscricaoEstadual = request.getInscricaoEstadual();

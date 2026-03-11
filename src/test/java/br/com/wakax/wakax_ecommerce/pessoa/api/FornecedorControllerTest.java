@@ -22,7 +22,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import br.com.wakax.wakax_ecommerce.fornecedor.application.api.FornecedorController;
-import br.com.wakax.wakax_ecommerce.fornecedor.application.api.request.FornecedorAtualizaResponse;
+import br.com.wakax.wakax_ecommerce.fornecedor.application.api.request.FornecedorAtualizaRequest;
 import br.com.wakax.wakax_ecommerce.fornecedor.application.service.FornecedorService;
 
 @ExtendWith(MockitoExtension.class)
@@ -37,7 +37,7 @@ class FornecedorControllerTest {
     private Validator validator;
 
     private UUID fornecedorId;
-    private FornecedorAtualizaResponse request;
+    private FornecedorAtualizaRequest request;
 
     @BeforeEach
     void init() {
@@ -48,7 +48,7 @@ class FornecedorControllerTest {
         // Dados padrão válidos
         fornecedorId = UUID.randomUUID();
 
-        request = new FornecedorAtualizaResponse(
+        request = new FornecedorAtualizaRequest(
                 List.of("email@email.com"),
                 List.of("11999999999"),
                 List.of(mockEndereco()),
@@ -97,7 +97,7 @@ class FornecedorControllerTest {
     @Test
     void deveFalharQuandoEmailsForemNulos() {
 
-        FornecedorAtualizaResponse requestInvalido = new FornecedorAtualizaResponse(
+        FornecedorAtualizaRequest requestInvalido = new FornecedorAtualizaRequest(
                 null,
                 List.of("11999999999"),
                 List.of(mockEndereco()),
@@ -106,7 +106,7 @@ class FornecedorControllerTest {
                 "Nome Fantasia"
         );
 
-        Set<ConstraintViolation<FornecedorAtualizaResponse>> violations =
+        Set<ConstraintViolation<FornecedorAtualizaRequest>> violations =
                 validator.validate(requestInvalido);
 
         assertFalse(violations.isEmpty());
@@ -116,7 +116,7 @@ class FornecedorControllerTest {
     @Test
     void deveFalharQuandoEmailForInvalido() {
 
-        FornecedorAtualizaResponse requestInvalido = new FornecedorAtualizaResponse(
+        FornecedorAtualizaRequest requestInvalido = new FornecedorAtualizaRequest(
                 List.of("email-invalido"),
                 List.of("11999999999"),
                 List.of(mockEndereco()),
@@ -125,7 +125,7 @@ class FornecedorControllerTest {
                 "Nome Fantasia"
         );
 
-        Set<ConstraintViolation<FornecedorAtualizaResponse>> violations =
+        Set<ConstraintViolation<FornecedorAtualizaRequest>> violations =
                 validator.validate(requestInvalido);
 
         assertFalse(violations.isEmpty());
@@ -134,7 +134,7 @@ class FornecedorControllerTest {
     @Test
     void deveFalharQuandoTelefonesFoenrNulos() {
 
-        FornecedorAtualizaResponse requestInvalido = new FornecedorAtualizaResponse(
+        FornecedorAtualizaRequest requestInvalido = new FornecedorAtualizaRequest(
                 List.of("email@email.com"),
                 null,
                 List.of(mockEndereco()),
@@ -143,7 +143,7 @@ class FornecedorControllerTest {
                 "Nome Fantasia"
         );
 
-        Set<ConstraintViolation<FornecedorAtualizaResponse>> violations =
+        Set<ConstraintViolation<FornecedorAtualizaRequest>> violations =
                 validator.validate(requestInvalido);
 
         assertFalse(violations.isEmpty());
@@ -152,7 +152,7 @@ class FornecedorControllerTest {
     @Test
     void deveFalharQuandoTelefoneForInvalido() {
 
-        FornecedorAtualizaResponse requestInvalido = new FornecedorAtualizaResponse(
+        FornecedorAtualizaRequest requestInvalido = new FornecedorAtualizaRequest(
                 List.of("email@email.com"),
                 List.of("123"),
                 List.of(mockEndereco()),
@@ -161,7 +161,7 @@ class FornecedorControllerTest {
                 "Nome Fantasia"
         );
 
-        Set<ConstraintViolation<FornecedorAtualizaResponse>> violations =
+        Set<ConstraintViolation<FornecedorAtualizaRequest>> violations =
                 validator.validate(requestInvalido);
 
         assertFalse(violations.isEmpty());
@@ -170,7 +170,7 @@ class FornecedorControllerTest {
     @Test
     void deveFalharQuandoRazaoSocialForBlank() {
 
-        FornecedorAtualizaResponse requestInvalido = new FornecedorAtualizaResponse(
+        FornecedorAtualizaRequest requestInvalido = new FornecedorAtualizaRequest(
                 List.of("email@email.com"),
                 List.of("11999999999"),
                 List.of(mockEndereco()),
@@ -179,7 +179,7 @@ class FornecedorControllerTest {
                 "Nome Fantasia"
         );
 
-        Set<ConstraintViolation<FornecedorAtualizaResponse>> violations =
+        Set<ConstraintViolation<FornecedorAtualizaRequest>> violations =
                 validator.validate(requestInvalido);
 
         assertFalse(violations.isEmpty());
@@ -188,7 +188,7 @@ class FornecedorControllerTest {
     @Test
     void deveFalharQuandoNomeFantasiaForBlank() {
 
-        FornecedorAtualizaResponse requestInvalido = new FornecedorAtualizaResponse(
+        FornecedorAtualizaRequest requestInvalido = new FornecedorAtualizaRequest(
                 List.of("email@email.com"),
                 List.of("11999999999"),
                 List.of(mockEndereco()),
@@ -197,7 +197,7 @@ class FornecedorControllerTest {
                 ""
         );
 
-        Set<ConstraintViolation<FornecedorAtualizaResponse>> violations =
+        Set<ConstraintViolation<FornecedorAtualizaRequest>> violations =
                 validator.validate(requestInvalido);
 
         assertFalse(violations.isEmpty());

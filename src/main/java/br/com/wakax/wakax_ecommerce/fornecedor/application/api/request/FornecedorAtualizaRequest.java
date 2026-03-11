@@ -16,7 +16,7 @@ import java.util.List;
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
-public class FornecedorAtualizaResponse {
+public class FornecedorAtualizaRequest {
 
     @NotNull(message = "{validacao.emails.obrigatorio}")
     @NotEmpty(message = "{validacao.emails.obrigatorio}")

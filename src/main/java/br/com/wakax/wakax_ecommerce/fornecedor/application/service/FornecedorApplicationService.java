@@ -2,9 +2,10 @@ package br.com.wakax.wakax_ecommerce.fornecedor.application.service;
 
 import java.util.UUID;
 
+import br.com.wakax.wakax_ecommerce.fornecedor.application.api.response.FornecedorAtualizaResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import br.com.wakax.wakax_ecommerce.fornecedor.application.api.request.FornecedorAtualizaResponse;
+import br.com.wakax.wakax_ecommerce.fornecedor.application.api.request.FornecedorAtualizaRequest;
 import org.springframework.stereotype.Service;
 
 import br.com.wakax.wakax_ecommerce.fornecedor.application.api.request.FornecedorRequest;
@@ -50,12 +51,12 @@ public class FornecedorApplicationService implements FornecedorService {
   }
 
   @Override
-  public br.com.wakax.wakax_ecommerce.fornecedor.application.api.response.FornecedorAtualizaResponse atualizarFornecedor(UUID idFornecedor, FornecedorAtualizaResponse atualizaFornecedor) {
+  public FornecedorAtualizaResponse atualizarFornecedor(UUID idFornecedor, FornecedorAtualizaRequest atualizaFornecedor) {
     log.debug("[start] FornecedorApplicationService - atualizarFornecedor");
     Fornecedor fornecedor = fornecedorRepository.buscaFornecedorPorId(idFornecedor);
     fornecedor.atualizacaoFornecedor(atualizaFornecedor);
     fornecedorRepository.atualiza(fornecedor);
     log.debug("[finish] FornecedorApplicationService - atualizarFornecedor");
-    return new br.com.wakax.wakax_ecommerce.fornecedor.application.api.response.FornecedorAtualizaResponse(fornecedor);
+    return new FornecedorAtualizaResponse(fornecedor);
   }
 }
