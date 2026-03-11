@@ -50,23 +50,10 @@ public class Pagamento {
     this.motivoCancelamento = motivoCancelamento;
   }
 
-    public void mudaStatusParaFalhou(CancelaPagamentoRequest request) {
-        this.statusPagamento = StatusPagamento.FALHOU;
-        this.motivoCancelamento = request.getMotivoCancelamento();
-    }
-
-  /*public static Pagamento mudaStatus(
-      Pagamento pagamento, CancelaPagamentoRequest cancelaPagamentoRequest) {
-    Pagamento pagamentoAlterado =
-        new Pagamento(
-            pagamento.getId(),
-            pagamento.getPedido(),
-            StatusPagamento.FALHOU,
-            pagamento.getDataPagamento(),
-            pagamento.getValor(),
-            cancelaPagamentoRequest.getMotivoCancelamento());
-    return pagamentoAlterado;
-  }*/
+  public void mudaStatusParaFalhou(CancelaPagamentoRequest request) {
+    this.statusPagamento = StatusPagamento.FALHOU;
+    this.motivoCancelamento = request.getMotivoCancelamento();
+  }
 
   public void confirmarPagamento() {
     this.statusPagamento = StatusPagamento.PAGO;
