@@ -71,7 +71,7 @@ public class Pedido {
   }
 
   public void mudaStatusAguardandoPagamento() {
-    this.status = StatusPedido.AGUARDANDO_PAGAMENTO; // ou o status correspondente no seu enum
+    this.status = StatusPedido.AGUARDANDO_PAGAMENTO;
   }
 
   private List<ItemPedido> mapearItensCarrinhoParaPedido(List<ItemCarrinho> itensCarrinho) {
