@@ -73,6 +73,11 @@ public class Carrinho {
     }
   }
 
+  public void finalizar() {
+    verificaSeCarrinhoEstaAtivo();
+    this.statusCarrinho = StatusCarrinho.FINALIZADO;
+  }
+
   public BigDecimal calculaValorTotal() {
     return itensCarrinho.stream()
         .map(ItemCarrinho::getValorTotalDoItem)
