@@ -2,6 +2,7 @@ package br.com.wakax.wakax_ecommerce.pagamento.application.service;
 
 import java.util.UUID;
 
+import br.com.wakax.wakax_ecommerce.pagamento.application.api.response.ReprocessarPagamentoResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -72,7 +73,6 @@ public class PagamentoApplicationService implements PagamentoService {
                   pagamentoExistente.getStatusPagamento());
             });
   }
-
   @Override
   public PagamentoResponse buscaPagamentoPorId(UUID idPagamento) {
     log.debug("[start] PagamentoApplicationService - buscaPagamentoPorId");
@@ -117,5 +117,23 @@ public class PagamentoApplicationService implements PagamentoService {
     pedidoRepository.salva(pedido);
     pedidoRepository.salva(pedido);
     log.info("[finish] PagamentoApplicationService - cancelaPagamento");
+  }
+
+  @Override
+  public ReprocessarPagamentoResponse reprocessaPagamento(UUID idPagamento) {
+    log.info("[start] PagamentoApplicationService - reprocessaPagamento");
+
+    Pagamento pagamento = pagamentoRepository.buscaPagamentoPorId(idPagamento);
+    Pedido pedido = pagamento.getPedido();
+
+    pagamento.prepararReprocessamento();
+
+    var processador = processadorFactory.obterProcessador(pedido.getFormaPagamento());
+    processador.processar(pagamento, pedido);
+
+    pedidoRepository.salva(pedido);
+    pagamentoRepository.salva(pagamento);
+    log.debug("[finish] PagamentoApplicationService - reprocessaPagamento");
+    return new ReprocessarPagamentoResponse(pagamento);
   }
 }

@@ -409,4 +409,80 @@ class PagamentoApplicationServiceTest {
     verify(pagamentoRepository, never()).salva(any());
     verify(pedidoRepository, never()).salva(any());
   }
+
+  @Test
+  void deveReprocessarPagamentoComSucesso() {
+    pagamento.setStatusPagamento(StatusPagamento.FALHOU);
+    pagamento.setTentativasPagamento(1);
+
+    when(pagamentoRepository.buscaPagamentoPorId(pagamentoId)).thenReturn(pagamento);
+    when(processadorFactory.obterProcessador(pedido.getFormaPagamento()))
+            .thenReturn(processadorPagamento);
+
+    var response = pagamentoApplicationService.reprocessaPagamento(pagamentoId);
+
+    assertNotNull(response);
+    assertEquals(StatusPagamento.AGUARDANDO, pagamento.getStatusPagamento());
+    assertEquals(2, pagamento.getTentativasPagamento());
+
+    verify(processadorFactory).obterProcessador(pedido.getFormaPagamento());
+    verify(processadorPagamento).processar(pagamento, pedido);
+    verify(pagamentoRepository).salva(pagamento);
+    verify(pedidoRepository).salva(pedido);
+  }
+
+  @Test
+  void deveLancarExcecaoQuandoLimiteTentativasExcedido() {
+    pagamento.setStatusPagamento(StatusPagamento.FALHOU);
+    pagamento.setTentativasPagamento(3);
+
+    when(pagamentoRepository.buscaPagamentoPorId(pagamentoId)).thenReturn(pagamento);
+
+    APIException exception = assertThrows(
+            APIException.class,
+            () -> pagamentoApplicationService.reprocessaPagamento(pagamentoId)
+    );
+
+    assertEquals(HttpStatus.CONFLICT, exception.getStatusException());
+    assertEquals(ErrorCode.LIMITE_DE_TENTATIVAS_EXCEDIDO, exception.getErrorCode());
+
+    verify(pagamentoRepository).buscaPagamentoPorId(pagamentoId);
+    verify(processadorFactory, never()).obterProcessador(any());
+  }
+
+  @Test
+  void deveLancarExcecaoQuandoPagamentoJaPago() {
+    pagamento.setStatusPagamento(StatusPagamento.PAGO);
+
+    when(pagamentoRepository.buscaPagamentoPorId(pagamentoId)).thenReturn(pagamento);
+
+    APIException exception = assertThrows(
+            APIException.class,
+            () -> pagamentoApplicationService.reprocessaPagamento(pagamentoId)
+    );
+
+    assertEquals(HttpStatus.CONFLICT, exception.getStatusException());
+    assertEquals(ErrorCode.PAGAMENTO_JA_PROCESSADO_COM_SUCESSO, exception.getErrorCode());
+
+    verify(pagamentoRepository).buscaPagamentoPorId(pagamentoId);
+    verify(processadorFactory, never()).obterProcessador(any());
+  }
+
+  @Test
+  void deveLancarExcecaoQuandoPagamentoNaoForFalhou() {
+    pagamento.setStatusPagamento(StatusPagamento.AGUARDANDO);
+
+    when(pagamentoRepository.buscaPagamentoPorId(pagamentoId)).thenReturn(pagamento);
+
+    APIException exception = assertThrows(
+            APIException.class,
+            () -> pagamentoApplicationService.reprocessaPagamento(pagamentoId)
+    );
+
+    assertEquals(HttpStatus.CONFLICT, exception.getStatusException());
+    assertEquals(ErrorCode.PAGAMENTO_NAO_PODE_SER_REPROCESSADO, exception.getErrorCode());
+
+    verify(pagamentoRepository).buscaPagamentoPorId(pagamentoId);
+    verify(processadorFactory, never()).obterProcessador(any());
+  }
 }
