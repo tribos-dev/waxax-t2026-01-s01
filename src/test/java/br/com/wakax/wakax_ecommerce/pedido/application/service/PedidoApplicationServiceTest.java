@@ -21,6 +21,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 
 import br.com.wakax.wakax_ecommerce.carrinho.application.repository.CarrinhoRepository;
 import br.com.wakax.wakax_ecommerce.carrinho.domain.Carrinho;
@@ -39,6 +40,7 @@ import br.com.wakax.wakax_ecommerce.pedido.domain.Pedido;
 import br.com.wakax.wakax_ecommerce.pedido.domain.StatusPedido;
 import br.com.wakax.wakax_ecommerce.pessoa.domain.Endereco;
 import br.com.wakax.wakax_ecommerce.pessoa.domain.Pessoa;
+import br.com.wakax.wakax_ecommerce.pessoa.domain.StatusPessoa;
 import br.com.wakax.wakax_ecommerce.produto.domain.Preco;
 import br.com.wakax.wakax_ecommerce.produto.domain.Produto;
 
@@ -303,6 +305,31 @@ class PedidoApplicationServiceTest {
   }
 
   @Test
+  void deveLancarExcecaoQuandoClienteEstiverInativo() {
+    UUID idCarrinho = UUID.randomUUID();
+
+    PedidoRequest request = mock(PedidoRequest.class);
+    when(request.getIdCarrinho()).thenReturn(idCarrinho);
+
+    Carrinho carrinho = mock(Carrinho.class);
+    Cliente cliente = mock(Cliente.class);
+    Pessoa pessoa = mock(Pessoa.class);
+
+    when(carrinho.getCliente()).thenReturn(cliente);
+    when(cliente.getPessoa()).thenReturn(pessoa);
+    when(pessoa.getStatus()).thenReturn(StatusPessoa.INATIVO);
+
+    when(carrinhoRepository.buscaCarrinhoPorId(idCarrinho)).thenReturn(carrinho);
+
+    APIException ex =
+        assertThrows(APIException.class, () -> applicationService.cadastraPedido(request));
+
+    assertEquals(HttpStatus.CONFLICT, ex.getStatusException());
+    assertEquals("Cliente está inativo e não pode realizar pedidos", ex.getMessage());
+
+    verify(pedidoRepository, never()).salva(any());
+  }
+
   void deveListarPedidosDoClienteOrdenadosDoMaisRecenteParaOMaisAntigo() {
     UUID idCliente = UUID.randomUUID();
     int page = 0;
