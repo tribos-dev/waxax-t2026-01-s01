@@ -28,8 +28,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class Carrinho {
 
-  @Id @GeneratedValue
-  private UUID id;
+  @Id @GeneratedValue private UUID id;
 
   @ManyToOne(optional = false)
   @JoinColumn(nullable = false)
