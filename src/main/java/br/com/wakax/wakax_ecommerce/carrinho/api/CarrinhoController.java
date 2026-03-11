@@ -45,12 +45,4 @@ public class CarrinhoController implements CarrinhoAPI {
     log.debug("[finish] CarrinhoController - buscarTodosOsCarrinhos");
     return carrinhos;
   }
-
-  private String getUsuarioByToken(String token) {
-    log.info("[token] {}", token);
-    String usuario = tokenService.getUsuarioByBearerToken(token).orElseThrow
-            (() -> APIException.build(HttpStatus.UNAUTHORIZED, token));
-    log.info("[usuario] {}", usuario);
-    return usuario;
-  }
 }
