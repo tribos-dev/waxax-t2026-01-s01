@@ -31,8 +31,8 @@ public interface CarrinhoAPI {
 
   @DeleteMapping("/{idCarrinho}/remove-item/{idItem}")
   @ResponseStatus(code = HttpStatus.NO_CONTENT)
-  void deletaItemDoCarrinho(@RequestHeader(name = "Authorization", required = true)String token,
-                            @PathVariable UUID idCarrinho,
-                            @PathVariable UUID idItem);
-
+  void deletaItemDoCarrinho(
+      @RequestHeader(name = "Authorization", required = true) String token,
+      @PathVariable UUID idCarrinho,
+      @PathVariable UUID idItem);
 }

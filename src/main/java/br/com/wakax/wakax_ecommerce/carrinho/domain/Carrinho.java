@@ -27,7 +27,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Carrinho {
-  @Id @GeneratedValue private UUID id;
+
+  @Id @GeneratedValue
+  private UUID id;
 
   @ManyToOne(optional = false)
   @JoinColumn(nullable = false)
@@ -75,30 +77,16 @@ public class Carrinho {
 
   public void removeItem(UUID idItem, String email) {
 
-    boolean pertenceAoUsuario =
-            this.cliente
-                    .getPessoa()
-                    .getEmails()
-                    .contains(email);
+    verificaSeCarrinhoPertenceAoUsuario(email);
+    verificaSeCarrinhoEstaAtivo();
 
-    if (!pertenceAoUsuario) {
-      throw new APIException(
-              HttpStatus.BAD_REQUEST,
-              ErrorCode.ITEM_CARRINHO_NAO_ENCONTRADO);
-    }
-
-    if (this.statusCarrinho != StatusCarrinho.ATIVO) {
-      throw APIException.build(
-              HttpStatus.BAD_REQUEST,
-              "Carrinho não permite modificação");
-    }
-
-    ItemCarrinho item = this.itensCarrinho.stream()
+    ItemCarrinho item =
+        this.itensCarrinho.stream()
             .filter(i -> i.getId().equals(idItem))
             .findFirst()
-            .orElseThrow(() ->
-                    new APIException(HttpStatus.NOT_FOUND,
-                            ErrorCode.ITEM_CARRINHO_NAO_ENCONTRADO));
+            .orElseThrow(
+                () ->
+                    new APIException(HttpStatus.NOT_FOUND, ErrorCode.ITEM_CARRINHO_NAO_ENCONTRADO));
 
     this.itensCarrinho.remove(item);
   }
@@ -107,5 +95,13 @@ public class Carrinho {
     return itensCarrinho.stream()
         .map(ItemCarrinho::getValorTotalDoItem)
         .reduce(BigDecimal.ZERO, BigDecimal::add);
+  }
+
+  void verificaSeCarrinhoPertenceAoUsuario(String email) {
+    boolean pertenceAoUsuario = this.cliente.getPessoa().getEmails().contains(email);
+
+    if (!pertenceAoUsuario) {
+      throw new APIException(HttpStatus.BAD_REQUEST, ErrorCode.ITEM_CARRINHO_NAO_ENCONTRADO);
+    }
   }
 }
