@@ -3,7 +3,9 @@ package br.com.wakax.wakax_ecommerce.estoque.application.service;
 import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
+import br.com.wakax.wakax_ecommerce.estoque.api.request.RemoveEstoqueRequest;
 import br.com.wakax.wakax_ecommerce.estoque.api.response.EstoqueListagemResponse;
 import br.com.wakax.wakax_ecommerce.estoque.api.response.EstoqueResponse;
 import br.com.wakax.wakax_ecommerce.estoque.domain.Estoque;
@@ -62,5 +64,18 @@ public class EstoqueDataHelper {
 
   private static EstoqueResponse item(String descricao, int qtd) {
     return EstoqueResponse.builder().descricaoProduto(descricao).quantidadeDisponivel(qtd).build();
+  }
+
+  public static Estoque createEstoque(Integer qtd, String custoMedio, String custoTotal) {
+    return Estoque.builder()
+        .id(UUID.fromString("f47ac10b-58cc-4372-a567-0e02b2c3d479"))
+        .quantidadeDisponivel(qtd)
+        .custoMedio(new BigDecimal(custoMedio))
+        .custoTotal(new BigDecimal(custoTotal))
+        .build();
+  }
+
+  public static RemoveEstoqueRequest createRequest(Integer qtd) {
+    return new RemoveEstoqueRequest(qtd);
   }
 }
