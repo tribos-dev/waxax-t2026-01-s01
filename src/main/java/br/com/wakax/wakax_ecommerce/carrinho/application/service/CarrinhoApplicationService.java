@@ -25,53 +25,64 @@ import lombok.extern.log4j.Log4j2;
 @RequiredArgsConstructor
 public class CarrinhoApplicationService implements CarrinhoService {
 
-  private final CarrinhoRepository carrinhoRepository;
-  private final ProdutoRepository produtoRepository;
-  private final ClienteRepository clienteRepository;
-  private final ProcessadorEstoqueFactory processadorEstoqueFactory;
+    private final CarrinhoRepository carrinhoRepository;
+    private final ProdutoRepository produtoRepository;
+    private final ClienteRepository clienteRepository;
+    private final ProcessadorEstoqueFactory processadorEstoqueFactory;
 
-  @Override
-  @Transactional
-  public CarrinhoResponse adicionaItemNoCarrinho(
-      UUID idCliente, ItemCarrinhoRequest itemCarrinhoRequest) {
-    log.info("[start] CarrinhoApplicationService - adicionaItemNoCarrinho");
-    Cliente cliente = clienteRepository.buscaClientePorId(idCliente);
-    Carrinho carrinho = buscaCarrinhoAtivoDoClienteOuCria(cliente);
-    Produto produto = produtoRepository.buscaProdutoPorId(itemCarrinhoRequest.getIdProduto());
+    @Override
+    @Transactional
+    public CarrinhoResponse adicionaItemNoCarrinho(
+            UUID idCliente, ItemCarrinhoRequest itemCarrinhoRequest) {
+        log.info("[start] CarrinhoApplicationService - adicionaItemNoCarrinho");
+        Cliente cliente = clienteRepository.buscaClientePorId(idCliente);
+        Carrinho carrinho = buscaCarrinhoAtivoDoClienteOuCria(cliente);
+        Produto produto = produtoRepository.buscaProdutoPorId(itemCarrinhoRequest.getIdProduto());
 
-    ProcessadorEstoque processadorEstoque = processadorEstoqueFactory.obterProcessador();
-    processadorEstoque.aoAdicionarItem(produto, itemCarrinhoRequest.getQuantidade());
+        ProcessadorEstoque processadorEstoque = processadorEstoqueFactory.obterProcessador();
+        processadorEstoque.aoAdicionarItem(produto, itemCarrinhoRequest.getQuantidade());
 
-    carrinho.adicionaItemAoCarrinho(itemCarrinhoRequest, produto);
-    carrinhoRepository.salva(carrinho);
-    log.debug("[finish] CarrinhoApplicationService - adicionaItemNoCarrinho");
-    return new CarrinhoResponse(carrinho);
-  }
+        carrinho.adicionaItemAoCarrinho(itemCarrinhoRequest, produto);
+        carrinhoRepository.salva(carrinho);
+        log.debug("[finish] CarrinhoApplicationService - adicionaItemNoCarrinho");
+        return new CarrinhoResponse(carrinho);
+    }
 
-  private Carrinho buscaCarrinhoAtivoDoClienteOuCria(Cliente cliente) {
-    return carrinhoRepository
-        .buscaCarrinhoAtivoDoCliente(cliente.getId())
-        .orElseGet(() -> new Carrinho(cliente));
-  }
+    private Carrinho buscaCarrinhoAtivoDoClienteOuCria(Cliente cliente) {
+        return carrinhoRepository
+                .buscaCarrinhoAtivoDoCliente(cliente.getId())
+                .orElseGet(() -> new Carrinho(cliente));
+    }
 
-  @Override
-  @Transactional(readOnly = true)
-  public CarrinhoResponse buscaCarrinhoPorId(UUID idCliente, UUID idCarrinho) {
-    log.info("[start] CarrinhoApplicationService - buscaCarrinhoPorId");
-    clienteRepository.buscaClientePorId(idCliente);
-    Carrinho carrinho = carrinhoRepository.buscaCarrinhoPorId(idCarrinho);
-    log.debug("[finish] CarrinhoApplicationService - buscaCarrinhoPorId");
-    return new CarrinhoResponse(carrinho);
-  }
+    @Override
+    @Transactional(readOnly = true)
+    public CarrinhoResponse buscaCarrinhoPorId(UUID idCliente, UUID idCarrinho) {
+        log.info("[start] CarrinhoApplicationService - buscaCarrinhoPorId");
+        clienteRepository.buscaClientePorId(idCliente);
+        Carrinho carrinho = carrinhoRepository.buscaCarrinhoPorId(idCarrinho);
+        log.debug("[finish] CarrinhoApplicationService - buscaCarrinhoPorId");
+        return new CarrinhoResponse(carrinho);
+    }
 
-  @Override
-  public List<CarrinhosListAllResponse> buscarTodosOsCarrinhos(UUID idCliente) {
-    log.info("[start] CarrinhoApplicationService - buscarTodosOsCarrinhos");
-    clienteRepository.buscaClientePorId(idCliente);
-    List<Carrinho> carrinho = carrinhoRepository.buscarTodosOsCarrinhos(idCliente);
-    List<CarrinhosListAllResponse> list =
-        carrinho.stream().map(CarrinhosListAllResponse::new).toList();
-    log.debug("[finish] CarrinhoApplicationService - buscarTodosOsCarrinhos");
-    return list;
-  }
+    @Override
+    public List<CarrinhosListAllResponse> buscarTodosOsCarrinhos(UUID idCliente) {
+        log.info("[start] CarrinhoApplicationService - buscarTodosOsCarrinhos");
+        clienteRepository.buscaClientePorId(idCliente);
+        List<Carrinho> carrinho = carrinhoRepository.buscarTodosOsCarrinhos(idCliente);
+        List<CarrinhosListAllResponse> list =
+                carrinho.stream().map(CarrinhosListAllResponse::new).toList();
+        log.debug("[finish] CarrinhoApplicationService - buscarTodosOsCarrinhos");
+        return list;
+    }
+
+    @Override
+    public void restaurarCarrinho(UUID id) {
+        log.info("[start] CarrinhoApplicationService - restaurarCarrinho");
+        Carrinho carrinho = carrinhoRepository.buscaCarrinhoAtivoDoCliente(id).orElse(null);
+        if (carrinho != null) {
+            carrinho.ativar();
+            carrinhoRepository.salva(carrinho);
+        }
+        log.debug("[finish] CarrinhoApplicationService - restaurarCarrinho");
+    }
 }

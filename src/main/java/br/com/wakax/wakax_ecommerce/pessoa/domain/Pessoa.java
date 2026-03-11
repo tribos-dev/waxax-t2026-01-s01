@@ -77,5 +77,14 @@ public class Pessoa {
     if (this.enderecos != null) {
       this.enderecos.forEach(endereco -> endereco.setPessoa(this));
     }
+
+  }
+
+    public void ativar() {
+        this.status = StatusPessoa.ATIVO;
+    }
+  @PrePersist
+  protected void onCreate() {
+    this.status = StatusPessoa.INATIVO;
   }
 }

@@ -20,30 +20,38 @@ import lombok.extern.log4j.Log4j2;
 @Log4j2
 public class ClienteController implements ClienteApi {
 
-  private final ClienteService clienteService;
+    private final ClienteService clienteService;
 
-  @Override
-  public ClienteResponse cadastrarCliente(ClienteRequest clienteRequest) {
-    log.info("[start] ClienteController - cadastrarCliente");
-    ClienteResponse clienteCriado = clienteService.criaCliente(clienteRequest);
-    log.debug("[finish] ClienteController - cadastrarCliente");
-    return clienteCriado;
-  }
+    @Override
+    public ClienteResponse cadastrarCliente(ClienteRequest clienteRequest) {
+        log.info("[start] ClienteController - cadastrarCliente");
+        ClienteResponse clienteCriado = clienteService.criaCliente(clienteRequest);
+        log.debug("[finish] ClienteController - cadastrarCliente");
+        return clienteCriado;
+    }
 
-  @Override
-  public ClienteResponse buscaClienteEspecifico(UUID idCliente) {
-    log.info("[start] ClienteController - buscaClienteEspecifico");
-    ClienteResponse cliente = clienteService.buscaClienteEspecifico(idCliente);
-    log.debug("[finish] ClienteController - buscaClienteEspecifico");
-    return cliente;
-  }
+    @Override
+    public ClienteResponse buscaClienteEspecifico(UUID idCliente) {
+        log.info("[start] ClienteController - buscaClienteEspecifico");
+        ClienteResponse cliente = clienteService.buscaClienteEspecifico(idCliente);
+        log.debug("[finish] ClienteController - buscaClienteEspecifico");
+        return cliente;
+    }
 
-  @Override
-  public PageResponse<ClienteListAllResponse> buscarTodosOsClientes(int page, int size) {
-    log.info("[start] ClienteController - buscarTodosOsClientes");
-    Page<Cliente> clientes = clienteService.buscarTodosOsClientes(PageRequest.of(page, size));
-    Page<ClienteListAllResponse> response = clientes.map(ClienteListAllResponse::new);
-    log.debug("[finish] ClienteController - buscarTodosOsClientes");
-    return PageResponse.from(response);
-  }
+    @Override
+    public PageResponse<ClienteListAllResponse> buscarTodosOsClientes(int page, int size) {
+        log.info("[start] ClienteController - buscarTodosOsClientes");
+        Page<Cliente> clientes = clienteService.buscarTodosOsClientes(PageRequest.of(page, size));
+        Page<ClienteListAllResponse> response = clientes.map(ClienteListAllResponse::new);
+        log.debug("[finish] ClienteController - buscarTodosOsClientes");
+        return PageResponse.from(response);
+    }
+
+    @Override
+    public ClienteResponse ativarCliente(UUID idCliente) {
+        log.info("[start] ClienteController - ativarCliente - idCliente: {}", idCliente);
+        ClienteResponse response = clienteService.ativarCliente(idCliente);
+        log.info("[finish] ClienteController - ativarCliente");
+        return response;
+    }
 }

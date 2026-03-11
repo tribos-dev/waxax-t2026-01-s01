@@ -9,8 +9,7 @@ import br.com.wakax.wakax_ecommerce.carrinho.api.response.CarrinhosListAllRespon
 
 public interface CarrinhoService {
   CarrinhoResponse adicionaItemNoCarrinho(UUID idCliente, ItemCarrinhoRequest itemCarrinho);
-
   CarrinhoResponse buscaCarrinhoPorId(UUID idCliente, UUID idCarrinho);
-
   List<CarrinhosListAllResponse> buscarTodosOsCarrinhos(UUID idCliente);
+  void restaurarCarrinho(UUID id);
 }

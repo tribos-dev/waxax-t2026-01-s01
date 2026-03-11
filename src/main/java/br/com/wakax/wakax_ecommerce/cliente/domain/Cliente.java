@@ -17,33 +17,51 @@ import lombok.*;
 @AllArgsConstructor
 public class Cliente {
 
-  @Id @GeneratedValue private UUID id;
+    @Id
+    @GeneratedValue
+    private UUID id;
 
-  @OneToOne(cascade = CascadeType.ALL, optional = false)
-  @JoinColumn(nullable = false, unique = true)
-  @NotNull
-  private Pessoa pessoa;
+    @OneToOne(cascade = CascadeType.ALL, optional = false)
+    @JoinColumn(nullable = false, unique = true)
+    @NotNull
+    private Pessoa pessoa;
 
-  @Column(nullable = false, name = "data_criacao")
-  @NotNull
-  private LocalDateTime dataCriacao;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private StatusCliente status;
 
-  @Column(nullable = false, name = "data_edicao")
-  @NotNull
-  private LocalDateTime dataEdicao;
+    @Column(nullable = false, name = "data_criacao")
+    @NotNull
+    private LocalDateTime dataCriacao;
 
-  @PrePersist
-  protected void onCreate() {
-    dataCriacao = LocalDateTime.now();
-    dataEdicao = LocalDateTime.now();
-  }
+    @Column(nullable = false, name = "data_edicao")
+    @NotNull
+    private LocalDateTime dataEdicao;
+    private LocalDateTime dataReativacao;
 
-  @PreUpdate
-  protected void onUpdate() {
-    dataEdicao = LocalDateTime.now();
-  }
+    @PrePersist
+    protected void onCreate() {
+        dataCriacao = LocalDateTime.now();
+        dataEdicao = LocalDateTime.now();
+        this.status = StatusCliente.INATIVO;
+    }
 
-  public Cliente(ClienteRequest request) {
-    this.pessoa = Pessoa.criarDe(request);
-  }
+    @PreUpdate
+    protected void onUpdate() {
+        dataEdicao = LocalDateTime.now();
+    }
+
+    public Cliente(ClienteRequest request) {
+        this.pessoa = Pessoa.criarDe(request);
+    }
+
+    public void ativar() {
+        this.status = StatusCliente.ATIVO;
+        this.dataReativacao = LocalDateTime.now();
+        this.pessoa.ativar();
+    }
+
+    public boolean isAtivo() {
+        return StatusCliente.ATIVO.equals(this.status);
+    }
 }

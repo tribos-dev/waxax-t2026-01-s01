@@ -10,9 +10,8 @@ import br.com.wakax.wakax_ecommerce.cliente.application.api.response.ClienteResp
 import br.com.wakax.wakax_ecommerce.cliente.domain.Cliente;
 
 public interface ClienteService {
-  ClienteResponse criaCliente(ClienteRequest clienteRequest);
-
-  ClienteResponse buscaClienteEspecifico(UUID idCliente);
-
-  Page<Cliente> buscarTodosOsClientes(Pageable pageable);
+    ClienteResponse criaCliente(ClienteRequest clienteRequest);
+    ClienteResponse buscaClienteEspecifico(UUID idCliente);
+    Page<Cliente> buscarTodosOsClientes(Pageable pageable);
+    ClienteResponse ativarCliente(UUID idCliente);
 }
