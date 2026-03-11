@@ -5,6 +5,7 @@ import java.util.UUID;
 import org.springframework.data.domain.Pageable;
 
 import br.com.wakax.wakax_ecommerce.fornecedor.application.api.request.FornecedorRequest;
+import br.com.wakax.wakax_ecommerce.fornecedor.application.api.request.FornecedorAtualizaResponse;
 import br.com.wakax.wakax_ecommerce.fornecedor.application.api.response.FornecedorListResponse;
 import br.com.wakax.wakax_ecommerce.fornecedor.application.api.response.FornecedorPageResponse;
 import br.com.wakax.wakax_ecommerce.fornecedor.application.api.response.FornecedorResponse;
@@ -17,4 +18,6 @@ public interface FornecedorService {
   FornecedorListResponse buscaFornecedorPorId(UUID idFornecedor);
 
   FornecedorPageResponse listaFornecedores(StatusPessoa status, Pageable pageable);
+
+  br.com.wakax.wakax_ecommerce.fornecedor.application.api.response.FornecedorAtualizaResponse atualizarFornecedor(UUID idFornecedor, FornecedorAtualizaResponse atualizaFornecedor);
 }

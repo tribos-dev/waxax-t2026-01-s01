@@ -4,6 +4,7 @@ import java.util.UUID;
 
 import javax.validation.Valid;
 
+import br.com.wakax.wakax_ecommerce.fornecedor.application.api.request.FornecedorAtualizaResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,4 +27,9 @@ public interface FornecedorAPI {
 
   @GetMapping
   FornecedorPageResponse listaFornecedores(@ModelAttribute FornecedorFiltroRequest filtro);
+
+  @PatchMapping("/{idFornecedor}")
+  @ResponseStatus(HttpStatus.OK)
+  br.com.wakax.wakax_ecommerce.fornecedor.application.api.response.FornecedorAtualizaResponse atualizarFornecedor(@PathVariable UUID idFornecedor,
+                                                                                                                  @Valid @RequestBody FornecedorAtualizaResponse atualizaFornecedor);
 }

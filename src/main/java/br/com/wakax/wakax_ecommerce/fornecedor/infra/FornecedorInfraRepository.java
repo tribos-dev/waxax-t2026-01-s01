@@ -58,4 +58,12 @@ public class FornecedorInfraRepository implements FornecedorRepository {
     log.debug("[finaliza] FornecedorInfraRepository - buscaFornecedoresComFiltro");
     return fornecedores;
   }
+
+  @Override
+  public Fornecedor atualiza(Fornecedor fornecedor) {
+    log.debug("[start] FornecedorInfraRepository - salva");
+    fornecedorJPARepository.save(fornecedor);
+    log.debug("[finish] FornecedorInfraRepository - salva");
+    return fornecedor;
+  }
 }
