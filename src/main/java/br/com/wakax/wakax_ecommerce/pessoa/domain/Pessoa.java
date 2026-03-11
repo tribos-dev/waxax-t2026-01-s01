@@ -8,6 +8,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 import br.com.wakax.wakax_ecommerce.handler.APIException;
+import br.com.wakax.wakax_ecommerce.cliente.application.api.request.ClienteAtualizaRequest;
 import br.com.wakax.wakax_ecommerce.pessoa.application.api.request.DadosPessoa;
 import br.com.wakax.wakax_ecommerce.pessoa.application.api.request.PessoaRequest;
 import lombok.AllArgsConstructor;
@@ -88,4 +89,42 @@ public class Pessoa {
     this.status = StatusPessoa.INATIVO;
   }
 
+  public void alterar(ClienteAtualizaRequest request) {
+
+    if (request.getNome() != null && !request.getNome().isBlank()) {
+      this.nome = request.getNome();
+    }
+
+    if (request.getEmails() != null && !request.getEmails().isEmpty()) {
+      this.emails = request.getEmails();
+    }
+
+    if (request.getTelefones() != null && !request.getTelefones().isEmpty()) {
+      this.telefones = request.getTelefones();
+    }
+
+    if (request.getEnderecos() != null && !request.getEnderecos().isEmpty()) {
+      request
+          .getEnderecos()
+          .forEach(
+              novoEndereco -> {
+                if (novoEndereco.isPrincipal()) {
+                  desmarcarEnderecoPrincipalAtual();
+                }
+                novoEndereco.setPessoa(this);
+                this.enderecos.add(novoEndereco);
+              });
+    }
+  }
+
+  public void adicionarEndereco(Endereco novoEndereco) {
+    if (novoEndereco.isPrincipal()) {
+      desmarcarEnderecoPrincipalAtual();
+    }
+    this.enderecos.add(novoEndereco);
+  }
+
+  private void desmarcarEnderecoPrincipalAtual() {
+    this.enderecos.stream().filter(Endereco::isPrincipal).forEach(e -> e.setPrincipal(false));
+  }
 }

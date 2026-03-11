@@ -7,21 +7,30 @@ import static org.mockito.Mockito.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import br.com.wakax.wakax_ecommerce.pessoa.domain.StatusPessoa;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import br.com.wakax.wakax_ecommerce.carrinho.application.repository.CarrinhoRepository;
 import br.com.wakax.wakax_ecommerce.carrinho.domain.Carrinho;
 import br.com.wakax.wakax_ecommerce.carrinho.domain.ItemCarrinho;
+import br.com.wakax.wakax_ecommerce.cliente.application.service.ClienteService;
 import br.com.wakax.wakax_ecommerce.cliente.domain.Cliente;
 import br.com.wakax.wakax_ecommerce.handler.APIException;
 import br.com.wakax.wakax_ecommerce.handler.ErrorCode;
+import br.com.wakax.wakax_ecommerce.pedido.application.api.PedidoPageResponse;
 import br.com.wakax.wakax_ecommerce.pedido.application.api.request.PedidoRequest;
 import br.com.wakax.wakax_ecommerce.pedido.application.api.response.PedidoResponse;
 import br.com.wakax.wakax_ecommerce.pedido.application.repository.PedidoRepository;
@@ -41,6 +50,8 @@ class PedidoApplicationServiceTest {
   @Mock private PedidoRepository pedidoRepository;
 
   @Mock private CarrinhoRepository carrinhoRepository;
+
+  @Mock private ClienteService clienteService;
 
   @InjectMocks private PedidoApplicationService applicationService;
 
@@ -324,4 +335,132 @@ class PedidoApplicationServiceTest {
 
 
 
+  void deveListarPedidosDoClienteOrdenadosDoMaisRecenteParaOMaisAntigo() {
+    UUID idCliente = UUID.randomUUID();
+    int page = 0;
+    int size = 10;
+    LocalDateTime agora = LocalDateTime.now();
+
+    Pedido pedidoMaisRecente =
+        PedidoDataHelper.criaPedidoResumo(agora, StatusPedido.PAGO, new BigDecimal("199.90"));
+    Pedido pedidoMaisAntigo =
+        PedidoDataHelper.criaPedidoResumo(
+            agora.minusDays(2), StatusPedido.CRIADO, new BigDecimal("79.90"));
+
+    Page<Pedido> paginaPedidos =
+        new PageImpl<>(List.of(pedidoMaisRecente, pedidoMaisAntigo), PageRequest.of(page, size), 2);
+
+    when(pedidoRepository.buscaPedidosDoClientePaginado(
+            eq(idCliente), isNull(), any(Pageable.class)))
+        .thenReturn(paginaPedidos);
+
+    PedidoPageResponse response =
+        applicationService.buscaPedidosDoCliente(idCliente, null, page, size);
+
+    assertNotNull(response);
+    assertEquals(idCliente, response.idCliente());
+    assertEquals(2, response.totalPedidos());
+    assertEquals(1, response.totalPaginas());
+
+    ArgumentCaptor<Pageable> pageableCaptor = ArgumentCaptor.forClass(Pageable.class);
+    verify(clienteService).buscaClienteEspecifico(idCliente);
+    verify(pedidoRepository)
+        .buscaPedidosDoClientePaginado(eq(idCliente), isNull(), pageableCaptor.capture());
+    Pageable pageableEnviado = pageableCaptor.getValue();
+    assertEquals(page, pageableEnviado.getPageNumber());
+    assertEquals(size, pageableEnviado.getPageSize());
+  }
+
+  @Test
+  void deveRetornarListaVaziaQuandoClienteNaoPossuiPedidos() {
+    UUID idCliente = UUID.randomUUID();
+    int page = 0;
+    int size = 10;
+    Page<Pedido> paginaVazia = new PageImpl<>(List.of(), PageRequest.of(page, size), 0);
+
+    when(pedidoRepository.buscaPedidosDoClientePaginado(
+            eq(idCliente), isNull(), any(Pageable.class)))
+        .thenReturn(paginaVazia);
+
+    PedidoPageResponse response =
+        applicationService.buscaPedidosDoCliente(idCliente, null, page, size);
+
+    assertNotNull(response);
+    assertEquals(idCliente, response.idCliente());
+    assertTrue(response.pedidos().isEmpty());
+    assertEquals(0, response.totalPedidos());
+    assertEquals(0, response.totalPaginas());
+
+    verify(clienteService).buscaClienteEspecifico(idCliente);
+    verify(pedidoRepository)
+        .buscaPedidosDoClientePaginado(eq(idCliente), isNull(), any(Pageable.class));
+  }
+
+  @Test
+  void deveListarPedidosComDiferentesStatus() {
+    UUID idCliente = UUID.randomUUID();
+    int page = 0;
+    int size = 10;
+    LocalDateTime agora = LocalDateTime.now();
+
+    Page<Pedido> paginaPedidos =
+        new PageImpl<>(
+            List.of(
+                PedidoDataHelper.criaPedidoResumo(
+                    agora, StatusPedido.CRIADO, new BigDecimal("10.00")),
+                PedidoDataHelper.criaPedidoResumo(
+                    agora.minusHours(1), StatusPedido.PAGO, new BigDecimal("20.00")),
+                PedidoDataHelper.criaPedidoResumo(
+                    agora.minusHours(2), StatusPedido.ENVIADO, new BigDecimal("30.00")),
+                PedidoDataHelper.criaPedidoResumo(
+                    agora.minusHours(3), StatusPedido.ENTREGUE, new BigDecimal("40.00")),
+                PedidoDataHelper.criaPedidoResumo(
+                    agora.minusHours(4), StatusPedido.CANCELADO, new BigDecimal("50.00"))),
+            PageRequest.of(page, size),
+            5);
+
+    when(pedidoRepository.buscaPedidosDoClientePaginado(
+            eq(idCliente), isNull(), any(Pageable.class)))
+        .thenReturn(paginaPedidos);
+
+    PedidoPageResponse response =
+        applicationService.buscaPedidosDoCliente(idCliente, null, page, size);
+
+    assertNotNull(response);
+    assertEquals(5, response.totalPedidos());
+    Set<StatusPedido> statusRetornados =
+        response.pedidos().stream().map(pedido -> pedido.status()).collect(Collectors.toSet());
+    assertTrue(statusRetornados.contains(StatusPedido.CRIADO));
+    assertTrue(statusRetornados.contains(StatusPedido.PAGO));
+    assertTrue(statusRetornados.contains(StatusPedido.ENVIADO));
+    assertTrue(statusRetornados.contains(StatusPedido.ENTREGUE));
+    assertTrue(statusRetornados.contains(StatusPedido.CANCELADO));
+  }
+
+  @Test
+  void deveAplicarFiltroOpcionalPorStatusNaBuscaPedidosDoCliente() {
+    UUID idCliente = UUID.randomUUID();
+    int page = 0;
+    int size = 10;
+    StatusPedido statusFiltro = StatusPedido.PAGO;
+    Pedido pedidoPago =
+        PedidoDataHelper.criaPedidoResumo(
+            LocalDateTime.now(), StatusPedido.PAGO, new BigDecimal("99.90"));
+    Page<Pedido> paginaPedidos = new PageImpl<>(List.of(pedidoPago), PageRequest.of(page, size), 1);
+
+    when(pedidoRepository.buscaPedidosDoClientePaginado(
+            eq(idCliente), eq(statusFiltro), any(Pageable.class)))
+        .thenReturn(paginaPedidos);
+
+    PedidoPageResponse response =
+        applicationService.buscaPedidosDoCliente(idCliente, statusFiltro, page, size);
+
+    assertNotNull(response);
+    assertEquals(1, response.totalPedidos());
+    assertEquals(StatusPedido.PAGO, response.pedidos().get(0).status());
+
+    verify(clienteService).buscaClienteEspecifico(idCliente);
+    verify(pedidoRepository)
+        .buscaPedidosDoClientePaginado(eq(idCliente), eq(statusFiltro), any(Pageable.class));
+  }
 }

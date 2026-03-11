@@ -6,7 +6,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.RestController;
 
+import br.com.wakax.wakax_ecommerce.cliente.application.api.request.ClienteAtualizaRequest;
 import br.com.wakax.wakax_ecommerce.cliente.application.api.request.ClienteRequest;
+import br.com.wakax.wakax_ecommerce.cliente.application.api.response.ClienteAtualizaResponse;
 import br.com.wakax.wakax_ecommerce.cliente.application.api.response.ClienteListAllResponse;
 import br.com.wakax.wakax_ecommerce.cliente.application.api.response.ClienteResponse;
 import br.com.wakax.wakax_ecommerce.cliente.application.api.response.PageResponse;
@@ -53,5 +55,12 @@ public class ClienteController implements ClienteApi {
     ClienteResponse clienteResponse = clienteService.desativaCliente(idCliente);
     log.info("[finish] ClienteController - desativaCliente");
     return clienteResponse;
+    
+  public ClienteAtualizaResponse atualizarCliente(
+      UUID idCliente, ClienteAtualizaRequest clienteRequest) {
+    log.info("[start] ClienteController - atualizarCliente");
+    ClienteAtualizaResponse response = clienteService.atualizarCliente(idCliente, clienteRequest);
+    log.debug("[finish] ClienteController - atualizarCliente");
+    return response;
   }
 }
