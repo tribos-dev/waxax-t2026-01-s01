@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import br.com.wakax.wakax_ecommerce.cliente.domain.Cliente;
 import br.com.wakax.wakax_ecommerce.handler.APIException;
 import br.com.wakax.wakax_ecommerce.handler.ErrorCode;
 import br.com.wakax.wakax_ecommerce.pagamento.application.api.request.PagamentoRequest;
@@ -42,9 +43,11 @@ public class PagamentoApplicationService implements PagamentoService {
   public PagamentoResponse processaPagamento(PagamentoRequest novoPagamento) {
     log.debug("[start] PagamentoApplicationService - criaPagamento");
 
-    verificarSeExistePagamento(novoPagamento.getPedidoId());
-
     Pedido pedido = pedidoRepository.buscaPedidoPorId(novoPagamento.getPedidoId());
+
+    Cliente cliente = pedido.getCliente();
+    cliente.validaClienteAtivo();
+
     Pagamento pagamento = new Pagamento(pedido);
 
     var processador = processadorFactory.obterProcessador(pedido.getFormaPagamento());
