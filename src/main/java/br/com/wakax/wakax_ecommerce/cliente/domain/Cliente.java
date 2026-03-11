@@ -6,13 +6,14 @@ import java.util.UUID;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 
+import org.springframework.http.HttpStatus;
+
 import br.com.wakax.wakax_ecommerce.cliente.application.api.request.ClienteAtualizaRequest;
 import br.com.wakax.wakax_ecommerce.cliente.application.api.request.ClienteRequest;
 import br.com.wakax.wakax_ecommerce.handler.APIException;
 import br.com.wakax.wakax_ecommerce.pessoa.domain.Pessoa;
 import br.com.wakax.wakax_ecommerce.pessoa.domain.StatusPessoa;
 import lombok.*;
-import org.springframework.http.HttpStatus;
 
 @Entity
 @Data
@@ -53,16 +54,16 @@ public class Cliente {
 
   public void desativar(Pessoa pessoa) {
     pessoa.desativar();
-    this.setDataEdicao(LocalDateTime.now());
+    this.dataEdicao = LocalDateTime.now();
   }
 
   public void validaClienteAtivo() {
     if (this.pessoa.getStatus() == StatusPessoa.INATIVO) {
       throw APIException.build(
-              HttpStatus.CONFLICT,
-              "Cliente está inativo e não pode realizar pagamentos");
+          HttpStatus.CONFLICT, "Cliente está inativo e não pode realizar pagamentos");
     }
-    
+  }
+
   public void alterar(ClienteAtualizaRequest request) {
     this.pessoa.alterar(request);
     this.dataEdicao = LocalDateTime.now();

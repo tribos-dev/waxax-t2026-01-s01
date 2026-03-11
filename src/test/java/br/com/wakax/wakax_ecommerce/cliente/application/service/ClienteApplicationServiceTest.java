@@ -8,9 +8,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import br.com.wakax.wakax_ecommerce.handler.APIException;
-import br.com.wakax.wakax_ecommerce.pessoa.domain.Pessoa;
-import br.com.wakax.wakax_ecommerce.pessoa.domain.StatusPessoa;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -20,14 +17,16 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 
 import br.com.wakax.wakax_ecommerce.cliente.application.api.request.ClienteAtualizaRequest;
 import br.com.wakax.wakax_ecommerce.cliente.application.api.response.ClienteAtualizaResponse;
 import br.com.wakax.wakax_ecommerce.cliente.application.repository.ClienteRepository;
 import br.com.wakax.wakax_ecommerce.cliente.domain.Cliente;
-import org.springframework.http.HttpStatus;
+import br.com.wakax.wakax_ecommerce.handler.APIException;
 import br.com.wakax.wakax_ecommerce.pessoa.domain.Endereco;
 import br.com.wakax.wakax_ecommerce.pessoa.domain.Pessoa;
+import br.com.wakax.wakax_ecommerce.pessoa.domain.StatusPessoa;
 
 @ExtendWith(MockitoExtension.class)
 class ClienteApplicationServiceTest {
@@ -60,6 +59,7 @@ class ClienteApplicationServiceTest {
     assertEquals(0, response.getTotalElements());
     verify(clienteRepository, times(1)).buscaTodosOsClientes(pageable);
   }
+
   @Test
   void deveDesativarClienteQuandoEstiverAtivo() {
 
@@ -71,8 +71,7 @@ class ClienteApplicationServiceTest {
     Cliente cliente = mock(Cliente.class);
     when(cliente.getPessoa()).thenReturn(pessoa);
 
-    when(clienteRepository.buscaClientePorId(idCliente))
-            .thenReturn(cliente);
+    when(clienteRepository.buscaClientePorId(idCliente)).thenReturn(cliente);
 
     clienteApplicationService.desativaCliente(idCliente);
 
@@ -92,18 +91,17 @@ class ClienteApplicationServiceTest {
     Cliente cliente = mock(Cliente.class);
     when(cliente.getPessoa()).thenReturn(pessoa);
 
-    when(clienteRepository.buscaClientePorId(idCliente))
-            .thenReturn(cliente);
+    when(clienteRepository.buscaClientePorId(idCliente)).thenReturn(cliente);
 
-    APIException exception = assertThrows(APIException.class,
-            () -> clienteApplicationService.desativaCliente(idCliente));
+    APIException exception =
+        assertThrows(
+            APIException.class, () -> clienteApplicationService.desativaCliente(idCliente));
 
     assertEquals(HttpStatus.CONFLICT, exception.getStatusException());
     assertEquals("Cliente já está inativo", exception.getMessage());
 
     verify(clienteRepository, never()).salva(any());
   }
-
 
   @Test
   void deveAtualizarClienteComSucesso() {

@@ -1,18 +1,17 @@
 package br.com.wakax.wakax_ecommerce.carrinho.api;
 
+import java.util.List;
+import java.util.UUID;
+
+import org.springframework.web.bind.annotation.RestController;
+
 import br.com.wakax.wakax_ecommerce.auth.security.service.TokenService;
 import br.com.wakax.wakax_ecommerce.carrinho.api.request.ItemCarrinhoRequest;
 import br.com.wakax.wakax_ecommerce.carrinho.api.response.CarrinhoResponse;
 import br.com.wakax.wakax_ecommerce.carrinho.api.response.CarrinhosListAllResponse;
 import br.com.wakax.wakax_ecommerce.carrinho.application.service.CarrinhoService;
-import br.com.wakax.wakax_ecommerce.handler.APIException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
-import java.util.UUID;
 
 @Log4j2
 @RestController

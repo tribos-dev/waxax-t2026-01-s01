@@ -4,18 +4,16 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyInt;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.never;
-
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import br.com.wakax.wakax_ecommerce.handler.APIException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -32,6 +30,7 @@ import br.com.wakax.wakax_ecommerce.carrinho.domain.Carrinho;
 import br.com.wakax.wakax_ecommerce.carrinho.domain.StatusCarrinho;
 import br.com.wakax.wakax_ecommerce.cliente.application.repository.ClienteRepository;
 import br.com.wakax.wakax_ecommerce.cliente.domain.Cliente;
+import br.com.wakax.wakax_ecommerce.handler.APIException;
 import br.com.wakax.wakax_ecommerce.produto.application.repository.ProdutoRepository;
 import br.com.wakax.wakax_ecommerce.produto.domain.Produto;
 
@@ -209,22 +208,17 @@ class CarrinhoApplicationServiceTest {
     UUID idItem = carrinho.getItensCarrinho().get(0).getId();
     String email = cliente.getPessoa().getEmails().get(0);
 
-    when(carrinhoRepository.buscaCarrinhoPorId(carrinho.getId()))
-            .thenReturn(carrinho);
+    when(carrinhoRepository.buscaCarrinhoPorId(carrinho.getId())).thenReturn(carrinho);
 
-    when(carrinhoRepository.carrinhoPertenceAoUsuario(carrinho.getId(), email))
-            .thenReturn(true);
+    when(carrinhoRepository.carrinhoPertenceAoUsuario(carrinho.getId(), email)).thenReturn(true);
 
     applicationService.deletaItemDoCarrinho(email, carrinho.getId(), idItem);
 
-    verify(carrinhoRepository, times(1))
-            .buscaCarrinhoPorId(carrinho.getId());
+    verify(carrinhoRepository, times(1)).buscaCarrinhoPorId(carrinho.getId());
 
-    verify(carrinhoRepository, times(1))
-            .carrinhoPertenceAoUsuario(carrinho.getId(), email);
+    verify(carrinhoRepository, times(1)).carrinhoPertenceAoUsuario(carrinho.getId(), email);
 
-    verify(carrinhoRepository, times(1))
-            .salva(carrinho);
+    verify(carrinhoRepository, times(1)).salva(carrinho);
   }
 
   @Test
@@ -235,11 +229,11 @@ class CarrinhoApplicationServiceTest {
     UUID idItem = carrinho.getItensCarrinho().get(0).getId();
     String email = cliente.getPessoa().getEmails().get(0);
 
-    when(carrinhoRepository.buscaCarrinhoPorId(carrinho.getId()))
-            .thenReturn(carrinho);
+    when(carrinhoRepository.buscaCarrinhoPorId(carrinho.getId())).thenReturn(carrinho);
 
-    assertThrows(APIException.class,
-            () -> applicationService.deletaItemDoCarrinho(email, carrinho.getId(), idItem));
+    assertThrows(
+        APIException.class,
+        () -> applicationService.deletaItemDoCarrinho(email, carrinho.getId(), idItem));
 
     verify(carrinhoRepository, never()).salva(any());
   }
@@ -252,17 +246,14 @@ class CarrinhoApplicationServiceTest {
     UUID idItem = carrinho.getItensCarrinho().get(0).getId();
     String email = "outro@email.com";
 
-    when(carrinhoRepository.buscaCarrinhoPorId(carrinho.getId()))
-            .thenReturn(carrinho);
+    when(carrinhoRepository.buscaCarrinhoPorId(carrinho.getId())).thenReturn(carrinho);
 
-    when(carrinhoRepository.carrinhoPertenceAoUsuario(carrinho.getId(), email))
-            .thenReturn(false);
+    when(carrinhoRepository.carrinhoPertenceAoUsuario(carrinho.getId(), email)).thenReturn(false);
 
-    assertThrows(APIException.class,
-            () -> applicationService.deletaItemDoCarrinho(email, carrinho.getId(), idItem));
+    assertThrows(
+        APIException.class,
+        () -> applicationService.deletaItemDoCarrinho(email, carrinho.getId(), idItem));
 
     verify(carrinhoRepository, never()).salva(any());
   }
-
-
 }

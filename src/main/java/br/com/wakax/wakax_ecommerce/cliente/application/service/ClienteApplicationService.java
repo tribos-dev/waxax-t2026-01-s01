@@ -1,6 +1,5 @@
 package br.com.wakax.wakax_ecommerce.cliente.application.service;
 
-import java.time.LocalDateTime;
 import java.util.UUID;
 
 import org.springframework.data.domain.Page;
@@ -16,8 +15,6 @@ import br.com.wakax.wakax_ecommerce.cliente.application.repository.ClienteReposi
 import br.com.wakax.wakax_ecommerce.cliente.domain.Cliente;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-
-import static br.com.wakax.wakax_ecommerce.pessoa.domain.StatusPessoa.INATIVO;
 
 @Service
 @Log4j2
@@ -58,8 +55,9 @@ public class ClienteApplicationService implements ClienteService {
     clienteRepository.salva(cliente);
     log.info("[finish] ClienteApplicationService - desativaCliente");
     return new ClienteResponse(cliente);
+  }
+
   @Transactional
-    
   public ClienteAtualizaResponse atualizarCliente(
       UUID idCliente, ClienteAtualizaRequest clienteRequest) {
     log.info("[start] ClienteApplicationService - atualizarCliente");

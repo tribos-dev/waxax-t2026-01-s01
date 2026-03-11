@@ -28,5 +28,4 @@ public interface CarrinhoAPI {
 
   @GetMapping("{idCliente}/busca-carrinhos")
   List<CarrinhosListAllResponse> buscarTodosOsCarrinhos(@PathVariable("idCliente") UUID idCliente);
-
 }

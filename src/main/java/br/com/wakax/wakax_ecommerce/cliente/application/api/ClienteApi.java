@@ -32,6 +32,7 @@ public interface ClienteApi {
   @PatchMapping("/desativar/{idCliente}")
   @ResponseStatus(HttpStatus.OK)
   ClienteResponse desativaCliente(@PathVariable UUID idCliente);
+
   @PatchMapping("/{idCliente}")
   ClienteAtualizaResponse atualizarCliente(
       @PathVariable UUID idCliente, @RequestBody @Valid ClienteAtualizaRequest clienteRequest);

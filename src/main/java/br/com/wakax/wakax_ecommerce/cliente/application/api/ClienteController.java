@@ -55,7 +55,8 @@ public class ClienteController implements ClienteApi {
     ClienteResponse clienteResponse = clienteService.desativaCliente(idCliente);
     log.info("[finish] ClienteController - desativaCliente");
     return clienteResponse;
-    
+  }
+
   public ClienteAtualizaResponse atualizarCliente(
       UUID idCliente, ClienteAtualizaRequest clienteRequest) {
     log.info("[start] ClienteController - atualizarCliente");
