@@ -2,8 +2,10 @@ package br.com.wakax.wakax_ecommerce.fornecedor.application.service;
 
 import java.util.UUID;
 
+import br.com.wakax.wakax_ecommerce.fornecedor.application.api.response.FornecedorAtualizaResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import br.com.wakax.wakax_ecommerce.fornecedor.application.api.request.FornecedorAtualizaRequest;
 import org.springframework.stereotype.Service;
 
 import br.com.wakax.wakax_ecommerce.fornecedor.application.api.request.FornecedorRequest;
@@ -46,5 +48,15 @@ public class FornecedorApplicationService implements FornecedorService {
     Page<Fornecedor> fornecedor = fornecedorRepository.buscaFornecedoresComFiltro(status, pageable);
     log.debug("[finish] FornecedorApplicationService - listaFornecedores");
     return new FornecedorPageResponse(fornecedor);
+  }
+
+  @Override
+  public FornecedorAtualizaResponse atualizarFornecedor(UUID idFornecedor, FornecedorAtualizaRequest atualizaFornecedor) {
+    log.debug("[start] FornecedorApplicationService - atualizarFornecedor");
+    Fornecedor fornecedor = fornecedorRepository.buscaFornecedorPorId(idFornecedor);
+    fornecedor.atualizacaoFornecedor(atualizaFornecedor);
+    fornecedorRepository.atualiza(fornecedor);
+    log.debug("[finish] FornecedorApplicationService - atualizarFornecedor");
+    return new FornecedorAtualizaResponse(fornecedor);
   }
 }

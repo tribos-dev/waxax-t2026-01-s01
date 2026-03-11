@@ -2,7 +2,9 @@ package br.com.wakax.wakax_ecommerce.fornecedor.application.api;
 
 import java.util.UUID;
 
+import br.com.wakax.wakax_ecommerce.fornecedor.application.api.response.FornecedorAtualizaResponse;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import br.com.wakax.wakax_ecommerce.fornecedor.application.api.request.FornecedorAtualizaRequest;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.com.wakax.wakax_ecommerce.fornecedor.application.api.request.FornecedorFiltroRequest;
@@ -43,6 +45,14 @@ public class FornecedorController implements FornecedorAPI {
     FornecedorPageResponse response =
         fornecedorService.listaFornecedores(filtro.getStatus(), filtro.toPageable());
     log.debug("[finish] FornecedorController - listaFornecedores");
+    return response;
+  }
+
+  @Override
+  public FornecedorAtualizaResponse atualizarFornecedor(UUID idFornecedor, FornecedorAtualizaRequest atualizaFornecedor) {
+    log.debug("[start] FornecedorController - atualizarFornecedor");
+    FornecedorAtualizaResponse response = fornecedorService.atualizarFornecedor(idFornecedor, atualizaFornecedor);
+    log.debug("[finish] FornecedorController - atualizarFornecedor");
     return response;
   }
 }
