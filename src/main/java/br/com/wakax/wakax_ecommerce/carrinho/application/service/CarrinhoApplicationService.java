@@ -1,11 +1,5 @@
 package br.com.wakax.wakax_ecommerce.carrinho.application.service;
 
-import java.util.List;
-import java.util.UUID;
-
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import br.com.wakax.wakax_ecommerce.carrinho.api.request.ItemCarrinhoRequest;
 import br.com.wakax.wakax_ecommerce.carrinho.api.response.CarrinhoResponse;
 import br.com.wakax.wakax_ecommerce.carrinho.api.response.CarrinhosListAllResponse;
@@ -19,6 +13,11 @@ import br.com.wakax.wakax_ecommerce.produto.application.repository.ProdutoReposi
 import br.com.wakax.wakax_ecommerce.produto.domain.Produto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.UUID;
 
 @Log4j2
 @Service

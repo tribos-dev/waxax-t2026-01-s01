@@ -21,70 +21,76 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class Pessoa {
 
-  @Id @GeneratedValue private UUID id;
+    @Id
+    @GeneratedValue
+    private UUID id;
 
-  @Column(length = 150, nullable = false)
-  @NotNull
-  @Size(max = 150)
-  private String nome;
+    @Column(length = 150, nullable = false)
+    @NotNull
+    @Size(max = 150)
+    private String nome;
 
-  @Column(length = 20, nullable = false, unique = true)
-  @NotNull
-  @Size(max = 20)
-  private String cpfCnpj;
+    @Column(length = 20, nullable = false, unique = true)
+    @NotNull
+    @Size(max = 20)
+    private String cpfCnpj;
 
-  @ElementCollection(fetch = FetchType.LAZY)
-  @CollectionTable(name = "pessoa_emails", joinColumns = @JoinColumn(name = "pessoa_id"))
-  @Column(name = "emails", length = 255, nullable = false)
-  private List<@NotNull @Size(max = 255) String> emails;
+    @ElementCollection(fetch = FetchType.LAZY)
+    @CollectionTable(name = "pessoa_emails", joinColumns = @JoinColumn(name = "pessoa_id"))
+    @Column(name = "emails", length = 255, nullable = false)
+    private List<@NotNull @Size(max = 255) String> emails;
 
-  @ElementCollection(fetch = FetchType.LAZY)
-  @CollectionTable(name = "pessoa_telefones", joinColumns = @JoinColumn(name = "pessoa_id"))
-  @Column(name = "telefones", length = 30, nullable = false)
-  private List<@NotNull @Size(max = 30) String> telefones;
+    @ElementCollection(fetch = FetchType.LAZY)
+    @CollectionTable(name = "pessoa_telefones", joinColumns = @JoinColumn(name = "pessoa_id"))
+    @Column(name = "telefones", length = 30, nullable = false)
+    private List<@NotNull @Size(max = 30) String> telefones;
 
-  @OneToMany(mappedBy = "pessoa", cascade = CascadeType.ALL, orphanRemoval = true)
-  private List<Endereco> enderecos;
+    @OneToMany(mappedBy = "pessoa", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Endereco> enderecos;
 
-  @Enumerated(EnumType.STRING)
-  @Column(nullable = false)
-  @NotNull
-  private StatusPessoa status;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    @NotNull
+    private StatusPessoa status;
 
-  public Pessoa(PessoaRequest pessoaRequest) {
-    this.nome = pessoaRequest.getNome();
-    this.cpfCnpj = pessoaRequest.getDocumento();
-    this.emails = pessoaRequest.getEmails();
-    this.telefones = pessoaRequest.getTelefones();
-    this.status = StatusPessoa.ATIVO;
-    this.enderecos = pessoaRequest.getEnderecos();
-    vincularEnderecos();
-  }
-
-  public static Pessoa criarDe(DadosPessoa dadosPessoa) {
-    Pessoa pessoa = new Pessoa();
-    pessoa.nome = dadosPessoa.getNome();
-    pessoa.cpfCnpj = dadosPessoa.getDocumento();
-    pessoa.emails = dadosPessoa.getEmails();
-    pessoa.telefones = dadosPessoa.getTelefones();
-    pessoa.status = StatusPessoa.ATIVO;
-    pessoa.enderecos = dadosPessoa.getEnderecos();
-    pessoa.vincularEnderecos();
-    return pessoa;
-  }
-
-  private void vincularEnderecos() {
-    if (this.enderecos != null) {
-      this.enderecos.forEach(endereco -> endereco.setPessoa(this));
+    public Pessoa(PessoaRequest pessoaRequest) {
+        this.nome = pessoaRequest.getNome();
+        this.cpfCnpj = pessoaRequest.getDocumento();
+        this.emails = pessoaRequest.getEmails();
+        this.telefones = pessoaRequest.getTelefones();
+        this.status = StatusPessoa.ATIVO;
+        this.enderecos = pessoaRequest.getEnderecos();
+        vincularEnderecos();
     }
 
-  }
+    public static Pessoa criarDe(DadosPessoa dadosPessoa) {
+        Pessoa pessoa = new Pessoa();
+        pessoa.nome = dadosPessoa.getNome();
+        pessoa.cpfCnpj = dadosPessoa.getDocumento();
+        pessoa.emails = dadosPessoa.getEmails();
+        pessoa.telefones = dadosPessoa.getTelefones();
+        pessoa.status = StatusPessoa.ATIVO;
+        pessoa.enderecos = dadosPessoa.getEnderecos();
+        pessoa.vincularEnderecos();
+        return pessoa;
+    }
+
+    private void vincularEnderecos() {
+        if (this.enderecos != null) {
+            this.enderecos.forEach(endereco -> endereco.setPessoa(this));
+        }
+    }
 
     public void ativar() {
         this.status = StatusPessoa.ATIVO;
     }
-  @PrePersist
-  protected void onCreate() {
-    this.status = StatusPessoa.INATIVO;
-  }
+
+    @PrePersist
+    protected void onCreate() {
+        this.status = StatusPessoa.INATIVO;
+    }
+
+    public void inativar() {
+        this.status = StatusPessoa.INATIVO;
+    }
 }

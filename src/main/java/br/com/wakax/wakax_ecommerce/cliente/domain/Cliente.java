@@ -7,8 +7,11 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 
 import br.com.wakax.wakax_ecommerce.cliente.application.api.request.ClienteRequest;
+import br.com.wakax.wakax_ecommerce.handler.APIException;
+import br.com.wakax.wakax_ecommerce.handler.ErrorCode;
 import br.com.wakax.wakax_ecommerce.pessoa.domain.Pessoa;
 import lombok.*;
+import org.springframework.http.HttpStatus;
 
 @Entity
 @Data
@@ -63,5 +66,20 @@ public class Cliente {
 
     public boolean isAtivo() {
         return StatusCliente.ATIVO.equals(this.status);
+    }
+
+    public void inativar() {
+        this.status = StatusCliente.INATIVO;
+        this.pessoa.inativar();
+    }
+
+    public boolean isInativo() {
+        return StatusCliente.INATIVO.equals(this.status);
+    }
+
+    public void validaSeClienteEstaAtivo() {
+        if (!this.isAtivo()) {
+            throw new APIException(HttpStatus.FORBIDDEN, ErrorCode.CLIENTE_INATIVO);
+        }
     }
 }

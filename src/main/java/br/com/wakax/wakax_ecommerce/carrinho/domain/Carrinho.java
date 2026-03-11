@@ -83,5 +83,6 @@ public class Carrinho {
 
     public void ativar() {
         this.statusCarrinho = StatusCarrinho.ATIVO;
+
     }
 }
