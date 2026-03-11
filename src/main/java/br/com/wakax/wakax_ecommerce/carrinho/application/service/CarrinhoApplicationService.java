@@ -78,27 +78,4 @@ public class CarrinhoApplicationService implements CarrinhoService {
     log.debug("[finish] CarrinhoApplicationService - buscarTodosOsCarrinhos");
     return list;
   }
-
-  @Override
-  @Transactional
-  public void deletaItemDoCarrinho(String emailUsuario, UUID idCarrinho, UUID idItem) {
-
-    log.info("[start] deletaItemDoCarrinho - buscaCarrinhoPorId");
-
-    Carrinho carrinho = carrinhoRepository.buscaCarrinhoPorId(idCarrinho);
-
-    if (carrinho.getStatusCarrinho() != StatusCarrinho.ATIVO) {
-      throw APIException.build(HttpStatus.BAD_REQUEST,
-              "Carrinho não permite modificação");
-    }
-    boolean pertence = carrinhoRepository
-            .carrinhoPertenceAoUsuario(idCarrinho, emailUsuario);
-    if (!pertence) {
-      throw APIException.build(HttpStatus.BAD_REQUEST,
-              "Item do carrinho não encontrado");
-    }
-    carrinho.removeItem(idItem);
-    carrinhoRepository.salva(carrinho);
-    log.info("[finish] deletaItemDoCarrinho - buscaCarrinhoPorId");
-  }
 }

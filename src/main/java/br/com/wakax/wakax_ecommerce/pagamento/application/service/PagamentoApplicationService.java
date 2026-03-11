@@ -2,6 +2,7 @@ package br.com.wakax.wakax_ecommerce.pagamento.application.service;
 
 import java.util.UUID;
 
+import br.com.wakax.wakax_ecommerce.cliente.domain.Cliente;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -41,9 +42,11 @@ public class PagamentoApplicationService implements PagamentoService {
   public PagamentoResponse processaPagamento(PagamentoRequest novoPagamento) {
     log.debug("[start] PagamentoApplicationService - criaPagamento");
 
-    verificarSeExistePagamento(novoPagamento.getPedidoId());
-
     Pedido pedido = pedidoRepository.buscaPedidoPorId(novoPagamento.getPedidoId());
+
+    Cliente cliente = pedido.getCliente();
+    cliente.validaClienteAtivo();
+
     Pagamento pagamento = new Pagamento(pedido);
 
     var processador = processadorFactory.obterProcessador(pedido.getFormaPagamento());

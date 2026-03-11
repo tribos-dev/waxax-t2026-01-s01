@@ -29,10 +29,4 @@ public interface CarrinhoAPI {
   @GetMapping("{idCliente}/busca-carrinhos")
   List<CarrinhosListAllResponse> buscarTodosOsCarrinhos(@PathVariable("idCliente") UUID idCliente);
 
-  @DeleteMapping("/deleta-produto/{idCarrinho}/{idProduto}")
-  @ResponseStatus(code = HttpStatus.NO_CONTENT)
-  void deletaItemDoCarrinho(@RequestHeader(name = "Authorization", required = true)String token,
-                            @PathVariable UUID idCarrinho,
-                            @PathVariable UUID idProduto);
-
 }

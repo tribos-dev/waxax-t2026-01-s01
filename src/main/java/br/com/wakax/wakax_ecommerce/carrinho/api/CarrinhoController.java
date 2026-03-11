@@ -46,17 +46,10 @@ public class CarrinhoController implements CarrinhoAPI {
     return carrinhos;
   }
 
-  @Override
-  public void deletaItemDoCarrinho(String token, UUID idCarrinho, UUID idProduto) {
-    log.info("[start] CarrinhoController - deletaItemDoCarrinho");
-    String usuario = getUsuarioByToken(token);
-    carrinhoService.deletaItemDoCarrinho(usuario, idCarrinho, idProduto);
-    log.info("[finish] CarrinhoController - deletaItemDoCarrinho");
-  }
-
   private String getUsuarioByToken(String token) {
     log.info("[token] {}", token);
-    String usuario = tokenService.getUsuarioByBearerToken(token).orElseThrow(() -> APIException.build(HttpStatus.UNAUTHORIZED, token));
+    String usuario = tokenService.getUsuarioByBearerToken(token).orElseThrow
+            (() -> APIException.build(HttpStatus.UNAUTHORIZED, token));
     log.info("[usuario] {}", usuario);
     return usuario;
   }

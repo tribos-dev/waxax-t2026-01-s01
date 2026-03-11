@@ -73,18 +73,6 @@ public class Carrinho {
     }
   }
 
-  public void removeItem(UUID idItem) {
-
-    ItemCarrinho item = this.itensCarrinho.stream()
-            .filter(i -> i.getId().equals(idItem))
-            .findFirst()
-            .orElseThrow(() ->
-                    new APIException(HttpStatus.NOT_FOUND,
-                            ErrorCode.ITEM_CARRINHO_NAO_ENCONTRADO));
-
-    this.itensCarrinho.remove(item);
-  }
-
   public BigDecimal calculaValorTotal() {
     return itensCarrinho.stream()
         .map(ItemCarrinho::getValorTotalDoItem)

@@ -59,10 +59,4 @@ public class CarrinhoInfraRepository implements CarrinhoRepository {
     log.debug("[finish] CarrinhoInfraRepository - buscarTodosOsCarrinhos");
     return carrinhos;
   }
-
-  @Override
-  public boolean carrinhoPertenceAoUsuario(UUID idCarrinho, String email) {
-    return carrinhoSpringDataJPARepository
-            .existsByIdAndEmail(idCarrinho, email);
-  }
-}
+ }

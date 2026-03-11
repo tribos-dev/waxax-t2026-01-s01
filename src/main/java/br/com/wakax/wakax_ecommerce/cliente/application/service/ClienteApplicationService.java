@@ -52,8 +52,7 @@ public class ClienteApplicationService implements ClienteService {
   public ClienteResponse desativaCliente(UUID idCliente) {
     log.info("[start] ClienteApplicationService - desativaCliente");
     Cliente cliente = clienteRepository.buscaClientePorId(idCliente);
-    cliente.getPessoa().desativar();
-    cliente.setDataEdicao(LocalDateTime.now());
+    cliente.desativar(cliente.getPessoa());
     clienteRepository.salva(cliente);
     log.info("[finish] ClienteApplicationService - desativaCliente");
     return new ClienteResponse(cliente);
