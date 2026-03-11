@@ -15,6 +15,4 @@ public interface FornecedorRepository {
   Fornecedor buscaFornecedorPorId(UUID id);
 
   Page<Fornecedor> buscaFornecedoresComFiltro(StatusPessoa status, Pageable pageable);
-
-  Fornecedor atualiza(Fornecedor fornecedor);
 }
