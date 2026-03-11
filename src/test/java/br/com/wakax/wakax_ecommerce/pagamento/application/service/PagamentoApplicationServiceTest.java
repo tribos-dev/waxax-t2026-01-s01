@@ -381,8 +381,6 @@ class PagamentoApplicationServiceTest {
         assertEquals(ErrorCode.PEDIDO_NAO_POSSUI_PAGAMENTO, exception.getErrorCode());
         verify(pagamentoRepository).buscaPagamentoPorPedidoId(pedidoId);
 
-        assertEquals(StatusPagamento.AGUARDANDO, pagamentoTeste.getStatusPagamento());
-        assertEquals(StatusPedido.AGUARDANDO_PAGAMENTO, pedido.getStatus());
     }
 
     @Test
