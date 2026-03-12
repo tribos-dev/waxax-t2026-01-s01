@@ -1,6 +1,8 @@
 package br.com.wakax.wakax_ecommerce.pessoa.domain;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import javax.persistence.*;
@@ -8,6 +10,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 import br.com.wakax.wakax_ecommerce.cliente.application.api.request.ClienteAtualizaRequest;
+import br.com.wakax.wakax_ecommerce.cliente.application.api.request.ClienteEnderecoRequest;
 import br.com.wakax.wakax_ecommerce.pessoa.application.api.request.DadosPessoa;
 import br.com.wakax.wakax_ecommerce.pessoa.application.api.request.PessoaRequest;
 import lombok.AllArgsConstructor;
@@ -45,7 +48,7 @@ public class Pessoa {
   private List<@NotNull @Size(max = 30) String> telefones;
 
   @OneToMany(mappedBy = "pessoa", cascade = CascadeType.ALL, orphanRemoval = true)
-  private List<Endereco> enderecos;
+  private List<Endereco> enderecos = new ArrayList<>();
 
   @Enumerated(EnumType.STRING)
   @Column(nullable = false)
@@ -58,7 +61,8 @@ public class Pessoa {
     this.emails = pessoaRequest.getEmails();
     this.telefones = pessoaRequest.getTelefones();
     this.status = StatusPessoa.ATIVO;
-    this.enderecos = pessoaRequest.getEnderecos();
+    this.enderecos = new ArrayList<>();
+    Optional.ofNullable(pessoaRequest.getEnderecos()).ifPresent(this.enderecos::addAll);
     vincularEnderecos();
   }
 
@@ -69,7 +73,8 @@ public class Pessoa {
     pessoa.emails = dadosPessoa.getEmails();
     pessoa.telefones = dadosPessoa.getTelefones();
     pessoa.status = StatusPessoa.ATIVO;
-    pessoa.enderecos = dadosPessoa.getEnderecos();
+    pessoa.enderecos = new ArrayList<>();
+    Optional.ofNullable(dadosPessoa.getEnderecos()).ifPresent(pessoa.enderecos::addAll);
     pessoa.vincularEnderecos();
     return pessoa;
   }
@@ -81,41 +86,37 @@ public class Pessoa {
   }
 
   public void alterar(ClienteAtualizaRequest request) {
+    // Atualiza nome apenas se houver conteúdo
+    Optional.ofNullable(request.getNome()).filter(n -> !n.isBlank()).ifPresent(n -> this.nome = n);
 
-    if (request.getNome() != null && !request.getNome().isBlank()) {
-      this.nome = request.getNome();
-    }
+    // Atualiza listas simples (Email e Telefone)
+    Optional.ofNullable(request.getEmails())
+        .filter(list -> !list.isEmpty())
+        .ifPresent(list -> this.emails = list);
 
-    if (request.getEmails() != null && !request.getEmails().isEmpty()) {
-      this.emails = request.getEmails();
-    }
+    Optional.ofNullable(request.getTelefones())
+        .filter(list -> !list.isEmpty())
+        .ifPresent(list -> this.telefones = list);
 
-    if (request.getTelefones() != null && !request.getTelefones().isEmpty()) {
-      this.telefones = request.getTelefones();
-    }
-
-    if (request.getEnderecos() != null && !request.getEnderecos().isEmpty()) {
-      request
-          .getEnderecos()
-          .forEach(
-              novoEndereco -> {
-                if (novoEndereco.isPrincipal()) {
-                  desmarcarEnderecoPrincipalAtual();
-                }
-                novoEndereco.setPessoa(this);
-                this.enderecos.add(novoEndereco);
-              });
-    }
+    // Adiciona novos endereços sem apagar os antigos
+    Optional.ofNullable(request.getEnderecos())
+        .ifPresent(novos -> novos.forEach(this::adicionarEndereco));
   }
 
-  public void adicionarEndereco(Endereco novoEndereco) {
+  public void adicionarEndereco(ClienteEnderecoRequest requestEndereco) {
+    Endereco novoEndereco = new Endereco(requestEndereco);
+
     if (novoEndereco.isPrincipal()) {
       desmarcarEnderecoPrincipalAtual();
     }
+
+    novoEndereco.setPessoa(this); // Vincula o endereço a esta pessoa para o Hibernate salvar o ID
     this.enderecos.add(novoEndereco);
   }
 
   private void desmarcarEnderecoPrincipalAtual() {
-    this.enderecos.stream().filter(Endereco::isPrincipal).forEach(e -> e.setPrincipal(false));
+    if (this.enderecos != null) {
+      this.enderecos.stream().filter(Endereco::isPrincipal).forEach(e -> e.setPrincipal(false));
+    }
   }
 }
