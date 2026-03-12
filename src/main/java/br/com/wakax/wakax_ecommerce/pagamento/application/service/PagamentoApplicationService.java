@@ -2,6 +2,7 @@ package br.com.wakax.wakax_ecommerce.pagamento.application.service;
 
 import java.util.UUID;
 
+import br.com.wakax.wakax_ecommerce.pagamento.application.api.response.ReprocessarPagamentoResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -10,10 +11,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import br.com.wakax.wakax_ecommerce.cliente.domain.Cliente;
+import br.com.wakax.wakax_ecommerce.estoque.application.service.EstoqueApplicationService;
 import br.com.wakax.wakax_ecommerce.estoque.application.repository.EstoqueRepository;
 import br.com.wakax.wakax_ecommerce.estoque.domain.Estoque;
 import br.com.wakax.wakax_ecommerce.handler.APIException;
 import br.com.wakax.wakax_ecommerce.handler.ErrorCode;
+import br.com.wakax.wakax_ecommerce.pagamento.application.api.request.CancelaPagamentoRequest;
 import br.com.wakax.wakax_ecommerce.pagamento.application.api.request.PagamentoRequest;
 import br.com.wakax.wakax_ecommerce.pagamento.application.api.response.PagamentoPageResponse;
 import br.com.wakax.wakax_ecommerce.pagamento.application.api.response.PagamentoPedidoResponse;
@@ -38,15 +42,18 @@ public class PagamentoApplicationService implements PagamentoService {
   private final ProcessadorPagamentoFactory processadorFactory;
   private final EstoqueRepository estoqueRepository;
   private PagamentoInfraRepository pagamentoInfraRepository;
+  private final EstoqueApplicationService estoqueApplicationService;
 
   @Override
   @Transactional
   public PagamentoResponse processaPagamento(PagamentoRequest novoPagamento) {
     log.debug("[start] PagamentoApplicationService - criaPagamento");
 
-    verificarSeExistePagamento(novoPagamento.getPedidoId());
-
     Pedido pedido = pedidoRepository.buscaPedidoPorId(novoPagamento.getPedidoId());
+
+    Cliente cliente = pedido.getCliente();
+    cliente.validaClienteAtivo();
+
     Pagamento pagamento = new Pagamento(pedido);
 
     var processador = processadorFactory.obterProcessador(pedido.getFormaPagamento());
@@ -69,7 +76,6 @@ public class PagamentoApplicationService implements PagamentoService {
                   pagamentoExistente.getStatusPagamento());
             });
   }
-
   @Override
   public PagamentoResponse buscaPagamentoPorId(UUID idPagamento) {
     log.debug("[start] PagamentoApplicationService - buscaPagamentoPorId");
@@ -143,5 +149,36 @@ public class PagamentoApplicationService implements PagamentoService {
               estoque.reservaQuantidade(item.getQuantidade());
               estoqueRepository.salva(estoque);
             });
+  }
+
+  @Override
+  public void cancelaPagamento(UUID idPagamento, CancelaPagamentoRequest cancelaPagamentoRequest) {
+    log.info("[start] PagamentoApplicationService - cancelaPagamento");
+    Pagamento pagamento = pagamentoRepository.buscaPagamentoPorId(idPagamento);
+    pagamento.mudaStatusParaFalhou(cancelaPagamentoRequest);
+    pagamentoRepository.salva(pagamento);
+    Pedido pedido = pagamento.getPedido();
+    pedido.mudaStatusAguardandoPagamento();
+    pedidoRepository.salva(pedido);
+    pedidoRepository.salva(pedido);
+    log.info("[finish] PagamentoApplicationService - cancelaPagamento");
+  }
+
+  @Override
+  public ReprocessarPagamentoResponse reprocessaPagamento(UUID idPagamento) {
+    log.info("[start] PagamentoApplicationService - reprocessaPagamento");
+
+    Pagamento pagamento = pagamentoRepository.buscaPagamentoPorId(idPagamento);
+    Pedido pedido = pagamento.getPedido();
+
+    pagamento.prepararReprocessamento();
+
+    var processador = processadorFactory.obterProcessador(pedido.getFormaPagamento());
+    processador.processar(pagamento, pedido);
+
+    pedidoRepository.salva(pedido);
+    pagamentoRepository.salva(pagamento);
+    log.debug("[finish] PagamentoApplicationService - reprocessaPagamento");
+    return new ReprocessarPagamentoResponse(pagamento);
   }
 }

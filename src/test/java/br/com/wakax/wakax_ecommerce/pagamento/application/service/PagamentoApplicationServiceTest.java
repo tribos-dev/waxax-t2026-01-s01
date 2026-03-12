@@ -25,6 +25,7 @@ import br.com.wakax.wakax_ecommerce.estoque.application.repository.EstoqueReposi
 import br.com.wakax.wakax_ecommerce.estoque.domain.Estoque;
 import br.com.wakax.wakax_ecommerce.handler.APIException;
 import br.com.wakax.wakax_ecommerce.handler.ErrorCode;
+import br.com.wakax.wakax_ecommerce.pagamento.application.api.request.CancelaPagamentoRequest;
 import br.com.wakax.wakax_ecommerce.pagamento.application.api.request.PagamentoRequest;
 import br.com.wakax.wakax_ecommerce.pagamento.application.api.response.PagamentoPageResponse;
 import br.com.wakax.wakax_ecommerce.pagamento.application.api.response.PagamentoResponse;
@@ -62,6 +63,7 @@ class PagamentoApplicationServiceTest {
   private Estoque estoque;
   private UUID pedidoId;
   private UUID pagamentoId;
+  private CancelaPagamentoRequest cancelaPagamentoRequest;
 
   @BeforeEach
   void setUp() {
@@ -74,6 +76,9 @@ class PagamentoApplicationServiceTest {
     pedido.setItensPedido(List.of(itemPedido));
     pagamento = PagamentoDataHelper.criaPagamentoValido(pedido);
     pagamento.setId(pagamentoId);
+    cancelaPagamentoRequest =
+        PagamentoDataHelper.criaCancelaPagamentoRequest(
+            pagamentoId, CancelaPagamentoRequest.builder().build());
     estoque = PagamentoDataHelper.criaEstoqueValido(itemPedido.getProduto().getId());
   }
 
@@ -372,6 +377,122 @@ class PagamentoApplicationServiceTest {
     assertEquals(HttpStatus.NOT_FOUND, exception.getStatusException());
     assertEquals(ErrorCode.PEDIDO_NAO_POSSUI_PAGAMENTO, exception.getErrorCode());
     verify(pagamentoRepository).buscaPagamentoPorPedidoId(pedidoId);
+  }
+
+  @Test
+  void deveCancelarPagamentoComSucesso() {
+    when(pagamentoRepository.buscaPagamentoPorId(pagamentoId)).thenReturn(pagamento);
+    when(pagamentoRepository.salva(any(Pagamento.class))).thenAnswer(i -> i.getArgument(0));
+    when(pedidoRepository.salva(any(Pedido.class))).thenAnswer(i -> i.getArgument(0));
+
+    pagamentoApplicationService.cancelaPagamento(pagamentoId, cancelaPagamentoRequest);
+
+    ArgumentCaptor<Pagamento> pagamentoCaptor = ArgumentCaptor.forClass(Pagamento.class);
+    ArgumentCaptor<Pedido> pedidoCaptor = ArgumentCaptor.forClass(Pedido.class);
+
+    verify(pagamentoRepository).salva(pagamentoCaptor.capture());
+    verify(pedidoRepository).salva(pedidoCaptor.capture());
+
+    Pagamento pagamentoSalvo = pagamentoCaptor.getValue();
+    Pedido pedidoSalvo = pedidoCaptor.getValue();
+
+    assertEquals(StatusPagamento.FALHOU, pagamentoSalvo.getStatusPagamento());
+    assertEquals(StatusPedido.AGUARDANDO_PAGAMENTO, pedidoSalvo.getStatus());
+    assertEquals("Desisti da compra", pagamentoSalvo.getMotivoCancelamento());
+  }
+
+  @Test
+  void deveLancarErroQuandoPagamentoJaEstiverPago() {
+    pagamento.setStatusPagamento(StatusPagamento.PAGO);
+    when(pagamentoRepository.buscaPagamentoPorId(pagamentoId)).thenReturn(pagamento);
+
+    APIException ex =
+        assertThrows(
+            APIException.class,
+            () ->
+                pagamentoApplicationService.cancelaPagamento(pagamentoId, cancelaPagamentoRequest));
+
+    assertEquals(HttpStatus.CONFLICT, ex.getStatusException());
+    assertEquals(ErrorCode.PAGAMENTO_JA_PROCESSADO, ex.getErrorCode());
+
+    verify(pagamentoRepository, never()).salva(any());
+    verify(pedidoRepository, never()).salva(any());
+  }
+
+  @Test
+  void deveReprocessarPagamentoComSucesso() {
+    pagamento.setStatusPagamento(StatusPagamento.FALHOU);
+    pagamento.setTentativasPagamento(1);
+
+    when(pagamentoRepository.buscaPagamentoPorId(pagamentoId)).thenReturn(pagamento);
+    when(processadorFactory.obterProcessador(pedido.getFormaPagamento()))
+            .thenReturn(processadorPagamento);
+
+    var response = pagamentoApplicationService.reprocessaPagamento(pagamentoId);
+
+    assertNotNull(response);
+    assertEquals(StatusPagamento.AGUARDANDO, pagamento.getStatusPagamento());
+    assertEquals(2, pagamento.getTentativasPagamento());
+
+    verify(processadorFactory).obterProcessador(pedido.getFormaPagamento());
+    verify(processadorPagamento).processar(pagamento, pedido);
+    verify(pagamentoRepository).salva(pagamento);
+    verify(pedidoRepository).salva(pedido);
+  }
+
+  @Test
+  void deveLancarExcecaoQuandoLimiteTentativasExcedido() {
+    pagamento.setStatusPagamento(StatusPagamento.FALHOU);
+    pagamento.setTentativasPagamento(3);
+
+    when(pagamentoRepository.buscaPagamentoPorId(pagamentoId)).thenReturn(pagamento);
+
+    APIException exception = assertThrows(
+            APIException.class,
+            () -> pagamentoApplicationService.reprocessaPagamento(pagamentoId)
+    );
+
+    assertEquals(HttpStatus.CONFLICT, exception.getStatusException());
+    assertEquals(ErrorCode.LIMITE_DE_TENTATIVAS_EXCEDIDO, exception.getErrorCode());
+
+    verify(pagamentoRepository).buscaPagamentoPorId(pagamentoId);
+    verify(processadorFactory, never()).obterProcessador(any());
+  }
+
+  @Test
+  void deveLancarExcecaoQuandoPagamentoJaPago() {
+    pagamento.setStatusPagamento(StatusPagamento.PAGO);
+
+    when(pagamentoRepository.buscaPagamentoPorId(pagamentoId)).thenReturn(pagamento);
+
+    APIException exception = assertThrows(
+            APIException.class,
+            () -> pagamentoApplicationService.reprocessaPagamento(pagamentoId)
+    );
+
+    assertEquals(HttpStatus.CONFLICT, exception.getStatusException());
+    assertEquals(ErrorCode.PAGAMENTO_JA_PROCESSADO_COM_SUCESSO, exception.getErrorCode());
+
+    verify(pagamentoRepository).buscaPagamentoPorId(pagamentoId);
+    verify(processadorFactory, never()).obterProcessador(any());
+  }
+
+  @Test
+  void deveLancarExcecaoQuandoPagamentoNaoForFalhou() {
+    pagamento.setStatusPagamento(StatusPagamento.AGUARDANDO);
+
+    when(pagamentoRepository.buscaPagamentoPorId(pagamentoId)).thenReturn(pagamento);
+
+    APIException exception = assertThrows(
+            APIException.class,
+            () -> pagamentoApplicationService.reprocessaPagamento(pagamentoId)
+    );
+
+    assertEquals(HttpStatus.CONFLICT, exception.getStatusException());
+    assertEquals(ErrorCode.PAGAMENTO_NAO_PODE_SER_REPROCESSADO, exception.getErrorCode());
+
+    verify(pagamentoRepository).buscaPagamentoPorId(pagamentoId);
+    verify(processadorFactory, never()).obterProcessador(any());
   }
 
   @Test
