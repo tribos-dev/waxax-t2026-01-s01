@@ -17,10 +17,6 @@ public class ClienteAtualizaResponse {
   private LocalDateTime dataAtualizacao;
 
   public ClienteAtualizaResponse(Cliente cliente) {
-    // Força o carregamento
-    cliente.getPessoa().getEnderecos().size();
-    cliente.getPessoa().getEmails().size();
-    cliente.getPessoa().getTelefones().size();
 
     this.nome = cliente.getPessoa().getNome();
 
