@@ -53,6 +53,8 @@ public class Pagamento {
 
   private static final int MAX_TENTATIVAS = 3;
 
+  private LocalDateTime dataConfirmacao;
+
   public Pagamento(Pedido pedido) {
     this.pedido = pedido;
     this.statusPagamento = StatusPagamento.AGUARDANDO;
@@ -76,6 +78,7 @@ public class Pagamento {
 
   public void confirmarPagamento() {
     this.statusPagamento = StatusPagamento.PAGO;
+    this.dataConfirmacao = LocalDateTime.now();
   }
 
   public void aguardarPagamento() {

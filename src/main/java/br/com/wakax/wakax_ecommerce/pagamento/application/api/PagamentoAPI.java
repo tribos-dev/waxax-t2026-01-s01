@@ -44,4 +44,7 @@ public interface PagamentoAPI {
   @PutMapping("/{idPagamento}/reprocessar")
   @ResponseStatus(HttpStatus.OK)
   ReprocessarPagamentoResponse reprocessaPagamento(@PathVariable UUID idPagamento);
+
+  @PostMapping("/{idPagamento}/confirmar")
+  PagamentoResponse confirmarPagamento(@PathVariable UUID idPagamento);
 }
