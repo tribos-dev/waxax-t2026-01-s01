@@ -96,19 +96,11 @@ public class Pessoa {
   }
 
   public void alterar(ClienteAtualizaRequest request) {
-
-    Optional.ofNullable(request.getNome()).filter(n -> !n.isBlank()).ifPresent(n -> this.nome = n);
-
-    Optional.ofNullable(request.getEmails())
-        .filter(list -> !list.isEmpty())
-        .ifPresent(list -> this.emails = list);
-
-    Optional.ofNullable(request.getTelefones())
-        .filter(list -> !list.isEmpty())
-        .ifPresent(list -> this.telefones = list);
-
-    Optional.ofNullable(request.getEnderecos())
-        .ifPresent(novos -> novos.forEach(this::adicionarEndereco));
+    this.nome = request.getNome();
+    this.emails = request.getEmails();
+    this.telefones = request.getTelefones();
+    this.enderecos.clear();
+    request.getEnderecos().forEach(this::adicionarEndereco);
   }
 
   public void adicionarEndereco(ClienteEnderecoRequest requestEndereco) {

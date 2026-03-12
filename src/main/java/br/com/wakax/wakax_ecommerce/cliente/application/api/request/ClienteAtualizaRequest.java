@@ -2,8 +2,10 @@ package br.com.wakax.wakax_ecommerce.cliente.application.api.request;
 
 import java.util.List;
 
+import javax.validation.Valid;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Size;
 
 import lombok.Getter;
@@ -11,12 +13,12 @@ import lombok.Getter;
 @Getter
 public class ClienteAtualizaRequest {
   @NotBlank
-  @Size(max = 150, message = "Nome deve ter no máximo 150 caracteres")
+  @Size(max = 150)
   private String nome;
 
-  private List<@Email @NotBlank(message = "Email inválido") @Size(max = 150) String> emails;
+  @NotEmpty private List<@Email @NotBlank @Size(max = 150) String> emails;
 
-  private List<@NotBlank @Size(max = 15) String> telefones;
+  @NotEmpty private List<@NotBlank @Size(max = 15) String> telefones;
 
-  private List<ClienteEnderecoRequest> enderecos;
+  @NotEmpty @Valid private List<ClienteEnderecoRequest> enderecos;
 }
