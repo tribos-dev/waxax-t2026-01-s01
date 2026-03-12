@@ -7,6 +7,7 @@ import javax.persistence.*;
 import javax.validation.constraints.*;
 
 import br.com.wakax.wakax_ecommerce.fornecedor.application.api.request.FornecedorRequest;
+import br.com.wakax.wakax_ecommerce.fornecedor.application.api.request.FornecedorAtualizaRequest;
 import br.com.wakax.wakax_ecommerce.pessoa.domain.Pessoa;
 import lombok.*;
 
@@ -65,5 +66,17 @@ public class Fornecedor {
     this.inscricaoEstadual = request.getInscricaoEstadual();
     this.razaoSocial = request.getRazaoSocial();
     this.nomeFantasia = request.getNomeFantasia();
+  }
+
+  public void atualizacaoFornecedor(FornecedorAtualizaRequest request) {
+    if (request.getInscricaoEstadual() != null) {
+      this.inscricaoEstadual = request.getInscricaoEstadual();
+    }
+    this.razaoSocial = request.getRazaoSocial();
+    this.nomeFantasia = request.getNomeFantasia();
+    this.pessoa.setEmails(request.getEmails());
+    this.pessoa.setTelefones(request.getTelefones());
+    this.pessoa.setEnderecos(request.getEnderecos());
+    this.dataEdicao = LocalDateTime.now();
   }
 }
