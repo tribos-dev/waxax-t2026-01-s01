@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import br.com.wakax.wakax_ecommerce.pedido.application.api.request.PedidoRequest;
 import br.com.wakax.wakax_ecommerce.pedido.application.api.request.StatusPedidoRequest;
 import br.com.wakax.wakax_ecommerce.pedido.application.api.response.PedidoResponse;
+import br.com.wakax.wakax_ecommerce.pedido.domain.StatusPedido;
 
 @RestController
 @RequestMapping("/pedido")
@@ -21,6 +22,13 @@ public interface PedidoAPI {
 
   @GetMapping("/{idPedido}")
   PedidoResponse buscaPedidoPorId(@PathVariable UUID idPedido);
+
+  @GetMapping("/cliente/{idCliente}")
+  PedidoPageResponse buscaPedidosDoCliente(
+      @PathVariable("idCliente") UUID idCliente,
+      @RequestParam(value = "status", required = false) StatusPedido statusPedido,
+      @RequestParam(value = "page", defaultValue = "0") int page,
+      @RequestParam(value = "size", defaultValue = "10") int size);
 
   @PatchMapping("/{idPedido}/status")
   @ResponseStatus(HttpStatus.NO_CONTENT)

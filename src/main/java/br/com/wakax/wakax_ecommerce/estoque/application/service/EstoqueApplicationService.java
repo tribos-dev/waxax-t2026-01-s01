@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import br.com.wakax.wakax_ecommerce.estoque.api.request.EstoqueRequest;
+import br.com.wakax.wakax_ecommerce.estoque.api.request.RemoveEstoqueRequest;
 import br.com.wakax.wakax_ecommerce.estoque.api.response.EstoqueListagemResponse;
 import br.com.wakax.wakax_ecommerce.estoque.api.response.EstoqueResponse;
 import br.com.wakax.wakax_ecommerce.estoque.application.repository.EstoqueRepository;
@@ -106,6 +107,16 @@ public class EstoqueApplicationService implements EstoqueService {
     List<Estoque> estoques = estoqueRepository.buscarComFiltro(quantidadeMinima, apenasEmFalta);
     log.info("[finish] listarTodoEstoque - Total: {}", estoques.size());
     return EstoqueListagemResponse.of(estoques);
+  }
+
+  @Override
+  @Transactional
+  public void removeQuantidadeEstoque(UUID idProduto, RemoveEstoqueRequest request) {
+    log.info("[start] EstoqueApplicationService - removeQuantidadeEstoque");
+    Estoque estoque = buscaEstoqueExistente(idProduto);
+    estoque.removeQuantidade(request.quantidade());
+    estoqueRepository.salva(estoque);
+    log.debug("[finish] EstoqueApplicationService - removeQuantidadeEstoque");
   }
 
   private void validaSeJaExisteEstoque(UUID idProduto) {

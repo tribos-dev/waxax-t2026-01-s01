@@ -7,8 +7,10 @@ import javax.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import br.com.wakax.wakax_ecommerce.fornecedor.application.api.request.FornecedorAtualizaRequest;
 import br.com.wakax.wakax_ecommerce.fornecedor.application.api.request.FornecedorFiltroRequest;
 import br.com.wakax.wakax_ecommerce.fornecedor.application.api.request.FornecedorRequest;
+import br.com.wakax.wakax_ecommerce.fornecedor.application.api.response.FornecedorAtualizaResponse;
 import br.com.wakax.wakax_ecommerce.fornecedor.application.api.response.FornecedorListResponse;
 import br.com.wakax.wakax_ecommerce.fornecedor.application.api.response.FornecedorPageResponse;
 import br.com.wakax.wakax_ecommerce.fornecedor.application.api.response.FornecedorResponse;
@@ -26,4 +28,10 @@ public interface FornecedorAPI {
 
   @GetMapping
   FornecedorPageResponse listaFornecedores(@ModelAttribute FornecedorFiltroRequest filtro);
+
+  @PatchMapping("/{idFornecedor}")
+  @ResponseStatus(HttpStatus.OK)
+  FornecedorAtualizaResponse atualizarFornecedor(
+      @PathVariable UUID idFornecedor,
+      @Valid @RequestBody FornecedorAtualizaRequest atualizaFornecedor);
 }

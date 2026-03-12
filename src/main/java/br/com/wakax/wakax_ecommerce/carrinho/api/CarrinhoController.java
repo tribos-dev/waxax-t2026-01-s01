@@ -3,12 +3,15 @@ package br.com.wakax.wakax_ecommerce.carrinho.api;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import br.com.wakax.wakax_ecommerce.auth.security.service.TokenService;
 import br.com.wakax.wakax_ecommerce.carrinho.api.request.ItemCarrinhoRequest;
 import br.com.wakax.wakax_ecommerce.carrinho.api.response.CarrinhoResponse;
 import br.com.wakax.wakax_ecommerce.carrinho.api.response.CarrinhosListAllResponse;
 import br.com.wakax.wakax_ecommerce.carrinho.application.service.CarrinhoService;
+import br.com.wakax.wakax_ecommerce.handler.APIException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 
@@ -18,6 +21,7 @@ import lombok.extern.log4j.Log4j2;
 public class CarrinhoController implements CarrinhoAPI {
 
   private final CarrinhoService carrinhoService;
+  private final TokenService tokenService;
 
   @Override
   public CarrinhoResponse adicionaItemNoCarrinho(UUID idCliente, ItemCarrinhoRequest itemCarrinho) {
@@ -41,5 +45,23 @@ public class CarrinhoController implements CarrinhoAPI {
     List<CarrinhosListAllResponse> carrinhos = carrinhoService.buscarTodosOsCarrinhos(idCliente);
     log.debug("[finish] CarrinhoController - buscarTodosOsCarrinhos");
     return carrinhos;
+  }
+
+  @Override
+  public void deletaItemDoCarrinho(String token, UUID idCarrinho, UUID idItem) {
+    log.info("[start] CarrinhoController - deletaItemDoCarrinho");
+    String usuario = getUsuarioByToken(token);
+    carrinhoService.deletaItemDoCarrinho(usuario, idCarrinho, idItem);
+    log.info("[finish] CarrinhoController - deletaItemDoCarrinho");
+  }
+
+  private String getUsuarioByToken(String token) {
+    log.info("[token] {}", token);
+    String usuario =
+        tokenService
+            .getUsuarioByBearerToken(token)
+            .orElseThrow(() -> APIException.build(HttpStatus.UNAUTHORIZED, token));
+    log.info("[usuario] {}", usuario);
+    return usuario;
   }
 }

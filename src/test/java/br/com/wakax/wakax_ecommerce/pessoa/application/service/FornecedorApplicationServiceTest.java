@@ -3,6 +3,7 @@ package br.com.wakax.wakax_ecommerce.pessoa.application.service;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
@@ -14,8 +15,11 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.stubbing.Answer;
+import org.springframework.http.HttpStatus;
 
+import br.com.wakax.wakax_ecommerce.fornecedor.application.api.request.FornecedorAtualizaRequest;
 import br.com.wakax.wakax_ecommerce.fornecedor.application.api.request.FornecedorRequest;
+import br.com.wakax.wakax_ecommerce.fornecedor.application.api.response.FornecedorAtualizaResponse;
 import br.com.wakax.wakax_ecommerce.fornecedor.application.api.response.FornecedorListResponse;
 import br.com.wakax.wakax_ecommerce.fornecedor.application.api.response.FornecedorResponse;
 import br.com.wakax.wakax_ecommerce.fornecedor.application.repository.FornecedorRepository;
@@ -24,6 +28,7 @@ import br.com.wakax.wakax_ecommerce.fornecedor.domain.Fornecedor;
 import br.com.wakax.wakax_ecommerce.handler.APIException;
 import br.com.wakax.wakax_ecommerce.handler.ErrorCode;
 import br.com.wakax.wakax_ecommerce.pessoa.domain.Endereco;
+import br.com.wakax.wakax_ecommerce.pessoa.domain.Pessoa;
 
 @ExtendWith(MockitoExtension.class)
 class FornecedorApplicationServiceTest {
@@ -35,6 +40,38 @@ class FornecedorApplicationServiceTest {
   private FornecedorRequest fornecedorRequest;
   private Fornecedor fornecedor;
   private UUID fornecedorId;
+  private FornecedorAtualizaRequest fornecedorUpdateRequest;
+
+  private Pessoa criarPessoaPadrao() {
+    return Pessoa.builder()
+        .emails(List.of("email@antigo.com"))
+        .telefones(List.of("11911111111"))
+        .enderecos(List.of())
+        .build();
+  }
+
+  private Fornecedor criarFornecedorExistente(UUID id) {
+    return Fornecedor.builder()
+        .id(id)
+        .pessoa(criarPessoaPadrao())
+        .documento("12345678000199")
+        .inscricaoEstadual("12345")
+        .razaoSocial("Razão Antiga")
+        .nomeFantasia("Fantasia Antiga")
+        .dataCriacao(LocalDateTime.now())
+        .dataEdicao(LocalDateTime.now())
+        .build();
+  }
+
+  private FornecedorAtualizaRequest criarRequestAtualizacao() {
+    return new FornecedorAtualizaRequest(
+        List.of("novo@email.com"),
+        List.of("11999999999"),
+        List.of(),
+        "99999",
+        "Nova Razão Social",
+        "Novo Nome Fantasia");
+  }
 
   @BeforeEach
   void setUp() {
@@ -76,6 +113,11 @@ class FornecedorApplicationServiceTest {
                   f.setId(fornecedorId);
                   return f;
                 });
+  }
+
+  private void mockFornecedorRepositoryAtualizar() {
+    when(fornecedorRepository.atualiza(any(Fornecedor.class)))
+        .thenAnswer(invocation -> invocation.getArgument(0));
   }
 
   @Test
@@ -149,5 +191,51 @@ class FornecedorApplicationServiceTest {
     assertEquals(ErrorCode.FORNECEDOR_NAO_ENCONTRADO, exception.getErrorCode());
     assertEquals(fornecedorId, exception.getArgs()[0]);
     verify(fornecedorRepository, times(1)).buscaFornecedorPorId(fornecedorId);
+  }
+
+  @Test
+  void deveAtualizarFornecedorComSucesso() {
+
+    UUID idFornecedor = UUID.randomUUID();
+    Fornecedor fornecedor = criarFornecedorExistente(idFornecedor);
+    FornecedorAtualizaRequest request = criarRequestAtualizacao();
+
+    when(fornecedorRepository.buscaFornecedorPorId(idFornecedor)).thenReturn(fornecedor);
+
+    when(fornecedorRepository.atualiza(any())).thenAnswer(invocation -> invocation.getArgument(0));
+
+    FornecedorAtualizaResponse response =
+        fornecedorApplicationService.atualizarFornecedor(idFornecedor, request);
+
+    assertNotNull(response);
+    assertEquals("Nova Razão Social", response.getRazaoSocial());
+    assertEquals("Novo Nome Fantasia", response.getNomeFantasia());
+    assertEquals("99999", response.getInscricaoEstadual());
+
+    verify(fornecedorRepository).buscaFornecedorPorId(idFornecedor);
+    verify(fornecedorRepository).atualiza(any());
+  }
+
+  @Test
+  void deveLancarExcecaoAoAtualizarQuandoFornecedorNaoEncontrado() {
+
+    UUID idFornecedor = UUID.randomUUID();
+    FornecedorAtualizaRequest request = criarRequestAtualizacao();
+
+    when(fornecedorRepository.buscaFornecedorPorId(idFornecedor))
+        .thenThrow(
+            new APIException(
+                HttpStatus.NOT_FOUND, ErrorCode.FORNECEDOR_NAO_ENCONTRADO, idFornecedor));
+
+    APIException exception =
+        assertThrows(
+            APIException.class,
+            () -> fornecedorApplicationService.atualizarFornecedor(idFornecedor, request));
+
+    assertEquals(ErrorCode.FORNECEDOR_NAO_ENCONTRADO, exception.getErrorCode());
+    assertEquals(idFornecedor, exception.getArgs()[0]);
+
+    verify(fornecedorRepository, times(1)).buscaFornecedorPorId(idFornecedor);
+    verify(fornecedorRepository, never()).atualiza(any());
   }
 }
