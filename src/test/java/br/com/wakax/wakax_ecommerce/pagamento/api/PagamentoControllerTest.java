@@ -150,9 +150,10 @@ class PagamentoControllerTest {
 
   @Test
   void deveReprocessarPagamentoComSucesso() {
-    var response = mock(
-            br.com.wakax.wakax_ecommerce.pagamento.application.api.response.ReprocessarPagamentoResponse.class
-    );
+    var response =
+        mock(
+            br.com.wakax.wakax_ecommerce.pagamento.application.api.response
+                .ReprocessarPagamentoResponse.class);
 
     when(pagamentoService.reprocessaPagamento(pagamentoId)).thenReturn(response);
 

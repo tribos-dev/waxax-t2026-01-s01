@@ -417,7 +417,7 @@ class PagamentoApplicationServiceTest {
 
     when(pagamentoRepository.buscaPagamentoPorId(pagamentoId)).thenReturn(pagamento);
     when(processadorFactory.obterProcessador(pedido.getFormaPagamento()))
-            .thenReturn(processadorPagamento);
+        .thenReturn(processadorPagamento);
 
     var response = pagamentoApplicationService.reprocessaPagamento(pagamentoId);
 
@@ -438,10 +438,9 @@ class PagamentoApplicationServiceTest {
 
     when(pagamentoRepository.buscaPagamentoPorId(pagamentoId)).thenReturn(pagamento);
 
-    APIException exception = assertThrows(
-            APIException.class,
-            () -> pagamentoApplicationService.reprocessaPagamento(pagamentoId)
-    );
+    APIException exception =
+        assertThrows(
+            APIException.class, () -> pagamentoApplicationService.reprocessaPagamento(pagamentoId));
 
     assertEquals(HttpStatus.CONFLICT, exception.getStatusException());
     assertEquals(ErrorCode.LIMITE_DE_TENTATIVAS_EXCEDIDO, exception.getErrorCode());
@@ -456,10 +455,9 @@ class PagamentoApplicationServiceTest {
 
     when(pagamentoRepository.buscaPagamentoPorId(pagamentoId)).thenReturn(pagamento);
 
-    APIException exception = assertThrows(
-            APIException.class,
-            () -> pagamentoApplicationService.reprocessaPagamento(pagamentoId)
-    );
+    APIException exception =
+        assertThrows(
+            APIException.class, () -> pagamentoApplicationService.reprocessaPagamento(pagamentoId));
 
     assertEquals(HttpStatus.CONFLICT, exception.getStatusException());
     assertEquals(ErrorCode.PAGAMENTO_JA_PROCESSADO_COM_SUCESSO, exception.getErrorCode());
@@ -474,10 +472,9 @@ class PagamentoApplicationServiceTest {
 
     when(pagamentoRepository.buscaPagamentoPorId(pagamentoId)).thenReturn(pagamento);
 
-    APIException exception = assertThrows(
-            APIException.class,
-            () -> pagamentoApplicationService.reprocessaPagamento(pagamentoId)
-    );
+    APIException exception =
+        assertThrows(
+            APIException.class, () -> pagamentoApplicationService.reprocessaPagamento(pagamentoId));
 
     assertEquals(HttpStatus.CONFLICT, exception.getStatusException());
     assertEquals(ErrorCode.PAGAMENTO_NAO_PODE_SER_REPROCESSADO, exception.getErrorCode());
