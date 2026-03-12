@@ -2,11 +2,11 @@ package br.com.wakax.wakax_ecommerce.fornecedor.application.service;
 
 import java.util.UUID;
 
-import br.com.wakax.wakax_ecommerce.fornecedor.application.api.response.FornecedorAtualizaResponse;
 import org.springframework.data.domain.Pageable;
 
-import br.com.wakax.wakax_ecommerce.fornecedor.application.api.request.FornecedorRequest;
 import br.com.wakax.wakax_ecommerce.fornecedor.application.api.request.FornecedorAtualizaRequest;
+import br.com.wakax.wakax_ecommerce.fornecedor.application.api.request.FornecedorRequest;
+import br.com.wakax.wakax_ecommerce.fornecedor.application.api.response.FornecedorAtualizaResponse;
 import br.com.wakax.wakax_ecommerce.fornecedor.application.api.response.FornecedorListResponse;
 import br.com.wakax.wakax_ecommerce.fornecedor.application.api.response.FornecedorPageResponse;
 import br.com.wakax.wakax_ecommerce.fornecedor.application.api.response.FornecedorResponse;
@@ -20,5 +20,6 @@ public interface FornecedorService {
 
   FornecedorPageResponse listaFornecedores(StatusPessoa status, Pageable pageable);
 
-  FornecedorAtualizaResponse atualizarFornecedor(UUID idFornecedor, FornecedorAtualizaRequest atualizaFornecedor);
+  FornecedorAtualizaResponse atualizarFornecedor(
+      UUID idFornecedor, FornecedorAtualizaRequest atualizaFornecedor);
 }

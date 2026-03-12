@@ -12,8 +12,8 @@ import javax.validation.constraints.Size;
 import org.springframework.http.HttpStatus;
 
 import br.com.wakax.wakax_ecommerce.cliente.application.api.request.ClienteAtualizaRequest;
-import br.com.wakax.wakax_ecommerce.handler.APIException;
 import br.com.wakax.wakax_ecommerce.cliente.application.api.request.ClienteEnderecoRequest;
+import br.com.wakax.wakax_ecommerce.handler.APIException;
 import br.com.wakax.wakax_ecommerce.pessoa.application.api.request.DadosPessoa;
 import br.com.wakax.wakax_ecommerce.pessoa.application.api.request.PessoaRequest;
 import lombok.AllArgsConstructor;
@@ -96,10 +96,9 @@ public class Pessoa {
   }
 
   public void alterar(ClienteAtualizaRequest request) {
-    // Atualiza nome apenas se houver conteúdo
+
     Optional.ofNullable(request.getNome()).filter(n -> !n.isBlank()).ifPresent(n -> this.nome = n);
 
-    // Atualiza listas simples (Email e Telefone)
     Optional.ofNullable(request.getEmails())
         .filter(list -> !list.isEmpty())
         .ifPresent(list -> this.emails = list);
@@ -108,7 +107,6 @@ public class Pessoa {
         .filter(list -> !list.isEmpty())
         .ifPresent(list -> this.telefones = list);
 
-    // Adiciona novos endereços sem apagar os antigos
     Optional.ofNullable(request.getEnderecos())
         .ifPresent(novos -> novos.forEach(this::adicionarEndereco));
   }
@@ -120,7 +118,7 @@ public class Pessoa {
       desmarcarEnderecoPrincipalAtual();
     }
 
-    novoEndereco.setPessoa(this); // Vincula o endereço a esta pessoa para o Hibernate salvar o ID
+    novoEndereco.setPessoa(this);
     this.enderecos.add(novoEndereco);
   }
 

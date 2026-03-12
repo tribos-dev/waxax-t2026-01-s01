@@ -12,11 +12,8 @@ import org.springframework.http.HttpStatus;
 import br.com.wakax.wakax_ecommerce.handler.APIException;
 import br.com.wakax.wakax_ecommerce.handler.ErrorCode;
 import br.com.wakax.wakax_ecommerce.pagamento.application.api.request.CancelaPagamentoRequest;
-import br.com.wakax.wakax_ecommerce.handler.APIException;
-import br.com.wakax.wakax_ecommerce.handler.ErrorCode;
 import br.com.wakax.wakax_ecommerce.pedido.domain.Pedido;
 import lombok.*;
-import org.springframework.http.HttpStatus;
 
 @Entity
 @Data
@@ -85,7 +82,6 @@ public class Pagamento {
     this.statusPagamento = StatusPagamento.AGUARDANDO;
   }
 
-
   public void prepararReprocessamento() {
     validarPagamentoJaProcessado();
     validarStatusParaReprocessamento();
@@ -95,31 +91,28 @@ public class Pagamento {
     this.dataPagamento = LocalDateTime.now();
   }
 
-  public void validarPagamentoJaProcessado(){
+  public void validarPagamentoJaProcessado() {
     if (this.statusPagamento == StatusPagamento.PAGO) {
       throw new APIException(
-              HttpStatus.CONFLICT,
-              ErrorCode.PAGAMENTO_JA_PROCESSADO_COM_SUCESSO,
-              this.getStatusPagamento());
+          HttpStatus.CONFLICT,
+          ErrorCode.PAGAMENTO_JA_PROCESSADO_COM_SUCESSO,
+          this.getStatusPagamento());
     }
   }
 
-  public void validarStatusParaReprocessamento(){
+  public void validarStatusParaReprocessamento() {
     if (this.statusPagamento != StatusPagamento.FALHOU) {
       throw new APIException(
-              HttpStatus.CONFLICT,
-              ErrorCode.PAGAMENTO_NAO_PODE_SER_REPROCESSADO,
-              this.getStatusPagamento());
+          HttpStatus.CONFLICT,
+          ErrorCode.PAGAMENTO_NAO_PODE_SER_REPROCESSADO,
+          this.getStatusPagamento());
     }
   }
 
-  public void validarLimiteTentativas(){
+  public void validarLimiteTentativas() {
     if (this.tentativasPagamento >= MAX_TENTATIVAS) {
       throw new APIException(
-              HttpStatus.CONFLICT,
-              ErrorCode.LIMITE_DE_TENTATIVAS_EXCEDIDO,
-              this.getStatusPagamento());
+          HttpStatus.CONFLICT, ErrorCode.LIMITE_DE_TENTATIVAS_EXCEDIDO, this.getStatusPagamento());
     }
   }
-
 }
