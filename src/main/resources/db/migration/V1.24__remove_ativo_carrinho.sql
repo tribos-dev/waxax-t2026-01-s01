@@ -1,1 +1,0 @@
-ALTER TABLE wakax.carrinho DROP COLUMN ativo;
