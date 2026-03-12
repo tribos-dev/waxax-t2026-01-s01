@@ -76,4 +76,15 @@ public class CarrinhoApplicationService implements CarrinhoService {
     log.debug("[finish] CarrinhoApplicationService - buscarTodosOsCarrinhos");
     return list;
   }
+
+  @Override
+  @Transactional
+  public void deletaItemDoCarrinho(String emailUsuario, UUID idCarrinho, UUID idItem) {
+
+    log.info("[start] CarrinhoApplicationService - deletaItemDoCarrinho");
+    Carrinho carrinho = carrinhoRepository.buscaCarrinhoPorId(idCarrinho);
+    carrinho.removeItem(idItem, emailUsuario);
+    carrinhoRepository.salva(carrinho);
+    log.info("[finish] CarrinhoApplicationService - deletaItemDoCarrinho");
+  }
 }
