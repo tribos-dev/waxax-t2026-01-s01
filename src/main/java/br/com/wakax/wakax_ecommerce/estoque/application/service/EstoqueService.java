@@ -3,6 +3,7 @@ package br.com.wakax.wakax_ecommerce.estoque.application.service;
 import java.util.UUID;
 
 import br.com.wakax.wakax_ecommerce.estoque.api.request.EstoqueRequest;
+import br.com.wakax.wakax_ecommerce.estoque.api.request.RemoveEstoqueRequest;
 import br.com.wakax.wakax_ecommerce.estoque.api.response.EstoqueListagemResponse;
 import br.com.wakax.wakax_ecommerce.estoque.api.response.EstoqueResponse;
 
@@ -18,4 +19,6 @@ public interface EstoqueService {
   void liberaReserva(UUID idProduto, Integer quantidade);
 
   EstoqueListagemResponse listarTodoEstoque(Integer quantidadeMinima, Boolean apenasEmFalta);
+
+  void removeQuantidadeEstoque(UUID idProduto, RemoveEstoqueRequest request);
 }

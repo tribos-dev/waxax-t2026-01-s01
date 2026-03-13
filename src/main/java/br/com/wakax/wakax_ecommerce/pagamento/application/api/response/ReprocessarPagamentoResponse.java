@@ -10,22 +10,25 @@ import br.com.wakax.wakax_ecommerce.pedido.domain.FormaPagamento;
 import lombok.Getter;
 
 @Getter
-public class PagamentoResponse {
+public class ReprocessarPagamentoResponse {
+
   private final UUID idPagamento;
   private final UUID pedidoId;
   private final StatusPagamento statusPagamento;
   private final LocalDateTime dataPagamento;
-  private final LocalDateTime dataConfirmacao;
   private final BigDecimal valor;
   private final FormaPagamento metodoPagamento;
+  private final Integer tentativas;
+  private final String mensagem;
 
-  public PagamentoResponse(Pagamento pagamento) {
+  public ReprocessarPagamentoResponse(Pagamento pagamento) {
     this.idPagamento = pagamento.getId();
     this.pedidoId = pagamento.getPedido().getId();
     this.statusPagamento = pagamento.getStatusPagamento();
     this.dataPagamento = pagamento.getDataPagamento();
-    this.dataConfirmacao = pagamento.getDataConfirmacao();
     this.valor = pagamento.getValor();
     this.metodoPagamento = pagamento.getPedido().getFormaPagamento();
+    this.tentativas = pagamento.getTentativasPagamento();
+    this.mensagem = "Pagamento enviado para nova tentativa";
   }
 }

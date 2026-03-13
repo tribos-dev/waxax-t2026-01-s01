@@ -10,12 +10,18 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import br.com.wakax.wakax_ecommerce.cliente.domain.Cliente;
+import br.com.wakax.wakax_ecommerce.estoque.application.service.EstoqueApplicationService;
+import br.com.wakax.wakax_ecommerce.estoque.application.repository.EstoqueRepository;
+import br.com.wakax.wakax_ecommerce.estoque.domain.Estoque;
 import br.com.wakax.wakax_ecommerce.handler.APIException;
 import br.com.wakax.wakax_ecommerce.handler.ErrorCode;
+import br.com.wakax.wakax_ecommerce.pagamento.application.api.request.CancelaPagamentoRequest;
 import br.com.wakax.wakax_ecommerce.pagamento.application.api.request.PagamentoRequest;
 import br.com.wakax.wakax_ecommerce.pagamento.application.api.response.PagamentoPageResponse;
 import br.com.wakax.wakax_ecommerce.pagamento.application.api.response.PagamentoPedidoResponse;
 import br.com.wakax.wakax_ecommerce.pagamento.application.api.response.PagamentoResponse;
+import br.com.wakax.wakax_ecommerce.pagamento.application.api.response.ReprocessarPagamentoResponse;
 import br.com.wakax.wakax_ecommerce.pagamento.application.factory.ProcessadorPagamentoFactory;
 import br.com.wakax.wakax_ecommerce.pagamento.application.repository.PagamentoRepository;
 import br.com.wakax.wakax_ecommerce.pagamento.domain.Pagamento;
@@ -34,16 +40,20 @@ public class PagamentoApplicationService implements PagamentoService {
   private final PagamentoRepository pagamentoRepository;
   private final PedidoRepository pedidoRepository;
   private final ProcessadorPagamentoFactory processadorFactory;
+  private final EstoqueRepository estoqueRepository;
   private PagamentoInfraRepository pagamentoInfraRepository;
+  private final EstoqueApplicationService estoqueApplicationService;
 
   @Override
   @Transactional
   public PagamentoResponse processaPagamento(PagamentoRequest novoPagamento) {
     log.debug("[start] PagamentoApplicationService - criaPagamento");
 
-    verificarSeExistePagamento(novoPagamento.getPedidoId());
-
     Pedido pedido = pedidoRepository.buscaPedidoPorId(novoPagamento.getPedidoId());
+
+    Cliente cliente = pedido.getCliente();
+    cliente.validaClienteAtivo();
+
     Pagamento pagamento = new Pagamento(pedido);
 
     var processador = processadorFactory.obterProcessador(pedido.getFormaPagamento());
@@ -98,5 +108,78 @@ public class PagamentoApplicationService implements PagamentoService {
                     new APIException(HttpStatus.NOT_FOUND, ErrorCode.PEDIDO_NAO_POSSUI_PAGAMENTO));
     log.debug("[finish] PagamentoApplicationService - buscaPagamentoPorIdPedido");
     return new PagamentoPedidoResponse(pagamento);
+  }
+
+  @Override
+  @Transactional
+  public PagamentoResponse confirmarPagamento(UUID idPagamento) {
+    log.debug("[start] PagamentoApplicationService - confirmarPagamento");
+    Pagamento pagamento = pagamentoRepository.buscaPagamentoPorId(idPagamento);
+    validarPagamentoAguardando(pagamento);
+    pagamento.confirmarPagamento();
+    Pedido pedido = pagamento.getPedido();
+    pedido.marcarComoPago();
+    reservarEstoqueDoPedido(pedido);
+    pedidoRepository.salva(pedido);
+    pagamentoRepository.salva(pagamento);
+    log.debug("[finish] PagamentoApplicationService - confirmarPagamento");
+    return new PagamentoResponse(pagamento);
+  }
+
+  private void validarPagamentoAguardando(Pagamento pagamento) {
+    if (pagamento.getStatusPagamento() != StatusPagamento.AGUARDANDO) {
+      throw new APIException(
+          HttpStatus.CONFLICT, ErrorCode.PAGAMENTO_JA_CONFIRMADO, pagamento.getStatusPagamento());
+    }
+  }
+
+  private void reservarEstoqueDoPedido(Pedido pedido) {
+    pedido
+        .getItensPedido()
+        .forEach(
+            item -> {
+              Estoque estoque =
+                  estoqueRepository
+                      .buscaEstoquePorIdProduto(item.getProduto().getId())
+                      .orElseThrow(
+                          () ->
+                              new APIException(
+                                  HttpStatus.NOT_FOUND,
+                                  ErrorCode.ESTOQUE_NAO_ENCONTRADO,
+                                  item.getProduto().getId()));
+              estoque.reservaQuantidade(item.getQuantidade());
+              estoqueRepository.salva(estoque);
+            });
+  }
+
+  @Override
+  public void cancelaPagamento(UUID idPagamento, CancelaPagamentoRequest cancelaPagamentoRequest) {
+    log.info("[start] PagamentoApplicationService - cancelaPagamento");
+    Pagamento pagamento = pagamentoRepository.buscaPagamentoPorId(idPagamento);
+    pagamento.mudaStatusParaFalhou(cancelaPagamentoRequest);
+    pagamentoRepository.salva(pagamento);
+    Pedido pedido = pagamento.getPedido();
+    pedido.mudaStatusAguardandoPagamento();
+    pedidoRepository.salva(pedido);
+    pedidoRepository.salva(pedido);
+    log.info("[finish] PagamentoApplicationService - cancelaPagamento");
+  }
+
+  @Override
+  public ReprocessarPagamentoResponse reprocessaPagamento(UUID idPagamento) {
+    log.info("[start] PagamentoApplicationService - reprocessaPagamento");
+
+    Pagamento pagamento = pagamentoRepository.buscaPagamentoPorId(idPagamento);
+    Pedido pedido = pagamento.getPedido();
+
+    pagamento.prepararReprocessamento();
+
+    var processador = processadorFactory.obterProcessador(pedido.getFormaPagamento());
+    processador.processar(pagamento, pedido);
+
+    pedidoRepository.salva(pedido);
+    pagamentoRepository.salva(pagamento);
+    log.debug("[finish] PagamentoApplicationService - reprocessaPagamento");
+    return new ReprocessarPagamentoResponse(pagamento);
   }
 }

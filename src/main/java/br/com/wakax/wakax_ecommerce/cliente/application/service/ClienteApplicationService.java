@@ -53,6 +53,15 @@ public class ClienteApplicationService implements ClienteService {
   }
 
   @Override
+  public ClienteResponse desativaCliente(UUID idCliente) {
+    log.info("[start] ClienteApplicationService - desativaCliente");
+    Cliente cliente = clienteRepository.buscaClientePorId(idCliente);
+    cliente.desativar(cliente.getPessoa());
+    clienteRepository.salva(cliente);
+    log.info("[finish] ClienteApplicationService - desativaCliente");
+    return new ClienteResponse(cliente);
+  }
+
   @Transactional
   public ClienteAtualizaResponse atualizarCliente(
       UUID idCliente, ClienteAtualizaRequest clienteRequest) {

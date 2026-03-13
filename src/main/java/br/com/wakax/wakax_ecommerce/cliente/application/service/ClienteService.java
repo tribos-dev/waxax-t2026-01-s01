@@ -18,6 +18,8 @@ public interface ClienteService {
 
   Page<Cliente> buscarTodosOsClientes(Pageable pageable);
 
+  ClienteResponse desativaCliente(UUID idCliente);
+
   ClienteAtualizaResponse atualizarCliente(UUID idCliente, ClienteAtualizaRequest clienteRequest);
 
   ClienteResponse ativarCliente(UUID idCliente);

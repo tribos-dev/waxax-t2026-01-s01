@@ -6,15 +6,19 @@ import java.util.ArrayList;
 import java.util.UUID;
 
 import br.com.wakax.wakax_ecommerce.cliente.domain.Cliente;
+import br.com.wakax.wakax_ecommerce.estoque.domain.Estoque;
+import br.com.wakax.wakax_ecommerce.pagamento.application.api.request.CancelaPagamentoRequest;
 import br.com.wakax.wakax_ecommerce.pagamento.application.api.request.PagamentoRequest;
 import br.com.wakax.wakax_ecommerce.pagamento.domain.Pagamento;
 import br.com.wakax.wakax_ecommerce.pagamento.domain.StatusPagamento;
 import br.com.wakax.wakax_ecommerce.pedido.domain.FormaPagamento;
+import br.com.wakax.wakax_ecommerce.pedido.domain.ItemPedido;
 import br.com.wakax.wakax_ecommerce.pedido.domain.Pedido;
 import br.com.wakax.wakax_ecommerce.pedido.domain.StatusPedido;
 import br.com.wakax.wakax_ecommerce.pessoa.domain.Endereco;
 import br.com.wakax.wakax_ecommerce.pessoa.domain.Pessoa;
 import br.com.wakax.wakax_ecommerce.pessoa.domain.StatusPessoa;
+import br.com.wakax.wakax_ecommerce.produto.domain.Produto;
 
 public final class PagamentoDataHelper {
 
@@ -78,5 +82,45 @@ public final class PagamentoDataHelper {
 
   public static PagamentoRequest criaPagamentoRequestValido(UUID pedidoId) {
     return PagamentoRequest.builder().pedidoId(pedidoId).build();
+  }
+
+  public static CancelaPagamentoRequest criaCancelaPagamentoRequest(
+      UUID idPagamento, CancelaPagamentoRequest cancelaPagamentoRequest) {
+    return CancelaPagamentoRequest.builder()
+        .pedidoId(UUID.fromString("550e8400-e29b-41d4-a716-446655440000"))
+        .motivoCancelamento("Desisti da compra")
+        .build();
+  }
+
+  public static Produto criaProdutoValido() {
+    return Produto.builder()
+        .id(UUID.fromString("f6a7b8c9-1234-5678-9abc-def123456789"))
+        .descricao("Notebook Lenovo")
+        .status(br.com.wakax.wakax_ecommerce.produto.domain.StatusProduto.ATIVO)
+        .pesoLiquido(new BigDecimal("1.00"))
+        .pesoBruto(new BigDecimal("1.20"))
+        .precos(new ArrayList<>())
+        .dataDeCadastro(LocalDateTime.now())
+        .build();
+  }
+
+  public static ItemPedido criaItemPedidoValido(Pedido pedido) {
+    return ItemPedido.builder()
+        .id(UUID.fromString("a7b8c9d0-1234-5678-9abc-def123456789"))
+        .produto(criaProdutoValido())
+        .quantidade(2)
+        .valorUnitario(new BigDecimal("149.99"))
+        .pedido(pedido)
+        .build();
+  }
+
+  public static Estoque criaEstoqueValido(UUID produtoId) {
+    return Estoque.builder()
+        .id(UUID.fromString("b8c9d0e1-1234-5678-9abc-def123456789"))
+        .produto(Produto.builder().id(produtoId).build())
+        .quantidadeDisponivel(10)
+        .custoMedio(new BigDecimal("100.00"))
+        .custoTotal(new BigDecimal("1000.00"))
+        .build();
   }
 }

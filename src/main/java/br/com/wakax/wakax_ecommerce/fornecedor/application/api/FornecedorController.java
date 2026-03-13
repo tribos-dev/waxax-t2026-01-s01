@@ -5,8 +5,10 @@ import java.util.UUID;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RestController;
 
+import br.com.wakax.wakax_ecommerce.fornecedor.application.api.request.FornecedorAtualizaRequest;
 import br.com.wakax.wakax_ecommerce.fornecedor.application.api.request.FornecedorFiltroRequest;
 import br.com.wakax.wakax_ecommerce.fornecedor.application.api.request.FornecedorRequest;
+import br.com.wakax.wakax_ecommerce.fornecedor.application.api.response.FornecedorAtualizaResponse;
 import br.com.wakax.wakax_ecommerce.fornecedor.application.api.response.FornecedorListResponse;
 import br.com.wakax.wakax_ecommerce.fornecedor.application.api.response.FornecedorPageResponse;
 import br.com.wakax.wakax_ecommerce.fornecedor.application.api.response.FornecedorResponse;
@@ -43,6 +45,16 @@ public class FornecedorController implements FornecedorAPI {
     FornecedorPageResponse response =
         fornecedorService.listaFornecedores(filtro.getStatus(), filtro.toPageable());
     log.debug("[finish] FornecedorController - listaFornecedores");
+    return response;
+  }
+
+  @Override
+  public FornecedorAtualizaResponse atualizarFornecedor(
+      UUID idFornecedor, FornecedorAtualizaRequest atualizaFornecedor) {
+    log.debug("[start] FornecedorController - atualizarFornecedor");
+    FornecedorAtualizaResponse response =
+        fornecedorService.atualizarFornecedor(idFornecedor, atualizaFornecedor);
+    log.debug("[finish] FornecedorController - atualizarFornecedor");
     return response;
   }
 }
