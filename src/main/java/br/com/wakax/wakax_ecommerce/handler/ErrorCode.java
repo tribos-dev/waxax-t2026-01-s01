@@ -17,6 +17,7 @@ public enum ErrorCode {
   ITEM_CARRINHO_QUANTIDADE_MENOR_QUE_UM("item-carrinho.quantidade.menor.que.um"),
   PAGAMENTO_NAO_ENCONTRADO("pagamento.nao.encontrado"),
   PEDIDO_JA_POSSUI_PAGAMENTO("pedido.ja.possui.pagamento"),
+  PAGAMENTO_JA_CONFIRMADO("pagamento.ja.confirmado"),
   FORMA_PAGAMENTO_NAO_SUPORTADA("forma.pagamento.nao.suportada"),
   ESTOQUE_NAO_ENCONTRADO("estoque.nao.encontrado"),
   ESTOQUE_JA_EXISTE("estoque.ja.existe"),

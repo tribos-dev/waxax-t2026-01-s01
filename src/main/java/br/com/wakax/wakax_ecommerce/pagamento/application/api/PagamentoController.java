@@ -70,4 +70,12 @@ public class PagamentoController implements PagamentoAPI {
     log.debug("[finish] PagamentoController - reprocessaPagamento");
     return response;
   }
+
+  @Override
+  public PagamentoResponse confirmarPagamento(UUID idPagamento) {
+    log.debug("[start] PagamentoController - confirmarPagamento");
+    PagamentoResponse response = pagamentoService.confirmarPagamento(idPagamento);
+    log.debug("[finish] PagamentoController - confirmarPagamento");
+    return response;
+  }
 }
