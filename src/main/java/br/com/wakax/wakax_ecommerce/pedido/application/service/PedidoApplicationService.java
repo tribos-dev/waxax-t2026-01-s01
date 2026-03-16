@@ -1,5 +1,17 @@
 package br.com.wakax.wakax_ecommerce.pedido.application.service;
 
+import java.util.List;
+import java.util.UUID;
+
+import javax.transaction.Transactional;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
+
 import br.com.wakax.wakax_ecommerce.carrinho.application.repository.CarrinhoRepository;
 import br.com.wakax.wakax_ecommerce.carrinho.domain.Carrinho;
 import br.com.wakax.wakax_ecommerce.cliente.application.service.ClienteService;
@@ -17,16 +29,6 @@ import br.com.wakax.wakax_ecommerce.pedido.domain.StatusPedido;
 import br.com.wakax.wakax_ecommerce.pessoa.domain.StatusPessoa;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Service;
-
-import javax.transaction.Transactional;
-import java.util.List;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -57,13 +59,13 @@ public class PedidoApplicationService implements PedidoService {
     return new PedidoResponse(pedido);
   }
 
-    @Override
-    public PedidoResponse buscaPedidoPorId(UUID idPedido) {
-        log.debug("[start] PedidoApplicationService - buscaPedidoPorId");
-        var pedido = pedidoRepository.buscaPedidoPorId(idPedido);
-        log.debug("[finish] PedidoApplicationService - buscaPedidoPorId");
-        return new PedidoResponse(pedido);
-    }
+  @Override
+  public PedidoResponse buscaPedidoPorId(UUID idPedido) {
+    log.debug("[start] PedidoApplicationService - buscaPedidoPorId");
+    var pedido = pedidoRepository.buscaPedidoPorId(idPedido);
+    log.debug("[finish] PedidoApplicationService - buscaPedidoPorId");
+    return new PedidoResponse(pedido);
+  }
 
   @Override
   public PedidoPageResponse buscaPedidosDoCliente(
