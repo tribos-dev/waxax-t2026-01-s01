@@ -36,4 +36,12 @@ public interface ClienteApi {
   @PatchMapping("/{idCliente}")
   ClienteAtualizaResponse atualizarCliente(
       @PathVariable UUID idCliente, @RequestBody @Valid ClienteAtualizaRequest clienteRequest);
+
+  @PatchMapping("/{idCliente}/ativar")
+  @ResponseStatus(HttpStatus.OK)
+  ClienteResponse ativarCliente(@PathVariable UUID idCliente);
+
+  @PatchMapping("/{idCliente}/inativar")
+  @ResponseStatus(HttpStatus.OK)
+  ClienteResponse inativarCliente(@PathVariable UUID idCliente);
 }
