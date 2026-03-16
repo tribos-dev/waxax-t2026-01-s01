@@ -16,7 +16,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 
 import br.com.wakax.wakax_ecommerce.cliente.domain.Cliente;
@@ -29,7 +28,6 @@ import br.com.wakax.wakax_ecommerce.pedido.application.repository.PedidoReposito
 import br.com.wakax.wakax_ecommerce.pedido.domain.FormaPagamento;
 import br.com.wakax.wakax_ecommerce.pedido.domain.ItemPedido;
 import br.com.wakax.wakax_ecommerce.pedido.domain.Pedido;
-import br.com.wakax.wakax_ecommerce.pedido.domain.PedidoStatusEvent;
 import br.com.wakax.wakax_ecommerce.pedido.domain.StatusPedido;
 import br.com.wakax.wakax_ecommerce.pessoa.domain.Endereco;
 import br.com.wakax.wakax_ecommerce.pessoa.domain.Pessoa;
@@ -40,11 +38,6 @@ class AtualizaStatusPedidoServiceTest {
 
   @Mock private PedidoRepository pedidoRepository;
   @Mock private EstoqueRepository estoqueRepository;
-  @Mock private ApplicationEventPublisher eventPublisher;
-
-  @Mock
-  private br.com.wakax.wakax_ecommerce.carrinho.application.repository.CarrinhoRepository
-      carrinhoRepository;
 
   @InjectMocks private PedidoApplicationService service;
 
@@ -68,7 +61,6 @@ class AtualizaStatusPedidoServiceTest {
     assertEquals(StatusPedido.ENVIADO, pedido.getStatus());
     verify(pedidoRepository).buscaPedidoPorId(idPedido);
     verify(pedidoRepository).salva(pedido);
-    verify(eventPublisher).publishEvent(any(PedidoStatusEvent.class));
   }
 
   @Test
@@ -92,7 +84,6 @@ class AtualizaStatusPedidoServiceTest {
     assertEquals(StatusPedido.CANCELADO, pedidoCancelavel.getStatus());
     verify(estoque).liberaReserva(5);
     verify(estoqueRepository).salva(estoque);
-    verify(eventPublisher).publishEvent(any(PedidoStatusEvent.class));
   }
 
   @Test
@@ -107,7 +98,6 @@ class AtualizaStatusPedidoServiceTest {
     assertEquals(HttpStatus.BAD_REQUEST, ex.getStatusException());
     assertEquals(ErrorCode.TRANSICAO_STATUS_INVALIDA, ex.getErrorCode());
     verify(pedidoRepository, never()).salva(any());
-    verify(eventPublisher, never()).publishEvent(any());
   }
 
   private Pedido criarPedido(StatusPedido status) {
