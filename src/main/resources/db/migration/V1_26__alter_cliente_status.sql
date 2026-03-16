@@ -1,0 +1,5 @@
+ALTER TABLE wakax.cliente
+ADD COLUMN status VARCHAR(20) NOT NULL DEFAULT 'INATIVO';
+
+ALTER TABLE wakax.cliente
+ADD COLUMN data_reativacao TIMESTAMP;

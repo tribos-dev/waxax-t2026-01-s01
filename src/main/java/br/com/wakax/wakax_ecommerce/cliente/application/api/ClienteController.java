@@ -64,4 +64,20 @@ public class ClienteController implements ClienteApi {
     log.debug("[finish] ClienteController - atualizarCliente");
     return response;
   }
+
+  @Override
+  public ClienteResponse ativarCliente(UUID idCliente) {
+    log.info("[start] ClienteController - ativarCliente - idCliente: {}", idCliente);
+    ClienteResponse response = clienteService.ativarCliente(idCliente);
+    log.info("[finish] ClienteController - ativarCliente");
+    return response;
+  }
+
+  @Override
+  public ClienteResponse inativarCliente(UUID idCliente) {
+    log.info("[start] ClienteController - inativarCliente - idCliente: {}", idCliente);
+    ClienteResponse response = clienteService.inativarCliente(idCliente);
+    log.info("[finish] ClienteController - inativarCliente");
+    return response;
+  }
 }

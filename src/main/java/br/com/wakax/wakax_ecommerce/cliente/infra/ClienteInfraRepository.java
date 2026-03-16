@@ -1,5 +1,6 @@
 package br.com.wakax.wakax_ecommerce.cliente.infra;
 
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.data.domain.Page;
@@ -45,5 +46,10 @@ public class ClienteInfraRepository implements ClienteRepository {
     Page<Cliente> clientes = clienteSpringDataJpaRepository.buscaTodosOsClientes(pageable);
     log.debug("[finish] ClienteInfraRepository - BuscaTodosOsClientes");
     return clientes;
+  }
+
+  @Override
+  public Optional<Cliente> findById(UUID idCliente) {
+    return clienteSpringDataJpaRepository.findById(idCliente);
   }
 }
