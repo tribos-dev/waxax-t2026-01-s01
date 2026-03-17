@@ -127,7 +127,7 @@ public class Pedido {
           || novoStatus == StatusPedido.CANCELADO;
       case AGUARDANDO_PAGAMENTO -> novoStatus == StatusPedido.PAGO
           || novoStatus == StatusPedido.CANCELADO;
-      case PAGO -> novoStatus == StatusPedido.ENVIADO;
+      case PAGO -> novoStatus == StatusPedido.ENVIADO || novoStatus == StatusPedido.CANCELADO;
       case ENVIADO -> novoStatus == StatusPedido.ENTREGUE;
       case ENTREGUE, CANCELADO -> false;
     };
