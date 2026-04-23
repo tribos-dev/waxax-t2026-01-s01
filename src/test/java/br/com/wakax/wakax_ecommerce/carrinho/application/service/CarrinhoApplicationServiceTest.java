@@ -210,14 +210,9 @@ class CarrinhoApplicationServiceTest {
 
     when(carrinhoRepository.buscaCarrinhoPorId(carrinho.getId())).thenReturn(carrinho);
 
-    when(carrinhoRepository.carrinhoPertenceAoUsuario(carrinho.getId(), email)).thenReturn(true);
-
     applicationService.deletaItemDoCarrinho(email, carrinho.getId(), idItem);
 
     verify(carrinhoRepository, times(1)).buscaCarrinhoPorId(carrinho.getId());
-
-    verify(carrinhoRepository, times(1)).carrinhoPertenceAoUsuario(carrinho.getId(), email);
-
     verify(carrinhoRepository, times(1)).salva(carrinho);
   }
 
@@ -247,8 +242,6 @@ class CarrinhoApplicationServiceTest {
     String email = "outro@email.com";
 
     when(carrinhoRepository.buscaCarrinhoPorId(carrinho.getId())).thenReturn(carrinho);
-
-    when(carrinhoRepository.carrinhoPertenceAoUsuario(carrinho.getId(), email)).thenReturn(false);
 
     assertThrows(
         APIException.class,
