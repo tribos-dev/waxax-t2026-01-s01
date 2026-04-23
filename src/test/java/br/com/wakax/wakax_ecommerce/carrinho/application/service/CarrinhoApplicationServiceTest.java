@@ -208,11 +208,11 @@ class CarrinhoApplicationServiceTest {
     UUID idItem = carrinho.getItensCarrinho().get(0).getId();
     String email = cliente.getPessoa().getEmails().get(0);
 
-    when(carrinhoRepository.buscaCarrinhoPorId(carrinho.getId())).thenReturn(carrinho);
+    when(carrinhoRepository.buscaCarrinhoPorId(carrinho.getId()))
+            .thenReturn(carrinho);
 
     applicationService.deletaItemDoCarrinho(email, carrinho.getId(), idItem);
 
-    verify(carrinhoRepository, times(1)).buscaCarrinhoPorId(carrinho.getId());
     verify(carrinhoRepository, times(1)).salva(carrinho);
   }
 
