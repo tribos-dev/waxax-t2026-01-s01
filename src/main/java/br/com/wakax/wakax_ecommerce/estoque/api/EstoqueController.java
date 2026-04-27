@@ -2,7 +2,7 @@ package br.com.wakax.wakax_ecommerce.estoque.api;
 
 import java.util.UUID;
 
-import br.com.wakax.wakax_ecommerce.estoque.api.request.AdicionaEstoqueRequest;
+import br.com.wakax.wakax_ecommerce.estoque.api.request.AdicionaQuantidadeRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -47,8 +47,9 @@ public class EstoqueController implements EstoqueAPI {
   }
 
   @Override
-  public EstoqueResponse adicionaEstoque(UUID idProduto, AdicionaEstoqueRequest request) {
+  public EstoqueResponse adicionaQuantidade(UUID idProduto, AdicionaQuantidadeRequest request) {
     log.info("[start] EstoqueController - adicionaEstoque");
+    EstoqueResponse estoqueResponse = estoqueService.adicionaQuantidade(idProduto, request);
     log.debug("[finish] EstoqueController - adicionaEstoque");
     return null;
   }

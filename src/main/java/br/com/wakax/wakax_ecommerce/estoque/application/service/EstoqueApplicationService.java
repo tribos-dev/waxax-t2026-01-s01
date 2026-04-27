@@ -3,6 +3,7 @@ package br.com.wakax.wakax_ecommerce.estoque.application.service;
 import java.util.List;
 import java.util.UUID;
 
+import br.com.wakax.wakax_ecommerce.estoque.api.request.AdicionaQuantidadeRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -94,7 +95,12 @@ public class EstoqueApplicationService implements EstoqueService {
     return EstoqueListagemResponse.of(estoques);
   }
 
-  private void validaSeJaExisteEstoque(UUID idProduto) {
+    @Override
+    public EstoqueResponse adicionaQuantidade(UUID idProduto, AdicionaQuantidadeRequest request) {
+        return null;
+    }
+
+    private void validaSeJaExisteEstoque(UUID idProduto) {
     estoqueRepository
         .buscaEstoquePorIdProduto(idProduto)
         .ifPresent(
