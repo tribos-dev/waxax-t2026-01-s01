@@ -43,7 +43,6 @@ public class Pagamento {
   private BigDecimal valor;
 
   @Column(nullable = false)
-  @NotNull
   private String motivoCancelamento;
 
   @Column(nullable = false)
