@@ -33,6 +33,9 @@ public class Pedido {
   @NotNull
   private LocalDateTime dataPedido;
 
+  @Column(name = "data_ultima_atualizacao", nullable = false)
+  private LocalDateTime dataUltimaAtualizacao;
+
   @Enumerated(EnumType.STRING)
   @Column(nullable = false)
   @NotNull
@@ -101,5 +104,18 @@ public class Pedido {
 
   public void aguardarPagamento() {
     this.status = StatusPedido.AGUARDANDO_PAGAMENTO;
+  }
+
+  @PrePersist
+  public void prePersist() {
+    this.dataUltimaAtualizacao = LocalDateTime.now();
+    if (this.dataPedido == null) {
+      this.dataPedido = LocalDateTime.now();
+    }
+  }
+
+  @PreUpdate
+  public void preUpdate() {
+    this.dataUltimaAtualizacao = LocalDateTime.now();
   }
 }
