@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import br.com.wakax.wakax_ecommerce.estoque.api.request.AdicionaEstoqueRequest;
 import br.com.wakax.wakax_ecommerce.estoque.api.request.EstoqueRequest;
 import br.com.wakax.wakax_ecommerce.estoque.api.response.EstoqueListagemResponse;
 import br.com.wakax.wakax_ecommerce.estoque.api.response.EstoqueResponse;
@@ -28,4 +29,9 @@ public interface EstoqueAPI {
   ResponseEntity<EstoqueListagemResponse> listarTodoEstoque(
       @RequestParam(value = "quantidadeMinima", required = false) Integer quantidadeMinima,
       @RequestParam(value = "apenasEmFalta", required = false) Boolean apenasEmFalta);
+
+  @PatchMapping("/produto/{idProduto}/adicionar")
+  @ResponseStatus(HttpStatus.OK)
+  EstoqueResponse adicionaEstoque(
+      @PathVariable UUID idProduto, @Valid @RequestBody AdicionaEstoqueRequest request);
 }
