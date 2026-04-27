@@ -1,5 +1,7 @@
 package br.com.wakax.wakax_ecommerce.pedido.application.api;
 
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 import javax.validation.Valid;
@@ -8,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import br.com.wakax.wakax_ecommerce.pedido.application.api.request.PedidoRequest;
 import br.com.wakax.wakax_ecommerce.pedido.application.api.response.PedidoResponse;
+import br.com.wakax.wakax_ecommerce.pedido.application.api.response.ProdutoMaisVendidoResponse;
 import br.com.wakax.wakax_ecommerce.pedido.application.service.PedidoService;
 import br.com.wakax.wakax_ecommerce.pedido.domain.StatusPedido;
 import lombok.RequiredArgsConstructor;
@@ -43,5 +46,15 @@ public class PedidoController implements PedidoAPI {
         pedidoService.buscaPedidosDoCliente(idCliente, statusPedido, page, size);
     log.debug("[finish] PedidoController - buscaPedidosDoCliente");
     return resonse;
+  }
+
+  @Override
+  public List<ProdutoMaisVendidoResponse> geraRelatorioProdutosMaisVendidos(
+      LocalDateTime dataInicio, LocalDateTime dataFim, Integer limite) {
+    log.debug("[start] PedidoController - geraRelatorioProdutosMaisVendidos");
+    List<ProdutoMaisVendidoResponse> response =
+        pedidoService.geraRelatorioProdutosMaisVendidos(dataInicio, dataFim, limite);
+    log.debug("[finish] PedidoController - geraRelatorioProdutosMaisVendidos");
+    return response;
   }
 }
