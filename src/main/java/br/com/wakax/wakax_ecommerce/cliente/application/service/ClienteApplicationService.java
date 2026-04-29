@@ -65,7 +65,7 @@ public class ClienteApplicationService implements ClienteService {
   @Transactional
   public ClienteAtualizaResponse atualizarCliente(
       UUID idCliente, ClienteAtualizaRequest clienteRequest) {
-    log.info("[start] ClienteApplicationService - atualizarCliente");
+    log.debug("[start] ClienteApplicationService - atualizarCliente");
     Cliente cliente = clienteRepository.buscaClientePorId(idCliente);
     cliente.alterar(clienteRequest);
     clienteRepository.salva(cliente);

@@ -11,8 +11,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import br.com.wakax.wakax_ecommerce.cliente.domain.Cliente;
-import br.com.wakax.wakax_ecommerce.estoque.application.service.EstoqueApplicationService;
 import br.com.wakax.wakax_ecommerce.estoque.application.repository.EstoqueRepository;
+import br.com.wakax.wakax_ecommerce.estoque.application.service.EstoqueApplicationService;
 import br.com.wakax.wakax_ecommerce.estoque.domain.Estoque;
 import br.com.wakax.wakax_ecommerce.handler.APIException;
 import br.com.wakax.wakax_ecommerce.handler.ErrorCode;

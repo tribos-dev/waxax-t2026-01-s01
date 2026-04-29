@@ -39,10 +39,10 @@ public class EstoqueController implements EstoqueAPI {
   @Override
   public ResponseEntity<EstoqueListagemResponse> listarTodoEstoque(
       Integer quantidadeMinima, Boolean apenasEmFalta) {
-    log.info("[start] EstoqueController - listarTodoEstoque");
+    log.debug("[start] EstoqueController - listarTodoEstoque");
     EstoqueListagemResponse response =
         estoqueService.listarTodoEstoque(quantidadeMinima, apenasEmFalta);
-    log.info("[finish] EstoqueController - listarTodoEstoque");
+    log.debug("[finish] EstoqueController - listarTodoEstoque");
     return ResponseEntity.ok(response);
   }
 

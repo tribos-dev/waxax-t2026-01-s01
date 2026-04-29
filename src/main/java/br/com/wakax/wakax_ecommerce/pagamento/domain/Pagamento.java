@@ -42,9 +42,7 @@ public class Pagamento {
   @PositiveOrZero
   private BigDecimal valor;
 
-  @Column(nullable = false)
-  @NotNull
-  private String motivoCancelamento;
+  @Column private String motivoCancelamento;
 
   @Column(nullable = false)
   @Builder.Default
@@ -60,12 +58,10 @@ public class Pagamento {
     this.statusPagamento = StatusPagamento.AGUARDANDO;
     this.dataPagamento = LocalDateTime.now();
     this.valor = pedido.getValorTotal();
-    this.motivoCancelamento = motivoCancelamento;
   }
 
   public void mudaStatusParaFalhou(CancelaPagamentoRequest request) {
     validaStatusPagamento();
-
     this.statusPagamento = StatusPagamento.FALHOU;
     this.motivoCancelamento = request.getMotivoCancelamento();
   }
