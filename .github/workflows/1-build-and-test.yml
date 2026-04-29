@@ -34,7 +34,7 @@ jobs:
 
       - name: Run dev compose and application image
         run: |
-          docker compose -f docker-compose.dev.yml up -d --wait --wait-timeout 240
+          docker compose -p wakax -f docker-compose.dev.yml up -d --wait --wait-timeout 240
           IMAGE=latest
           echo "Using image: $IMAGE"
           docker run -d \
@@ -66,5 +66,5 @@ jobs:
       - name: Remove containers
         run: |
           docker stop tmp-check && docker rm tmp-check
-          docker compose -f docker-compose.dev.yml down
+          docker compose -p wakax -f docker-compose.dev.yml down
 
