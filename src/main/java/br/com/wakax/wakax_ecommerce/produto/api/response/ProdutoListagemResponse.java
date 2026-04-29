@@ -2,7 +2,6 @@ package br.com.wakax.wakax_ecommerce.produto.api.response;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.Comparator;
 import java.util.List;
 
 import br.com.wakax.wakax_ecommerce.produto.domain.Produto;
@@ -23,16 +22,6 @@ public class ProdutoListagemResponse {
   public ProdutoListagemResponse(List<ProdutoItem> produtos, long totalProdutos) {
     this.produtos = produtos;
     this.totalProdutos = totalProdutos;
-  }
-
-  public static ProdutoListagemResponse converte(List<Produto> produtos) {
-    List<ProdutoItem> produtosOrdenados =
-        produtos.stream()
-            .map(ProdutoItem::new)
-            .sorted(Comparator.comparing(ProdutoItem::getDescricao))
-            .toList();
-
-    return new ProdutoListagemResponse(produtosOrdenados);
   }
 
   public static ProdutoListagemResponse convertePaginado(

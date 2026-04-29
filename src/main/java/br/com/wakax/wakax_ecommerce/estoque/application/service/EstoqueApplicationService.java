@@ -15,6 +15,7 @@ import br.com.wakax.wakax_ecommerce.estoque.application.repository.EstoqueReposi
 import br.com.wakax.wakax_ecommerce.estoque.domain.Estoque;
 import br.com.wakax.wakax_ecommerce.handler.APIException;
 import br.com.wakax.wakax_ecommerce.handler.ErrorCode;
+import br.com.wakax.wakax_ecommerce.pedido.domain.ItemPedido;
 import br.com.wakax.wakax_ecommerce.produto.application.repository.ProdutoRepository;
 import br.com.wakax.wakax_ecommerce.produto.domain.Produto;
 import lombok.RequiredArgsConstructor;
@@ -83,6 +84,19 @@ public class EstoqueApplicationService implements EstoqueService {
     estoque.liberaReserva(quantidade);
     estoqueRepository.salva(estoque);
     log.info("[finish] EstoqueApplicationService - liberaReserva");
+  }
+
+  @Override
+  @Transactional
+  public void liberaReservaDePedido(List<ItemPedido> itensPedido) {
+    log.debug("[start] EstoqueApplicationService - liberaReservaDePedido");
+    itensPedido.forEach(
+        item -> {
+          Estoque estoque = buscaEstoqueExistente(item.getProduto().getId());
+          estoque.liberaReserva(item.getQuantidade());
+          estoqueRepository.salva(estoque);
+        });
+    log.debug("[finish] EstoqueApplicationService - liberaReservaDePedido");
   }
 
   @Override
