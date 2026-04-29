@@ -2,6 +2,7 @@ package br.com.wakax.wakax_ecommerce.produto.domain;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -9,6 +10,7 @@ import java.util.stream.Collectors;
 import javax.persistence.*;
 import javax.validation.constraints.*;
 
+import br.com.wakax.wakax_ecommerce.produto.api.request.ProdutoAtualizaRequest;
 import br.com.wakax.wakax_ecommerce.produto.api.request.ProdutoRequest;
 import lombok.*;
 
@@ -59,6 +61,9 @@ public class Produto {
   @Column(name = "data_de_cadastro")
   private LocalDateTime dataDeCadastro;
 
+  @Column(name = "data_de_atualizacao")
+  private LocalDateTime dataDeAtualizacao;
+
   public Produto(ProdutoRequest request) {
     this.descricao = request.getDescricao();
     this.status = StatusProduto.ATIVO;
@@ -76,6 +81,44 @@ public class Produto {
               .collect(Collectors.toList());
     }
     this.dataDeCadastro = LocalDateTime.now();
+  }
+
+  public void atualiza(ProdutoAtualizaRequest request) {
+    if (request.getDescricao() != null) {
+      this.descricao = request.getDescricao();
+    }
+    if (request.getPesoLiquido() != null) {
+      this.pesoLiquido = request.getPesoLiquido();
+    }
+    if (request.getPesoBruto() != null) {
+      this.pesoBruto = request.getPesoBruto();
+    }
+    if (request.getDescricaoComplementar() != null) {
+      this.descricaoComplementar = request.getDescricaoComplementar();
+    }
+    if (request.getGrupo() != null) {
+      this.grupo = request.getGrupo();
+    }
+    if (request.getUnidade() != null) {
+      this.unidade = request.getUnidade();
+    }
+    if (request.getEstoqueMinimo() != null) {
+      this.estoqueMinimo = request.getEstoqueMinimo();
+    }
+    if (request.getEstoqueMaximo() != null) {
+      this.estoqueMaximo = request.getEstoqueMaximo();
+    }
+    if (request.getPrecos() != null) {
+      if (this.precos == null) {
+        this.precos = new ArrayList<>();
+      } else {
+        this.precos.clear();
+      }
+      request.getPrecos().stream()
+          .map(precoReq -> new Preco(precoReq.getTipo(), precoReq.getValor(), this))
+          .forEach(this.precos::add);
+    }
+    this.dataDeAtualizacao = LocalDateTime.now();
   }
 
   public BigDecimal getPrecoPadrao() {
