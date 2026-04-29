@@ -1,13 +1,12 @@
 package br.com.wakax.wakax_ecommerce.pedido.application.service;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -19,8 +18,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 
 import br.com.wakax.wakax_ecommerce.cliente.domain.Cliente;
-import br.com.wakax.wakax_ecommerce.estoque.application.repository.EstoqueRepository;
-import br.com.wakax.wakax_ecommerce.estoque.domain.Estoque;
+import br.com.wakax.wakax_ecommerce.estoque.application.service.EstoqueService;
 import br.com.wakax.wakax_ecommerce.handler.APIException;
 import br.com.wakax.wakax_ecommerce.handler.ErrorCode;
 import br.com.wakax.wakax_ecommerce.pedido.application.api.request.StatusPedidoRequest;
@@ -37,7 +35,7 @@ import br.com.wakax.wakax_ecommerce.produto.domain.Produto;
 class AtualizaStatusPedidoServiceTest {
 
   @Mock private PedidoRepository pedidoRepository;
-  @Mock private EstoqueRepository estoqueRepository;
+  @Mock private EstoqueService estoqueService;
 
   @InjectMocks private PedidoApplicationService service;
 
@@ -53,43 +51,48 @@ class AtualizaStatusPedidoServiceTest {
   @Test
   void deveAtualizarStatusDePagoParaEnviado() {
     StatusPedidoRequest request = new StatusPedidoRequest(StatusPedido.ENVIADO);
+
     when(pedidoRepository.buscaPedidoPorId(idPedido)).thenReturn(pedido);
     when(pedidoRepository.salva(any(Pedido.class))).thenReturn(pedido);
 
     service.atualizaStatusPedido(idPedido, request);
 
     assertEquals(StatusPedido.ENVIADO, pedido.getStatus());
+
     verify(pedidoRepository).buscaPedidoPorId(idPedido);
     verify(pedidoRepository).salva(pedido);
+    verifyNoInteractions(estoqueService); // não deve mexer no estoque
   }
 
   @Test
   void deveAtualizarStatusParaCanceladoELiberarEstoque() {
     Pedido pedidoCancelavel = criarPedido(StatusPedido.AGUARDANDO_PAGAMENTO);
+
     Produto produto = mock(Produto.class);
-    when(produto.getId()).thenReturn(UUID.randomUUID());
-    Estoque estoque = mock(Estoque.class);
+    UUID produtoId = UUID.randomUUID();
 
     ItemPedido item =
         ItemPedido.builder().produto(produto).quantidade(5).valorUnitario(BigDecimal.TEN).build();
+
     pedidoCancelavel.setItensPedido(List.of(item));
 
     StatusPedidoRequest request = new StatusPedidoRequest(StatusPedido.CANCELADO);
+
     when(pedidoRepository.buscaPedidoPorId(idPedido)).thenReturn(pedidoCancelavel);
-    when(estoqueRepository.buscaEstoquePorIdProduto(any())).thenReturn(Optional.of(estoque));
-    when(pedidoRepository.salva(any(Pedido.class))).thenReturn(pedidoCancelavel);
 
     service.atualizaStatusPedido(idPedido, request);
 
     assertEquals(StatusPedido.CANCELADO, pedidoCancelavel.getStatus());
-    verify(estoque).liberaReserva(5);
-    verify(estoqueRepository).salva(estoque);
+
+    verify(estoqueService).liberaReservaDePedido(pedidoCancelavel.getItensPedido());
   }
 
   @Test
   void deveLancarExcecaoAoTentarTransicaoInvalida() {
     pedido.setStatus(StatusPedido.ENTREGUE);
+
     StatusPedidoRequest request = new StatusPedidoRequest(StatusPedido.CANCELADO);
+
     when(pedidoRepository.buscaPedidoPorId(idPedido)).thenReturn(pedido);
 
     APIException ex =
@@ -97,13 +100,16 @@ class AtualizaStatusPedidoServiceTest {
 
     assertEquals(HttpStatus.BAD_REQUEST, ex.getStatusException());
     assertEquals(ErrorCode.TRANSICAO_STATUS_INVALIDA, ex.getErrorCode());
+
     verify(pedidoRepository, never()).salva(any());
+    verifyNoInteractions(estoqueService);
   }
 
   private Pedido criarPedido(StatusPedido status) {
     Cliente cliente = mock(Cliente.class);
     Pessoa pessoa = mock(Pessoa.class);
     Endereco endereco = mock(Endereco.class);
+
     lenient().when(cliente.getPessoa()).thenReturn(pessoa);
 
     return Pedido.builder()
