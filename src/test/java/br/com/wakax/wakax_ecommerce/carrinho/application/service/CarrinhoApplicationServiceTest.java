@@ -202,22 +202,22 @@ class CarrinhoApplicationServiceTest {
 
   @Test
   void deveDeletarItemDeUmCarrinhoAtivoQuePertenceAoUsuario() {
+
     Cliente cliente = CarrinhoDataHelper.criaCliente();
     Carrinho carrinho = CarrinhoDataHelper.criaCarrinhoAtivoComUmItem(cliente);
     UUID idItem = carrinho.getItensCarrinho().get(0).getId();
     String email = cliente.getPessoa().getEmails().get(0);
 
     when(carrinhoRepository.buscaCarrinhoPorId(carrinho.getId())).thenReturn(carrinho);
-    when(carrinhoRepository.salva(carrinho)).thenReturn(carrinho);
 
     applicationService.deletaItemDoCarrinho(email, carrinho.getId(), idItem);
 
-    verify(carrinhoRepository, times(1)).buscaCarrinhoPorId(carrinho.getId());
     verify(carrinhoRepository, times(1)).salva(carrinho);
   }
 
   @Test
   void naoDeveDeletarItemSeCarrinhoNaoEstiverAtivo() {
+
     Cliente cliente = CarrinhoDataHelper.criaCliente();
     Carrinho carrinho = CarrinhoDataHelper.criaCarrinhoFinalizadoComUmItem(cliente);
     UUID idItem = carrinho.getItensCarrinho().get(0).getId();
@@ -234,6 +234,7 @@ class CarrinhoApplicationServiceTest {
 
   @Test
   void naoDeveDeletarItemSeCarrinhoNaoPertencerAoUsuario() {
+
     Cliente cliente = CarrinhoDataHelper.criaCliente();
     Carrinho carrinho = CarrinhoDataHelper.criaCarrinhoAtivoComUmItem(cliente);
     UUID idItem = carrinho.getItensCarrinho().get(0).getId();

@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import br.com.wakax.wakax_ecommerce.pedido.application.api.request.PedidoRequest;
+import br.com.wakax.wakax_ecommerce.pedido.application.api.request.StatusPedidoRequest;
 import br.com.wakax.wakax_ecommerce.pedido.application.api.response.PedidoResponse;
 import br.com.wakax.wakax_ecommerce.pedido.application.api.response.ProdutoMaisVendidoResponse;
 import br.com.wakax.wakax_ecommerce.pedido.domain.StatusPedido;
@@ -32,6 +33,11 @@ public interface PedidoAPI {
       @RequestParam(value = "status", required = false) StatusPedido statusPedido,
       @RequestParam(value = "page", defaultValue = "0") int page,
       @RequestParam(value = "size", defaultValue = "10") int size);
+
+  @PatchMapping("/{idPedido}/status")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  void atualizaStatus(
+      @PathVariable UUID idPedido, @Valid @RequestBody StatusPedidoRequest statusPedidoRequest);
 
   @GetMapping("/relatorios/produtos-mais-vendidos")
   List<ProdutoMaisVendidoResponse> geraRelatorioProdutosMaisVendidos(

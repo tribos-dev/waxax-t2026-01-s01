@@ -1,1 +1,0 @@
-ALTER TABLE pagamento ADD COLUMN IF NOT EXISTS data_confirmacao TIMESTAMP NULL;

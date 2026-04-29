@@ -96,6 +96,11 @@ public class Carrinho {
         .reduce(BigDecimal.ZERO, BigDecimal::add);
   }
 
+  public void finalizar() {
+    verificaSeCarrinhoEstaAtivo();
+    this.statusCarrinho = StatusCarrinho.FINALIZADO;
+  }
+
   void verificaSeCarrinhoPertenceAoUsuario(String email) {
     boolean pertenceAoUsuario = this.cliente.getPessoa().getEmails().contains(email);
 
