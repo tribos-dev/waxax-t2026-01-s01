@@ -20,5 +20,5 @@ public interface EstoqueService {
 
   EstoqueListagemResponse listarTodoEstoque(Integer quantidadeMinima, Boolean apenasEmFalta);
 
-    EstoqueResponse adicionaQuantidade(UUID idProduto, AdicionaQuantidadeRequest request);
+  EstoqueResponse adicionaQuantidade(UUID idProduto, AdicionaQuantidadeRequest request);
 }

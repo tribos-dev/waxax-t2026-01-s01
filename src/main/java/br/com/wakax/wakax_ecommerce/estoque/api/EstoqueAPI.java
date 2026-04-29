@@ -30,7 +30,7 @@ public interface EstoqueAPI {
       @RequestParam(value = "quantidadeMinima", required = false) Integer quantidadeMinima,
       @RequestParam(value = "apenasEmFalta", required = false) Boolean apenasEmFalta);
 
-  @PatchMapping("/produto/{idProduto}/adicionar")
+  @PatchMapping("/produto/{idProduto}/adiciona-quantidade")
   @ResponseStatus(HttpStatus.OK)
   EstoqueResponse adicionaQuantidade(
       @PathVariable UUID idProduto, @Valid @RequestBody AdicionaQuantidadeRequest request);

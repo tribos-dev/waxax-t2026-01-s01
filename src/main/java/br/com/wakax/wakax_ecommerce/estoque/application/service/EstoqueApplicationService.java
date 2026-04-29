@@ -3,11 +3,11 @@ package br.com.wakax.wakax_ecommerce.estoque.application.service;
 import java.util.List;
 import java.util.UUID;
 
-import br.com.wakax.wakax_ecommerce.estoque.api.request.AdicionaQuantidadeRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import br.com.wakax.wakax_ecommerce.estoque.api.request.AdicionaQuantidadeRequest;
 import br.com.wakax.wakax_ecommerce.estoque.api.request.EstoqueRequest;
 import br.com.wakax.wakax_ecommerce.estoque.api.response.EstoqueListagemResponse;
 import br.com.wakax.wakax_ecommerce.estoque.api.response.EstoqueResponse;
@@ -95,12 +95,18 @@ public class EstoqueApplicationService implements EstoqueService {
     return EstoqueListagemResponse.of(estoques);
   }
 
-    @Override
-    public EstoqueResponse adicionaQuantidade(UUID idProduto, AdicionaQuantidadeRequest request) {
-        return null;
-    }
+  @Transactional
+  @Override
+  public EstoqueResponse adicionaQuantidade(UUID idProduto, AdicionaQuantidadeRequest request) {
+    log.info("[start] EstoqueApplicationService - adicionaEstoque");
+    Estoque estoque = buscaEstoqueExistente(idProduto);
+    estoque.adicionaQuantidade(request.getQuantidade(), request.getCustoUnitario());
+    estoqueRepository.salva(estoque);
+    log.debug("[finish] EstoqueApplicationService - adicionaEstoque");
+    return new EstoqueResponse(estoque);
+  }
 
-    private void validaSeJaExisteEstoque(UUID idProduto) {
+  private void validaSeJaExisteEstoque(UUID idProduto) {
     estoqueRepository
         .buscaEstoquePorIdProduto(idProduto)
         .ifPresent(
