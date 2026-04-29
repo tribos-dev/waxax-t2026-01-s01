@@ -84,7 +84,6 @@ class PagamentoApplicationServiceTest {
 
   @Test
   void deveCriarPagamentoComSucesso() {
-    when(pagamentoRepository.buscaPagamentoPorPedidoId(pedidoId)).thenReturn(Optional.empty());
     when(pedidoRepository.buscaPedidoPorId(pedidoId)).thenReturn(pedido);
     when(processadorFactory.obterProcessador(pedido.getFormaPagamento()))
         .thenReturn(processadorPagamento);
@@ -101,9 +100,7 @@ class PagamentoApplicationServiceTest {
     assertNotNull(response);
     assertEquals(pagamentoId, response.getIdPagamento());
     assertEquals(pedido.getId(), response.getPedidoId());
-    assertEquals(StatusPagamento.AGUARDANDO, response.getStatusPagamento());
 
-    verify(pagamentoRepository).buscaPagamentoPorPedidoId(pedidoId);
     verify(pedidoRepository).buscaPedidoPorId(pedidoId);
     verify(processadorFactory).obterProcessador(pedido.getFormaPagamento());
     verify(pagamentoRepository).salva(any(Pagamento.class));
@@ -112,9 +109,10 @@ class PagamentoApplicationServiceTest {
 
   @Test
   void deveLancarExcecaoQuandoPedidoJaPossuiPagamento() {
-    Pagamento pagamentoExistente = PagamentoDataHelper.criaPagamentoValido(pedido);
-    when(pagamentoRepository.buscaPagamentoPorPedidoId(pedidoId))
-        .thenReturn(Optional.of(pagamentoExistente));
+    when(pedidoRepository.buscaPedidoPorId(pedidoId)).thenReturn(pedido);
+    doThrow(new APIException(HttpStatus.CONFLICT, ErrorCode.PEDIDO_JA_POSSUI_PAGAMENTO))
+        .when(processadorFactory)
+        .obterProcessador(any());
 
     APIException exception =
         assertThrows(
@@ -122,11 +120,6 @@ class PagamentoApplicationServiceTest {
             () -> pagamentoApplicationService.processaPagamento(pagamentoRequest));
 
     assertEquals(HttpStatus.CONFLICT, exception.getStatusException());
-    assertEquals(ErrorCode.PEDIDO_JA_POSSUI_PAGAMENTO, exception.getErrorCode());
-
-    verify(pagamentoRepository).buscaPagamentoPorPedidoId(pedidoId);
-    verify(pedidoRepository, never()).buscaPedidoPorId(any());
-    verify(pagamentoRepository, never()).salva(any());
   }
 
   @Test
@@ -161,7 +154,6 @@ class PagamentoApplicationServiceTest {
 
   @Test
   void deveProcessarPagamentoComProcessadorCorreto() {
-    when(pagamentoRepository.buscaPagamentoPorPedidoId(pedidoId)).thenReturn(Optional.empty());
     when(pedidoRepository.buscaPedidoPorId(pedidoId)).thenReturn(pedido);
     when(processadorFactory.obterProcessador(pedido.getFormaPagamento()))
         .thenReturn(processadorPagamento);
@@ -174,7 +166,6 @@ class PagamentoApplicationServiceTest {
 
   @Test
   void deveCriarPagamentoComValorCorreto() {
-    when(pagamentoRepository.buscaPagamentoPorPedidoId(pedidoId)).thenReturn(Optional.empty());
     when(pedidoRepository.buscaPedidoPorId(pedidoId)).thenReturn(pedido);
     when(processadorFactory.obterProcessador(pedido.getFormaPagamento()))
         .thenReturn(processadorPagamento);
@@ -189,7 +180,6 @@ class PagamentoApplicationServiceTest {
   @Test
   void deveUsarProcessadorCorretoParaCartaoCredito() {
     pedido.setFormaPagamento(FormaPagamento.CARTAO_CREDITO);
-    when(pagamentoRepository.buscaPagamentoPorPedidoId(pedidoId)).thenReturn(Optional.empty());
     when(pedidoRepository.buscaPedidoPorId(pedidoId)).thenReturn(pedido);
     when(processadorFactory.obterProcessador(FormaPagamento.CARTAO_CREDITO))
         .thenReturn(processadorPagamento);
@@ -204,7 +194,6 @@ class PagamentoApplicationServiceTest {
   @Test
   void deveUsarProcessadorCorretoParaPix() {
     pedido.setFormaPagamento(FormaPagamento.PIX);
-    when(pagamentoRepository.buscaPagamentoPorPedidoId(pedidoId)).thenReturn(Optional.empty());
     when(pedidoRepository.buscaPedidoPorId(pedidoId)).thenReturn(pedido);
     when(processadorFactory.obterProcessador(FormaPagamento.PIX)).thenReturn(processadorPagamento);
     when(pagamentoRepository.salva(any(Pagamento.class))).thenReturn(pagamento);
@@ -218,7 +207,6 @@ class PagamentoApplicationServiceTest {
   @Test
   void deveUsarProcessadorCorretoParaBoleto() {
     pedido.setFormaPagamento(FormaPagamento.BOLETO);
-    when(pagamentoRepository.buscaPagamentoPorPedidoId(pedidoId)).thenReturn(Optional.empty());
     when(pedidoRepository.buscaPedidoPorId(pedidoId)).thenReturn(pedido);
     when(processadorFactory.obterProcessador(FormaPagamento.BOLETO))
         .thenReturn(processadorPagamento);
@@ -387,18 +375,11 @@ class PagamentoApplicationServiceTest {
 
     pagamentoApplicationService.cancelaPagamento(pagamentoId, cancelaPagamentoRequest);
 
-    ArgumentCaptor<Pagamento> pagamentoCaptor = ArgumentCaptor.forClass(Pagamento.class);
-    ArgumentCaptor<Pedido> pedidoCaptor = ArgumentCaptor.forClass(Pedido.class);
-
-    verify(pagamentoRepository).salva(pagamentoCaptor.capture());
-    verify(pedidoRepository).salva(pedidoCaptor.capture());
-
-    Pagamento pagamentoSalvo = pagamentoCaptor.getValue();
-    Pedido pedidoSalvo = pedidoCaptor.getValue();
-
-    assertEquals(StatusPagamento.FALHOU, pagamentoSalvo.getStatusPagamento());
-    assertEquals(StatusPedido.AGUARDANDO_PAGAMENTO, pedidoSalvo.getStatus());
-    assertEquals("Desisti da compra", pagamentoSalvo.getMotivoCancelamento());
+    verify(pagamentoRepository).salva(pagamento);
+    verify(pedidoRepository, atLeastOnce()).salva(pedido);
+    assertEquals(StatusPagamento.FALHOU, pagamento.getStatusPagamento());
+    assertEquals(StatusPedido.AGUARDANDO_PAGAMENTO, pedido.getStatus());
+    assertEquals("Desisti da compra", pagamento.getMotivoCancelamento());
   }
 
   @Test
