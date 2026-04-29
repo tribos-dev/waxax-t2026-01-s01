@@ -2,11 +2,11 @@ package br.com.wakax.wakax_ecommerce.produto.api;
 
 import java.util.UUID;
 
-import br.com.wakax.wakax_ecommerce.produto.api.request.ProdutoAtualizaRequest;
-import br.com.wakax.wakax_ecommerce.produto.api.response.ProdutoAtualizaResponse;
 import org.springframework.web.bind.annotation.RestController;
 
+import br.com.wakax.wakax_ecommerce.produto.api.request.ProdutoAtualizaRequest;
 import br.com.wakax.wakax_ecommerce.produto.api.request.ProdutoRequest;
+import br.com.wakax.wakax_ecommerce.produto.api.response.ProdutoAtualizaResponse;
 import br.com.wakax.wakax_ecommerce.produto.api.response.ProdutoListResponse;
 import br.com.wakax.wakax_ecommerce.produto.api.response.ProdutoListagemResponse;
 import br.com.wakax.wakax_ecommerce.produto.api.response.ProdutoResponse;
@@ -44,11 +44,13 @@ public class ProdutoController implements ProdutoAPI {
     return response;
   }
 
-    @Override
-    public ProdutoAtualizaResponse atualizarProduto(UUID idProduto, ProdutoAtualizaRequest atualizaRequest) {
-      log.debug("[start] ProdutoController - atualizarProduto");
-      ProdutoAtualizaResponse produtoAtualizado = produtoService.atualizaProduto(idProduto, atualizaRequest);
-      log.debug("[finish] ProdutoController - atualizarProduto");
-      return  produtoAtualizado;
-    }
+  @Override
+  public ProdutoAtualizaResponse atualizarProduto(
+      UUID idProduto, ProdutoAtualizaRequest atualizaRequest) {
+    log.debug("[start] ProdutoController - atualizarProduto");
+    ProdutoAtualizaResponse produtoAtualizado =
+        produtoService.atualizaProduto(idProduto, atualizaRequest);
+    log.debug("[finish] ProdutoController - atualizarProduto");
+    return produtoAtualizado;
+  }
 }

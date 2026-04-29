@@ -2,15 +2,16 @@ package br.com.wakax.wakax_ecommerce.produto.application.service;
 
 import java.util.UUID;
 
-import br.com.wakax.wakax_ecommerce.produto.api.request.ProdutoAtualizaRequest;
-import br.com.wakax.wakax_ecommerce.produto.api.response.ProdutoAtualizaResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import br.com.wakax.wakax_ecommerce.produto.api.request.ProdutoAtualizaRequest;
 import br.com.wakax.wakax_ecommerce.produto.api.request.ProdutoRequest;
+import br.com.wakax.wakax_ecommerce.produto.api.response.ProdutoAtualizaResponse;
 import br.com.wakax.wakax_ecommerce.produto.api.response.ProdutoListResponse;
 import br.com.wakax.wakax_ecommerce.produto.api.response.ProdutoListagemResponse;
 import br.com.wakax.wakax_ecommerce.produto.api.response.ProdutoResponse;
@@ -18,7 +19,6 @@ import br.com.wakax.wakax_ecommerce.produto.application.repository.ProdutoReposi
 import br.com.wakax.wakax_ecommerce.produto.domain.Produto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -55,12 +55,13 @@ public class ProdutoApplicationService implements ProdutoService {
 
   @Override
   @Transactional
-  public ProdutoAtualizaResponse atualizaProduto(UUID idProduto, ProdutoAtualizaRequest atualizaRequest) {
-      log.debug("[start] ProdutoApplicationService - atualizaProduto");
-      Produto produto = produtoRepository.buscaProdutoPorId(idProduto);
-      produto.atualiza(atualizaRequest);
-      produtoRepository.salva(produto);
-      log.debug("[finish] ProdutoApplicationService - atualizaProduto");
-      return new ProdutoAtualizaResponse(produto);
-    }
+  public ProdutoAtualizaResponse atualizaProduto(
+      UUID idProduto, ProdutoAtualizaRequest atualizaRequest) {
+    log.debug("[start] ProdutoApplicationService - atualizaProduto");
+    Produto produto = produtoRepository.buscaProdutoPorId(idProduto);
+    produto.atualiza(atualizaRequest);
+    produtoRepository.salva(produto);
+    log.debug("[finish] ProdutoApplicationService - atualizaProduto");
+    return new ProdutoAtualizaResponse(produto);
+  }
 }
