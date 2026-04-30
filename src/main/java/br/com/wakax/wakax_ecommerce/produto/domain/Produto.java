@@ -111,12 +111,16 @@ public class Produto {
     if (request.getPrecos() != null) {
       if (this.precos == null) {
         this.precos = new ArrayList<>();
-      } else {
-        this.precos.clear();
       }
-      request.getPrecos().stream()
-          .map(precoReq -> new Preco(precoReq.getTipo(), precoReq.getValor(), this))
-          .forEach(this.precos::add);
+      request.getPrecos()
+          .forEach(precoReq ->
+              this.precos.stream()
+                  .filter(p -> p.getTipo() == precoReq.getTipo())
+                  .findFirst()
+                  .ifPresentOrElse(
+                      existente -> existente.setValor(precoReq.getValor()),
+                      () -> this.precos.add(
+                          new Preco(precoReq.getTipo(), precoReq.getValor(), this))));
     }
     this.dataDeAtualizacao = LocalDateTime.now();
   }

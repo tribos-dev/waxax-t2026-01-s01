@@ -56,7 +56,7 @@ public class ProdutoApplicationService implements ProdutoService {
   @Override
   @Transactional
   public ProdutoAtualizaResponse atualizaProduto(
-      UUID idProduto, ProdutoAtualizaRequest atualizaRequest) {
+          UUID idProduto, ProdutoAtualizaRequest atualizaRequest) {
     log.debug("[start] ProdutoApplicationService - atualizaProduto");
     Produto produto = produtoRepository.buscaProdutoPorId(idProduto);
     produto.atualiza(atualizaRequest);
