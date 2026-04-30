@@ -10,6 +10,10 @@ import java.util.stream.Collectors;
 import javax.persistence.*;
 import javax.validation.constraints.*;
 
+import org.springframework.http.HttpStatus;
+
+import br.com.wakax.wakax_ecommerce.handler.APIException;
+import br.com.wakax.wakax_ecommerce.handler.ErrorCode;
 import br.com.wakax.wakax_ecommerce.produto.api.request.ProdutoAtualizaRequest;
 import br.com.wakax.wakax_ecommerce.produto.api.request.ProdutoRequest;
 import lombok.*;
@@ -121,6 +125,9 @@ public class Produto {
                       existente -> existente.setValor(precoReq.getValor()),
                       () -> this.precos.add(
                           new Preco(precoReq.getTipo(), precoReq.getValor(), this))));
+    }
+    if (this.pesoLiquido.compareTo(this.pesoBruto) > 0) {
+      throw new APIException(HttpStatus.BAD_REQUEST, ErrorCode.PESO_LIQUIDO_MAIOR_QUE_BRUTO);
     }
     this.dataDeAtualizacao = LocalDateTime.now();
   }

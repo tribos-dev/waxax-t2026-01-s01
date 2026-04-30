@@ -7,6 +7,7 @@ public enum ErrorCode {
   ACESSO_NEGADO("acesso.negado"),
   PRODUTO_NAO_ENCONTRADO("produto.nao.encontrado"),
   PRODUTO_DUPLICADO("produto.duplicado"),
+  PESO_LIQUIDO_MAIOR_QUE_BRUTO("peso.liquido.maior.que.bruto"),
   FORNECEDOR_NAO_ENCONTRADO("fornecedor.nao.encontrado"),
   FORNECEDOR_DUPLICADO("fornecedor.duplicado"),
   CLIENTE_NAO_ENCONTRADO("cliente.nao.encontrado"),
