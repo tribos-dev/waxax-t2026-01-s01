@@ -2,6 +2,7 @@ package br.com.wakax.wakax_ecommerce.produto.application.service;
 
 import java.util.UUID;
 
+import br.com.wakax.wakax_ecommerce.produto.api.ProdutoStatusRequest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -48,5 +49,10 @@ public class ProdutoApplicationService implements ProdutoService {
     log.debug("[finish] ProdutoApplicationService - listarTodosProdutos");
     return ProdutoListagemResponse.convertePaginado(
         produtos.getContent(), produtos.getTotalElements());
+  }
+
+  @Override
+  public void alteraStatusProduto(UUID idProduto, ProdutoStatusRequest statusRequest) {
+
   }
 }
