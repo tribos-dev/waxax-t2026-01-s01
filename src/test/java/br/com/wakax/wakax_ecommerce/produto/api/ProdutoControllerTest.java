@@ -1,7 +1,6 @@
 package br.com.wakax.wakax_ecommerce.produto.api;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 import java.math.BigDecimal;
@@ -15,8 +14,12 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import br.com.wakax.wakax_ecommerce.handler.APIException;
+import br.com.wakax.wakax_ecommerce.handler.ErrorCode;
 import br.com.wakax.wakax_ecommerce.produto.api.request.PrecoRequest;
+import br.com.wakax.wakax_ecommerce.produto.api.request.ProdutoAtualizaRequest;
 import br.com.wakax.wakax_ecommerce.produto.api.request.ProdutoRequest;
+import br.com.wakax.wakax_ecommerce.produto.api.response.ProdutoAtualizaResponse;
 import br.com.wakax.wakax_ecommerce.produto.api.response.ProdutoListResponse;
 import br.com.wakax.wakax_ecommerce.produto.api.response.ProdutoListagemResponse;
 import br.com.wakax.wakax_ecommerce.produto.api.response.ProdutoResponse;
@@ -83,5 +86,20 @@ class ProdutoControllerTest {
     assertEquals(2L, response.getTotalProdutos());
     assertNotNull(response.getProdutos());
     verify(produtoService, times(1)).listarTodosProdutos(0, 20);
+  }
+
+  @Test
+  void deveAtualizarProdutoComSucesso() {
+    ProdutoAtualizaRequest atualizaRequest =
+        new ProdutoAtualizaRequest(
+            "Nova descrição", null, null, null, null, null, null, null, null);
+    ProdutoAtualizaResponse atualizaResponse = mock(ProdutoAtualizaResponse.class);
+    when(produtoService.atualizaProduto(produtoId, atualizaRequest)).thenReturn(atualizaResponse);
+
+    ProdutoAtualizaResponse response =
+        produtoController.atualizarProduto(produtoId, atualizaRequest);
+
+    assertNotNull(response);
+    verify(produtoService, times(1)).atualizaProduto(produtoId, atualizaRequest);
   }
 }
