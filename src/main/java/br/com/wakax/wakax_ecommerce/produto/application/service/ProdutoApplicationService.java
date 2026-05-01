@@ -3,6 +3,7 @@ package br.com.wakax.wakax_ecommerce.produto.application.service;
 import java.util.UUID;
 
 import br.com.wakax.wakax_ecommerce.produto.api.ProdutoStatusRequest;
+import br.com.wakax.wakax_ecommerce.produto.domain.StatusProduto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -53,6 +54,12 @@ public class ProdutoApplicationService implements ProdutoService {
 
   @Override
   public void alteraStatusProduto(UUID idProduto, ProdutoStatusRequest statusRequest) {
+    log.debug("[start] ProdutoApplicationService - alteraStatusProduto");
+    Produto produto = produtoRepository.buscaProdutoPorId(idProduto);
+    produto.alteraStatus(StatusProduto.valueOf(statusRequest.getStatus()), statusRequest.getMotivo());
+    produtoRepository.salva(produto);
+    log.debug("[finish] ProdutoApplicationService - alteraStatusProduto");
+
 
   }
 }

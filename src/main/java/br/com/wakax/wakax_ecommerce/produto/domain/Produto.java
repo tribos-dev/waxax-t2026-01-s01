@@ -59,6 +59,12 @@ public class Produto {
   @Column(name = "data_de_cadastro")
   private LocalDateTime dataDeCadastro;
 
+  @Column(name = "data_de_alteracao_status")
+  private LocalDateTime dataAlteracaoStatus;
+
+  @Column(length = 255)
+  private String motivoAlteracao;
+
   public Produto(ProdutoRequest request) {
     this.descricao = request.getDescricao();
     this.status = StatusProduto.ATIVO;
@@ -94,5 +100,11 @@ public class Produto {
         .map(Preco::getValor)
         .findFirst()
         .orElse(BigDecimal.ZERO);
+  }
+
+  public void alteraStatus(StatusProduto novoStatus, String motivo) {
+    this.status = novoStatus;
+    this.dataAlteracaoStatus = LocalDateTime.now();
+    this.motivoAlteracao = motivo;
   }
 }
