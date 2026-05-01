@@ -116,15 +116,18 @@ public class Produto {
       if (this.precos == null) {
         this.precos = new ArrayList<>();
       }
-      request.getPrecos()
-          .forEach(precoReq ->
-              this.precos.stream()
-                  .filter(p -> p.getTipo() == precoReq.getTipo())
-                  .findFirst()
-                  .ifPresentOrElse(
-                      existente -> existente.setValor(precoReq.getValor()),
-                      () -> this.precos.add(
-                          new Preco(precoReq.getTipo(), precoReq.getValor(), this))));
+      request
+          .getPrecos()
+          .forEach(
+              precoReq ->
+                  this.precos.stream()
+                      .filter(p -> p.getTipo() == precoReq.getTipo())
+                      .findFirst()
+                      .ifPresentOrElse(
+                          existente -> existente.setValor(precoReq.getValor()),
+                          () ->
+                              this.precos.add(
+                                  new Preco(precoReq.getTipo(), precoReq.getValor(), this))));
     }
     if (this.pesoLiquido.compareTo(this.pesoBruto) > 0) {
       throw new APIException(HttpStatus.BAD_REQUEST, ErrorCode.PESO_LIQUIDO_MAIOR_QUE_BRUTO);
