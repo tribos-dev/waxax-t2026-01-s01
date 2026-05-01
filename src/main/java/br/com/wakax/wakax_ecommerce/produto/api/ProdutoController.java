@@ -41,4 +41,9 @@ public class ProdutoController implements ProdutoAPI {
     log.debug("[finish] ProdutoController - listarTodosProdutos");
     return response;
   }
+
+  @Override
+  public void alteraStatusProduto(UUID idProduto, ProdutoStatusRequest statusRequest) {
+
+  }
 }

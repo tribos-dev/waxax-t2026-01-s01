@@ -24,4 +24,9 @@ public interface ProdutoAPI {
   @ResponseStatus(HttpStatus.OK)
   ProdutoListagemResponse listarTodosProdutos(
       @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size);
+
+  @PatchMapping("/{idProduto}/status")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  void alteraStatusProduto(@PathVariable UUID idProduto, @RequestBody ProdutoStatusRequest statusRequest);
 }
+
