@@ -1,0 +1,2 @@
+ALTER TABLE produto ADD COLUMN IF NOT EXISTS data_de_alteracao_status TIMESTAMP;
+ALTER TABLE produto ADD COLUMN IF NOT EXISTS motivo_alteracao VARCHAR(255);
