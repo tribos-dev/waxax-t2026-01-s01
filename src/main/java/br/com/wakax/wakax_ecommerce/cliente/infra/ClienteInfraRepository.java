@@ -3,6 +3,7 @@ package br.com.wakax.wakax_ecommerce.cliente.infra;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.hibernate.Hibernate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -14,6 +15,7 @@ import br.com.wakax.wakax_ecommerce.handler.APIException;
 import br.com.wakax.wakax_ecommerce.handler.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 @RequiredArgsConstructor
@@ -56,8 +58,13 @@ public class ClienteInfraRepository implements ClienteRepository {
   }
 
   @Override
+  @Transactional(readOnly = true)
   public Page<Cliente> buscarClientePorCriterios(String cpf, String email, String nome, Pageable pageable) {
-
-    return null;
+    log.info("[start] ClienteInfraRepository - buscarClientePorCriterios");
+    Page<Cliente> clientes = clienteSpringDataJpaRepository.findAll(
+            ClienteSpecification.comFiltros(cpf, email, nome), pageable);
+    clientes.forEach(c -> Hibernate.initialize(c.getPessoa().getEmails()));
+    log.debug("[finish] ClienteInfraRepository - buscarClientePorCriterios");
+    return clientes;
   }
 }

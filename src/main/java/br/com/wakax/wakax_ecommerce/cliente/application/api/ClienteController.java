@@ -3,16 +3,13 @@ package br.com.wakax.wakax_ecommerce.cliente.application.api;
 import java.util.UUID;
 
 import br.com.wakax.wakax_ecommerce.cliente.application.api.request.ClienteBuscaRequest;
+import br.com.wakax.wakax_ecommerce.cliente.application.api.response.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.com.wakax.wakax_ecommerce.cliente.application.api.request.ClienteAtualizaRequest;
 import br.com.wakax.wakax_ecommerce.cliente.application.api.request.ClienteRequest;
-import br.com.wakax.wakax_ecommerce.cliente.application.api.response.ClienteAtualizaResponse;
-import br.com.wakax.wakax_ecommerce.cliente.application.api.response.ClienteListAllResponse;
-import br.com.wakax.wakax_ecommerce.cliente.application.api.response.ClienteResponse;
-import br.com.wakax.wakax_ecommerce.cliente.application.api.response.PageResponse;
 import br.com.wakax.wakax_ecommerce.cliente.application.service.ClienteService;
 import br.com.wakax.wakax_ecommerce.cliente.domain.Cliente;
 import lombok.RequiredArgsConstructor;
@@ -83,10 +80,10 @@ public class ClienteController implements ClienteApi {
   }
 
   @Override
-  public PageResponse<ClienteListAllResponse> buscarClientePorCriterios(ClienteBuscaRequest filtro) {
+  public PageResponse<ClienteListResponse> buscarClientePorCriterios(ClienteBuscaRequest filtro) {
     log.info("[start] ClienteController - buscarClientePorCriterio");
     Page<Cliente> clientes = clienteService.buscarClientePorCriterios(filtro);
-    Page<ClienteListAllResponse> response = clientes.map(ClienteListAllResponse::new);
+    Page<ClienteListResponse> response = clientes.map(ClienteListResponse::new);
     log.debug("[finish] ClienteController - buscarClientePorCriterio");
     return PageResponse.from(response);
   }
