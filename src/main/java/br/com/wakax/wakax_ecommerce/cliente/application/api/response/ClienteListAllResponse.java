@@ -14,6 +14,7 @@ import lombok.ToString;
 public class ClienteListAllResponse {
 
   private String nome;
+  private String cpf;
   private String email;
   private StatusPessoa statusPessoa;
 

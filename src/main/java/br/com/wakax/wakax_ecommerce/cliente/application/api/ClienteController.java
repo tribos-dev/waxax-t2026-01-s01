@@ -84,6 +84,10 @@ public class ClienteController implements ClienteApi {
 
   @Override
   public PageResponse<ClienteListAllResponse> buscarClientePorCriterios(ClienteBuscaRequest filtro) {
-    return null;
+    log.info("[start] ClienteController - buscarClientePorCriterio");
+    Page<Cliente> clientes = clienteService.buscarClientePorCriterios(filtro);
+    Page<ClienteListAllResponse> response = clientes.map(ClienteListAllResponse::new);
+    log.debug("[finish] ClienteController - buscarClientePorCriterio");
+    return PageResponse.from(response);
   }
 }

@@ -2,6 +2,7 @@ package br.com.wakax.wakax_ecommerce.cliente.application.service;
 
 import java.util.UUID;
 
+import br.com.wakax.wakax_ecommerce.cliente.application.api.request.ClienteBuscaRequest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -25,4 +26,6 @@ public interface ClienteService {
   ClienteResponse ativarCliente(UUID idCliente);
 
   ClienteResponse inativarCliente(UUID idCliente);
+
+  Page<Cliente> buscarClientePorCriterios(ClienteBuscaRequest filtro);
 }
