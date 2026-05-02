@@ -9,8 +9,11 @@ import java.util.stream.Collectors;
 import javax.persistence.*;
 import javax.validation.constraints.*;
 
+import br.com.wakax.wakax_ecommerce.handler.APIException;
+import br.com.wakax.wakax_ecommerce.handler.ErrorCode;
 import br.com.wakax.wakax_ecommerce.produto.api.request.ProdutoRequest;
 import lombok.*;
+import org.springframework.http.HttpStatus;
 
 @Entity
 @Data
@@ -106,5 +109,10 @@ public class Produto {
     this.status = novoStatus;
     this.dataAlteracaoStatus = LocalDateTime.now();
     this.motivoAlteracao = motivo;
+  }
+  public void validaDisponibilidade(){
+    if (this.status == StatusProduto.INATIVO){
+      throw new APIException(HttpStatus.UNPROCESSABLE_ENTITY, ErrorCode.PRODUTO_INATIVO);
+    }
   }
 }
