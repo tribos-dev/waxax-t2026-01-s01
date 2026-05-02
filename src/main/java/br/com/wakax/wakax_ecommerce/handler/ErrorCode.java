@@ -38,7 +38,9 @@ public enum ErrorCode {
   CLIENTE_JA_ATIVO("cliente.ja.ativo"),
   CLIENTE_JA_INATIVO("cliente.ja.inativo"),
   CLIENTE_INATIVO("cliente.inativo"),
-  TRANSICAO_STATUS_INVALIDA("transicao.status.invalida");
+  TRANSICAO_STATUS_INVALIDA("transicao.status.invalida"),
+  CRITERIO_BUSCA_OBRIGATORIO("criterio.busca.obrigatorio");
+
 
   private final String code;
 
