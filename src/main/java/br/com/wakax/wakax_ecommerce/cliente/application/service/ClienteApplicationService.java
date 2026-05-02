@@ -4,6 +4,7 @@ import java.util.UUID;
 
 import br.com.wakax.wakax_ecommerce.cliente.application.api.request.ClienteBuscaRequest;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -105,7 +106,16 @@ public class ClienteApplicationService implements ClienteService {
   }
 
   @Override
+  @Transactional(readOnly = true)
   public Page<Cliente> buscarClientePorCriterios(ClienteBuscaRequest filtro) {
-    return null;
+    log.info("[start] ClienteApplicationService - buscarClientePorCriterios");
+    if(filtro.getCpf() == null && filtro.getEmail() == null && filtro.getNome() == null){
+      throw new APIException(HttpStatus.BAD_REQUEST, ErrorCode.CRITERIO_BUSCA_OBRIGATORIO);
+    }
+    Pageable pageable = PageRequest.of(filtro.getPage(), filtro.getSize());
+    Page<Cliente> clientes = clienteRepository.buscarClientePorCriterios(
+            filtro.getCpf(), filtro.getEmail(), filtro.getNome(), pageable);
+    log.debug("[finish] ClienteApplicationService - buscarClientePorCriterios");
+    return clientes;
   }
 }

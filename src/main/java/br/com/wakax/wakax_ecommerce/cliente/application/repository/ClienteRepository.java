@@ -17,4 +17,7 @@ public interface ClienteRepository {
   Page<Cliente> buscaTodosOsClientes(Pageable pageable);
 
   Optional<Cliente> findById(UUID idCliente);
+
+  Page<Cliente> buscarClientePorCriterios(String cpf, String email, String nome, Pageable pageable);
+
 }

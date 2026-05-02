@@ -54,4 +54,10 @@ public class ClienteInfraRepository implements ClienteRepository {
   public Optional<Cliente> findById(UUID idCliente) {
     return clienteSpringDataJpaRepository.findById(idCliente);
   }
+
+  @Override
+  public Page<Cliente> buscarClientePorCriterios(String cpf, String email, String nome, Pageable pageable) {
+
+    return null;
+  }
 }
