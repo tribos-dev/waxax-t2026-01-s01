@@ -2,6 +2,7 @@ package br.com.wakax.wakax_ecommerce.cliente.application.api;
 
 import java.util.UUID;
 
+import br.com.wakax.wakax_ecommerce.cliente.application.api.request.ClienteBuscaRequest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.RestController;
@@ -79,5 +80,10 @@ public class ClienteController implements ClienteApi {
     ClienteResponse response = clienteService.inativarCliente(idCliente);
     log.info("[finish] ClienteController - inativarCliente");
     return response;
+  }
+
+  @Override
+  public PageResponse<ClienteListAllResponse> buscarClientePorCriterios(ClienteBuscaRequest filtro) {
+    return null;
   }
 }

@@ -4,6 +4,7 @@ import java.util.UUID;
 
 import javax.validation.Valid;
 
+import br.com.wakax.wakax_ecommerce.cliente.application.api.request.ClienteBuscaRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -44,4 +45,9 @@ public interface ClienteApi {
   @PatchMapping("/{idCliente}/inativar")
   @ResponseStatus(HttpStatus.OK)
   ClienteResponse inativarCliente(@PathVariable UUID idCliente);
+
+  @GetMapping("/busca")
+  @ResponseStatus(HttpStatus.OK)
+  PageResponse<ClienteListAllResponse> buscarClientePorCriterios(
+          @Valid ClienteBuscaRequest filtro);
 }
