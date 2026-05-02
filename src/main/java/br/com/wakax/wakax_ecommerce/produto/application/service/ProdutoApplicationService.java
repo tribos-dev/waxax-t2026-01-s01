@@ -2,20 +2,20 @@ package br.com.wakax.wakax_ecommerce.produto.application.service;
 
 import java.util.UUID;
 
-import br.com.wakax.wakax_ecommerce.produto.api.ProdutoStatusRequest;
-import br.com.wakax.wakax_ecommerce.produto.domain.StatusProduto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import br.com.wakax.wakax_ecommerce.produto.api.ProdutoStatusRequest;
 import br.com.wakax.wakax_ecommerce.produto.api.request.ProdutoRequest;
 import br.com.wakax.wakax_ecommerce.produto.api.response.ProdutoListResponse;
 import br.com.wakax.wakax_ecommerce.produto.api.response.ProdutoListagemResponse;
 import br.com.wakax.wakax_ecommerce.produto.api.response.ProdutoResponse;
 import br.com.wakax.wakax_ecommerce.produto.application.repository.ProdutoRepository;
 import br.com.wakax.wakax_ecommerce.produto.domain.Produto;
+import br.com.wakax.wakax_ecommerce.produto.domain.StatusProduto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 
@@ -56,10 +56,9 @@ public class ProdutoApplicationService implements ProdutoService {
   public void alteraStatusProduto(UUID idProduto, ProdutoStatusRequest statusRequest) {
     log.debug("[start] ProdutoApplicationService - alteraStatusProduto");
     Produto produto = produtoRepository.buscaProdutoPorId(idProduto);
-    produto.alteraStatus(StatusProduto.valueOf(statusRequest.getStatus()), statusRequest.getMotivo());
+    produto.alteraStatus(
+        StatusProduto.valueOf(statusRequest.getStatus()), statusRequest.getMotivo());
     produtoRepository.salva(produto);
     log.debug("[finish] ProdutoApplicationService - alteraStatusProduto");
-
-
   }
 }

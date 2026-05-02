@@ -19,6 +19,7 @@ import org.springframework.data.domain.*;
 
 import br.com.wakax.wakax_ecommerce.handler.APIException;
 import br.com.wakax.wakax_ecommerce.handler.ErrorCode;
+import br.com.wakax.wakax_ecommerce.produto.api.ProdutoStatusRequest;
 import br.com.wakax.wakax_ecommerce.produto.api.request.ProdutoRequest;
 import br.com.wakax.wakax_ecommerce.produto.api.response.ProdutoListResponse;
 import br.com.wakax.wakax_ecommerce.produto.api.response.ProdutoListagemResponse;
@@ -224,5 +225,85 @@ class ProdutoApplicationServiceTest {
     assertEquals("Produto Teste", response.getProdutos().get(0).getDescricao());
     assertEquals("Produto Teste 2", response.getProdutos().get(1).getDescricao());
     verify(produtoRepository, times(1)).listarTodosProdutosPaginado(paginaEsperada);
+  }
+
+  @Test
+  void deveAlterarStatusProdutoComSucesso() {
+    Produto produto = new Produto(produtoRequest);
+    produto.setId(produtoId);
+
+    ProdutoStatusRequest statusRequest =
+        ProdutoStatusRequest.builder().status("INATIVO").motivo("Fora de temporada").build();
+
+    when(produtoRepository.buscaProdutoPorId(produtoId)).thenReturn(produto);
+    when(produtoRepository.salva(any(Produto.class))).thenReturn(produto);
+
+    assertDoesNotThrow(
+        () -> produtoApplicationService.alteraStatusProduto(produtoId, statusRequest));
+
+    assertEquals(StatusProduto.INATIVO, produto.getStatus());
+    assertNotNull(produto.getDataAlteracaoStatus());
+    assertEquals("Fora de temporada", produto.getMotivoAlteracao());
+    verify(produtoRepository, times(1)).buscaProdutoPorId(produtoId);
+    verify(produtoRepository, times(1)).salva(any(Produto.class));
+  }
+
+  @Test
+  void deveAlterarStatusParaAtivoComSucesso() {
+    Produto produto = new Produto(produtoRequest);
+    produto.setId(produtoId);
+    produto.alteraStatus(StatusProduto.INATIVO, "Inativado anteriormente");
+
+    ProdutoStatusRequest statusRequest = ProdutoStatusRequest.builder().status("ATIVO").build();
+
+    when(produtoRepository.buscaProdutoPorId(produtoId)).thenReturn(produto);
+    when(produtoRepository.salva(any(Produto.class))).thenReturn(produto);
+
+    assertDoesNotThrow(
+        () -> produtoApplicationService.alteraStatusProduto(produtoId, statusRequest));
+
+    assertEquals(StatusProduto.ATIVO, produto.getStatus());
+    verify(produtoRepository, times(1)).buscaProdutoPorId(produtoId);
+    verify(produtoRepository, times(1)).salva(any(Produto.class));
+  }
+
+  @Test
+  void deveLancarExcecaoQuandoProdutoNaoEncontradoParaAlterarStatus() {
+    ProdutoStatusRequest statusRequest = ProdutoStatusRequest.builder().status("INATIVO").build();
+
+    when(produtoRepository.buscaProdutoPorId(produtoId))
+        .thenThrow(
+            new APIException(
+                org.springframework.http.HttpStatus.NOT_FOUND,
+                ErrorCode.PRODUTO_NAO_ENCONTRADO,
+                produtoId));
+
+    APIException exception =
+        assertThrows(
+            APIException.class,
+            () -> produtoApplicationService.alteraStatusProduto(produtoId, statusRequest));
+
+    assertEquals(ErrorCode.PRODUTO_NAO_ENCONTRADO, exception.getErrorCode());
+    verify(produtoRepository, times(1)).buscaProdutoPorId(produtoId);
+    verify(produtoRepository, never()).salva(any(Produto.class));
+  }
+
+  @Test
+  void deveAlterarStatusSemMotivo() {
+    Produto produto = new Produto(produtoRequest);
+    produto.setId(produtoId);
+
+    ProdutoStatusRequest statusRequest = ProdutoStatusRequest.builder().status("INATIVO").build();
+
+    when(produtoRepository.buscaProdutoPorId(produtoId)).thenReturn(produto);
+    when(produtoRepository.salva(any(Produto.class))).thenReturn(produto);
+
+    assertDoesNotThrow(
+        () -> produtoApplicationService.alteraStatusProduto(produtoId, statusRequest));
+
+    assertEquals(StatusProduto.INATIVO, produto.getStatus());
+    assertNull(produto.getMotivoAlteracao());
+    verify(produtoRepository, times(1)).buscaProdutoPorId(produtoId);
+    verify(produtoRepository, times(1)).salva(any(Produto.class));
   }
 }

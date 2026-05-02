@@ -27,6 +27,6 @@ public interface ProdutoAPI {
 
   @PatchMapping("/{idProduto}/status")
   @ResponseStatus(HttpStatus.NO_CONTENT)
-  void alteraStatusProduto(@PathVariable UUID idProduto, @RequestBody ProdutoStatusRequest statusRequest);
+  void alteraStatusProduto(
+      @PathVariable UUID idProduto, @RequestBody ProdutoStatusRequest statusRequest);
 }
-

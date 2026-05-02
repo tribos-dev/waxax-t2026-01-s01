@@ -20,8 +20,8 @@ public interface ProdutoJPARepository extends JpaRepository<Produto, UUID> {
   List<Produto> findAllComPrecos();
 
   @Query(
-      value = "SELECT DISTINCT p FROM Produto p LEFT JOIN FETCH p.precos",
-      countQuery = "SELECT COUNT(DISTINCT p) FROM Produto p")
+      value = "SELECT DISTINCT p FROM Produto p LEFT JOIN FETCH p.precos WHERE p.status = 'ATIVO'",
+      countQuery = "SELECT COUNT(DISTINCT p) FROM Produto p WHERE p.status = 'ATIVO'")
   Page<Produto> findAllComPrecosPaginado(Pageable pageable);
 
   boolean existsByDescricao(String descricao);
