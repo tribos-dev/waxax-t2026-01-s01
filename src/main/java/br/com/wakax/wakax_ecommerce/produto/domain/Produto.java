@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import javax.persistence.*;
@@ -88,30 +89,15 @@ public class Produto {
   }
 
   public void atualiza(ProdutoAtualizaRequest request) {
-    if (request.getDescricao() != null) {
-      this.descricao = request.getDescricao();
-    }
-    if (request.getPesoLiquido() != null) {
-      this.pesoLiquido = request.getPesoLiquido();
-    }
-    if (request.getPesoBruto() != null) {
-      this.pesoBruto = request.getPesoBruto();
-    }
-    if (request.getDescricaoComplementar() != null) {
-      this.descricaoComplementar = request.getDescricaoComplementar();
-    }
-    if (request.getGrupo() != null) {
-      this.grupo = request.getGrupo();
-    }
-    if (request.getUnidade() != null) {
-      this.unidade = request.getUnidade();
-    }
-    if (request.getEstoqueMinimo() != null) {
-      this.estoqueMinimo = request.getEstoqueMinimo();
-    }
-    if (request.getEstoqueMaximo() != null) {
-      this.estoqueMaximo = request.getEstoqueMaximo();
-    }
+    atualizaSeNaoNulo(request.getDescricao(), valor -> this.descricao = valor);
+    atualizaSeNaoNulo(request.getPesoLiquido(), valor -> this.pesoLiquido = valor);
+    atualizaSeNaoNulo(request.getPesoBruto(), valor -> this.pesoBruto = valor);
+    atualizaSeNaoNulo(
+        request.getDescricaoComplementar(), valor -> this.descricaoComplementar = valor);
+    atualizaSeNaoNulo(request.getGrupo(), valor -> this.grupo = valor);
+    atualizaSeNaoNulo(request.getUnidade(), valor -> this.unidade = valor);
+    atualizaSeNaoNulo(request.getEstoqueMinimo(), valor -> this.estoqueMinimo = valor);
+    atualizaSeNaoNulo(request.getEstoqueMaximo(), valor -> this.estoqueMaximo = valor);
     if (request.getPrecos() != null) {
       if (this.precos == null) {
         this.precos = new ArrayList<>();
@@ -121,7 +107,7 @@ public class Produto {
           .forEach(
               precoReq ->
                   this.precos.stream()
-                      .filter(p -> p.getTipo() == precoReq.getTipo())
+                      .filter(p -> p.getTipo().equals(precoReq.getTipo()))
                       .findFirst()
                       .ifPresentOrElse(
                           existente -> existente.setValor(precoReq.getValor()),
@@ -129,10 +115,18 @@ public class Produto {
                               this.precos.add(
                                   new Preco(precoReq.getTipo(), precoReq.getValor(), this))));
     }
-    if (this.pesoLiquido.compareTo(this.pesoBruto) > 0) {
+    if (this.pesoLiquido != null
+        && this.pesoBruto != null
+        && this.pesoLiquido.compareTo(this.pesoBruto) > 0) {
       throw new APIException(HttpStatus.BAD_REQUEST, ErrorCode.PESO_LIQUIDO_MAIOR_QUE_BRUTO);
     }
     this.dataDeAtualizacao = LocalDateTime.now();
+  }
+
+  private <T> void atualizaSeNaoNulo(T valor, Consumer<T> setter) {
+    if (valor != null) {
+      setter.accept(valor);
+    }
   }
 
   public BigDecimal getPrecoPadrao() {
