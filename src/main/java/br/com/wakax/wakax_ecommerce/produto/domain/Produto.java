@@ -107,6 +107,12 @@ public class Produto {
   }
 
   public void alteraStatus(StatusProduto novoStatus, String motivo) {
+    if (this.status == novoStatus) {
+      ErrorCode errorCode = novoStatus == StatusProduto.ATIVO
+              ? ErrorCode.PRODUTO_JA_ATIVO
+              : ErrorCode.PRODUTO_JA_INATIVO;
+      throw new APIException(HttpStatus.CONFLICT, errorCode);
+    }
     this.status = novoStatus;
     this.dataAlteracaoStatus = LocalDateTime.now();
     this.motivoAlteracao = motivo;

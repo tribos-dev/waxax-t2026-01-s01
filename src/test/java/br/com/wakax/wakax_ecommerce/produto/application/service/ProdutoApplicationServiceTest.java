@@ -19,7 +19,7 @@ import org.springframework.data.domain.*;
 
 import br.com.wakax.wakax_ecommerce.handler.APIException;
 import br.com.wakax.wakax_ecommerce.handler.ErrorCode;
-import br.com.wakax.wakax_ecommerce.produto.api.ProdutoStatusRequest;
+import br.com.wakax.wakax_ecommerce.produto.api.ProdutoAlteraStatusRequest;
 import br.com.wakax.wakax_ecommerce.produto.api.request.ProdutoRequest;
 import br.com.wakax.wakax_ecommerce.produto.api.response.ProdutoListResponse;
 import br.com.wakax.wakax_ecommerce.produto.api.response.ProdutoListagemResponse;
@@ -232,8 +232,8 @@ class ProdutoApplicationServiceTest {
     Produto produto = new Produto(produtoRequest);
     produto.setId(produtoId);
 
-    ProdutoStatusRequest statusRequest =
-        ProdutoStatusRequest.builder().status("INATIVO").motivo("Fora de temporada").build();
+    ProdutoAlteraStatusRequest statusRequest =
+        ProdutoAlteraStatusRequest.builder().status("INATIVO").motivo("Fora de temporada").build();
 
     when(produtoRepository.buscaProdutoPorId(produtoId)).thenReturn(produto);
     when(produtoRepository.salva(any(Produto.class))).thenReturn(produto);
@@ -254,7 +254,7 @@ class ProdutoApplicationServiceTest {
     produto.setId(produtoId);
     produto.alteraStatus(StatusProduto.INATIVO, "Inativado anteriormente");
 
-    ProdutoStatusRequest statusRequest = ProdutoStatusRequest.builder().status("ATIVO").build();
+    ProdutoAlteraStatusRequest statusRequest = ProdutoAlteraStatusRequest.builder().status("ATIVO").build();
 
     when(produtoRepository.buscaProdutoPorId(produtoId)).thenReturn(produto);
     when(produtoRepository.salva(any(Produto.class))).thenReturn(produto);
@@ -269,7 +269,7 @@ class ProdutoApplicationServiceTest {
 
   @Test
   void deveLancarExcecaoQuandoProdutoNaoEncontradoParaAlterarStatus() {
-    ProdutoStatusRequest statusRequest = ProdutoStatusRequest.builder().status("INATIVO").build();
+    ProdutoAlteraStatusRequest statusRequest = ProdutoAlteraStatusRequest.builder().status("INATIVO").build();
 
     when(produtoRepository.buscaProdutoPorId(produtoId))
         .thenThrow(
@@ -293,7 +293,7 @@ class ProdutoApplicationServiceTest {
     Produto produto = new Produto(produtoRequest);
     produto.setId(produtoId);
 
-    ProdutoStatusRequest statusRequest = ProdutoStatusRequest.builder().status("INATIVO").build();
+    ProdutoAlteraStatusRequest statusRequest = ProdutoAlteraStatusRequest.builder().status("INATIVO").build();
 
     when(produtoRepository.buscaProdutoPorId(produtoId)).thenReturn(produto);
     when(produtoRepository.salva(any(Produto.class))).thenReturn(produto);
