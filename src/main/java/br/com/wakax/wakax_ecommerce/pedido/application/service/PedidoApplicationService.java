@@ -109,18 +109,21 @@ public class PedidoApplicationService implements PedidoService {
   public List<ProdutoMaisVendidoResponse> geraRelatorioProdutosMaisVendidos(
       LocalDateTime dataInicio, LocalDateTime dataFim, Integer limite) {
     log.debug("[start] PedidoApplicationService - geraRelatorioProdutosMaisVendidos");
-    if (dataInicio == null || dataFim == null) {
-      throw new APIException(HttpStatus.BAD_REQUEST, ErrorCode.RELATORIO_DATA_OBRIGATORIA);
-    }
-    if (dataInicio.isAfter(dataFim)) {
-      throw new APIException(HttpStatus.BAD_REQUEST, ErrorCode.RELATORIO_DATA_INVALIDA);
-    }
+    validarDatas(dataInicio, dataFim);
     int limiteNormalizado = normalizarLimite(limite);
     Pageable pageable = PageRequest.of(0, limiteNormalizado);
     List<ProdutoMaisVendidoResponse> produtos =
         pedidoRepository.buscaProdutosMaisVendidos(dataInicio, dataFim, pageable);
     log.debug("[finish] PedidoApplicationService - geraRelatorioProdutosMaisVendidos");
     return produtos;
+  }
+  private void validarDatas(LocalDateTime dataInicio, LocalDateTime dataFim) {
+    if (dataInicio == null || dataFim == null) {
+      throw new APIException(HttpStatus.BAD_REQUEST, ErrorCode.RELATORIO_DATA_OBRIGATORIA);
+    }
+    if (dataInicio.isAfter(dataFim)) {
+      throw new APIException(HttpStatus.BAD_REQUEST, ErrorCode.RELATORIO_DATA_INVALIDA);
+    }
   }
 
   private int normalizarLimite(Integer limite) {
