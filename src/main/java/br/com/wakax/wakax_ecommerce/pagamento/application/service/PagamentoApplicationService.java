@@ -2,6 +2,8 @@ package br.com.wakax.wakax_ecommerce.pagamento.application.service;
 
 import java.util.UUID;
 
+import br.com.wakax.wakax_ecommerce.pagamento.application.api.request.EstornaPagamentoRequest;
+import br.com.wakax.wakax_ecommerce.pagamento.application.api.response.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -18,10 +20,6 @@ import br.com.wakax.wakax_ecommerce.handler.APIException;
 import br.com.wakax.wakax_ecommerce.handler.ErrorCode;
 import br.com.wakax.wakax_ecommerce.pagamento.application.api.request.CancelaPagamentoRequest;
 import br.com.wakax.wakax_ecommerce.pagamento.application.api.request.PagamentoRequest;
-import br.com.wakax.wakax_ecommerce.pagamento.application.api.response.PagamentoPageResponse;
-import br.com.wakax.wakax_ecommerce.pagamento.application.api.response.PagamentoPedidoResponse;
-import br.com.wakax.wakax_ecommerce.pagamento.application.api.response.PagamentoResponse;
-import br.com.wakax.wakax_ecommerce.pagamento.application.api.response.ReprocessarPagamentoResponse;
 import br.com.wakax.wakax_ecommerce.pagamento.application.factory.ProcessadorPagamentoFactory;
 import br.com.wakax.wakax_ecommerce.pagamento.application.repository.PagamentoRepository;
 import br.com.wakax.wakax_ecommerce.pagamento.domain.Pagamento;
@@ -181,5 +179,18 @@ public class PagamentoApplicationService implements PagamentoService {
     pagamentoRepository.salva(pagamento);
     log.debug("[finish] PagamentoApplicationService - reprocessaPagamento");
     return new ReprocessarPagamentoResponse(pagamento);
+  }
+
+  @Override
+  public EstornarPagamentoResponse estornaPagamento(UUID idPagamento, EstornaPagamentoRequest estornaPagamentoRequest) {
+    log.info("[start] PagamentoApplicationService - estornaPagamento");
+    Pagamento pagamento = pagamentoRepository.buscaPagamentoPorId(idPagamento);
+
+    pagamento.prepararEstorno(estornaPagamentoRequest);
+
+    pagamentoRepository.salva(pagamento);
+
+    log.debug("[finish] PagamentoApplicationService - estornaPagamento");
+    return new EstornarPagamentoResponse(pagamento);
   }
 }
