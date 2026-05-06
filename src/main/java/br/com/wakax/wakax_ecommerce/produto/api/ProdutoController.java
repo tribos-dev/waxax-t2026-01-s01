@@ -56,8 +56,8 @@ public class ProdutoController implements ProdutoAPI {
 
   @Override
   public void removerProduto(UUID idProduto) {
-    log.debug("[start] ProdutoController - inativaProduto");
+    log.debug("[start] ProdutoController - removerProduto");
     produtoService.removerProduto(idProduto);
-    log.debug("[finish] ProdutoController - inativaProduto");
+    log.debug("[finish] ProdutoController - removerProduto");
   }
 }

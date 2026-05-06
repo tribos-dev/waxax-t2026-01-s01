@@ -88,10 +88,10 @@ public class ProdutoApplicationService implements ProdutoService {
   @Override
   @Transactional
   public void removerProduto(UUID idProduto) {
-    log.debug("[start] ProdutoApplicationService - inativaProduto");
+    log.debug("[start] ProdutoApplicationService - removerProduto");
     Produto produto = produtoRepository.buscaProdutoPorId(idProduto);
     produto.inativa();
     produtoRepository.salva(produto);
-    log.debug("[finish] ProdutoApplicationService - inativaProduto");
+    log.debug("[finish] ProdutoApplicationService - removerProduto");
   }
 }
