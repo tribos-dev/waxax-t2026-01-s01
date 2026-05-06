@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 import br.com.wakax.wakax_ecommerce.estoque.api.request.AdicionaQuantidadeRequest;
 import br.com.wakax.wakax_ecommerce.estoque.api.request.EstoqueRequest;
+import br.com.wakax.wakax_ecommerce.estoque.api.request.RemoveEstoqueRequest;
 import br.com.wakax.wakax_ecommerce.estoque.api.response.EstoqueListagemResponse;
 import br.com.wakax.wakax_ecommerce.estoque.api.response.EstoqueResponse;
 
@@ -34,4 +35,9 @@ public interface EstoqueAPI {
   @ResponseStatus(HttpStatus.OK)
   EstoqueResponse adicionaQuantidade(
       @PathVariable UUID idProduto, @Valid @RequestBody AdicionaQuantidadeRequest request);
+
+  @PatchMapping("/produto/{idProduto}/remocao")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  void removeQuantidadeEstoque(
+      @PathVariable UUID idProduto, @Valid @RequestBody RemoveEstoqueRequest request);
 }

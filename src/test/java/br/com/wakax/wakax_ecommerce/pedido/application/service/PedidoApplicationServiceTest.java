@@ -28,6 +28,7 @@ import br.com.wakax.wakax_ecommerce.carrinho.domain.Carrinho;
 import br.com.wakax.wakax_ecommerce.carrinho.domain.ItemCarrinho;
 import br.com.wakax.wakax_ecommerce.cliente.application.service.ClienteService;
 import br.com.wakax.wakax_ecommerce.cliente.domain.Cliente;
+import br.com.wakax.wakax_ecommerce.estoque.application.service.EstoqueService;
 import br.com.wakax.wakax_ecommerce.handler.APIException;
 import br.com.wakax.wakax_ecommerce.handler.ErrorCode;
 import br.com.wakax.wakax_ecommerce.pedido.application.api.PedidoPageResponse;
@@ -40,7 +41,6 @@ import br.com.wakax.wakax_ecommerce.pedido.domain.Pedido;
 import br.com.wakax.wakax_ecommerce.pedido.domain.StatusPedido;
 import br.com.wakax.wakax_ecommerce.pessoa.domain.Endereco;
 import br.com.wakax.wakax_ecommerce.pessoa.domain.Pessoa;
-import br.com.wakax.wakax_ecommerce.pessoa.domain.StatusPessoa;
 import br.com.wakax.wakax_ecommerce.produto.domain.Preco;
 import br.com.wakax.wakax_ecommerce.produto.domain.Produto;
 
@@ -48,10 +48,9 @@ import br.com.wakax.wakax_ecommerce.produto.domain.Produto;
 class PedidoApplicationServiceTest {
 
   @Mock private PedidoRepository pedidoRepository;
-
   @Mock private CarrinhoRepository carrinhoRepository;
-
   @Mock private ClienteService clienteService;
+  @Mock private EstoqueService estoqueService;
 
   @InjectMocks private PedidoApplicationService applicationService;
 
@@ -68,7 +67,6 @@ class PedidoApplicationServiceTest {
     Cliente cliente = mock(Cliente.class);
     Pessoa pessoa = mock(Pessoa.class);
     Endereco endereco = mock(Endereco.class);
-
     Produto produto = mock(Produto.class);
     Preco preco = mock(Preco.class);
     ItemCarrinho itemCarrinho = mock(ItemCarrinho.class);
@@ -79,14 +77,11 @@ class PedidoApplicationServiceTest {
     when(pessoa.getNome()).thenReturn("Cliente Teste");
     when(pessoa.getEnderecos()).thenReturn(List.of(endereco));
     when(carrinho.getItensCarrinho()).thenReturn(List.of(itemCarrinho));
-
     when(itemCarrinho.getProduto()).thenReturn(produto);
     when(itemCarrinho.getQuantidade()).thenReturn(2);
     when(produto.getPrecos()).thenReturn(List.of(preco));
     when(preco.getValor()).thenReturn(new BigDecimal("50.00"));
-
     when(carrinhoRepository.buscaCarrinhoPorId(idCarrinho)).thenReturn(carrinho);
-
     when(pedidoRepository.salva(any(Pedido.class))).thenAnswer(inv -> inv.getArgument(0));
 
     PedidoResponse response = applicationService.cadastraPedido(request);
@@ -94,10 +89,9 @@ class PedidoApplicationServiceTest {
     assertNotNull(response);
     assertEquals(idCliente, response.getClienteId());
     assertEquals(new BigDecimal("100.00"), response.getValorTotal());
-
     verify(carrinhoRepository).buscaCarrinhoPorId(idCarrinho);
     verify(pedidoRepository).salva(any(Pedido.class));
-    verifyNoMoreInteractions(carrinhoRepository, pedidoRepository);
+    verify(carrinhoRepository).salva(carrinho);
   }
 
   @Test
@@ -149,7 +143,6 @@ class PedidoApplicationServiceTest {
     assertEquals(idPedido, response.getIdPedido());
     assertEquals(idCliente, response.getClienteId());
     assertEquals(new BigDecimal("10.00"), response.getValorTotal());
-
     verify(pedidoRepository, times(1)).buscaPedidoPorId(idPedido);
     verifyNoMoreInteractions(pedidoRepository);
     verifyNoInteractions(carrinhoRepository);
@@ -195,12 +188,10 @@ class PedidoApplicationServiceTest {
     when(pessoa.getNome()).thenReturn("Cliente Teste");
     when(pessoa.getEnderecos()).thenReturn(List.of(endereco));
     when(carrinho.getItensCarrinho()).thenReturn(List.of(itemCarrinho));
-
     when(itemCarrinho.getProduto()).thenReturn(produto);
     when(itemCarrinho.getQuantidade()).thenReturn(2);
     when(produto.getPrecos()).thenReturn(List.of(preco));
     when(preco.getValor()).thenReturn(new BigDecimal("50.00"));
-
     when(carrinhoRepository.buscaCarrinhoPorId(idCarrinho)).thenReturn(carrinho);
     when(pedidoRepository.salva(any(Pedido.class)))
         .thenAnswer(
@@ -218,10 +209,9 @@ class PedidoApplicationServiceTest {
     assertEquals(new BigDecimal("100.00"), resp.getValorTotal());
     assertEquals(FormaPagamento.CARTAO_CREDITO, resp.getFormaPagamento());
     assertNotNull(resp.getEnderecoEntrega());
-
     verify(carrinhoRepository, times(1)).buscaCarrinhoPorId(idCarrinho);
     verify(pedidoRepository, times(1)).salva(any(Pedido.class));
-    verifyNoMoreInteractions(carrinhoRepository, pedidoRepository);
+    verify(carrinhoRepository, times(1)).salva(carrinho);
   }
 
   @Test
@@ -279,7 +269,6 @@ class PedidoApplicationServiceTest {
     assertEquals(FormaPagamento.PIX, resp.getFormaPagamento());
     assertEquals(1, resp.getItensPedido().size());
     assertEquals(3, resp.getItensPedido().get(0).getQuantidade());
-
     verify(pedidoRepository, times(1)).buscaPedidoPorId(idPedido);
     verifyNoMoreInteractions(pedidoRepository);
     verifyNoInteractions(carrinhoRepository);
@@ -298,7 +287,6 @@ class PedidoApplicationServiceTest {
     APIException ex =
         assertThrows(APIException.class, () -> applicationService.buscaPedidoPorId(idPedido));
     assertEquals(ErrorCode.PEDIDO_NAO_ENCONTRADO, ex.getErrorCode());
-
     verify(pedidoRepository, times(1)).buscaPedidoPorId(idPedido);
     verifyNoMoreInteractions(pedidoRepository);
     verifyNoInteractions(carrinhoRepository);
@@ -307,26 +295,21 @@ class PedidoApplicationServiceTest {
   @Test
   void deveLancarExcecaoQuandoClienteEstiverInativo() {
     UUID idCarrinho = UUID.randomUUID();
-
     PedidoRequest request = mock(PedidoRequest.class);
     when(request.getIdCarrinho()).thenReturn(idCarrinho);
 
     Carrinho carrinho = mock(Carrinho.class);
     Cliente cliente = mock(Cliente.class);
-    Pessoa pessoa = mock(Pessoa.class);
-
     when(carrinho.getCliente()).thenReturn(cliente);
-    when(cliente.getPessoa()).thenReturn(pessoa);
-    when(pessoa.getStatus()).thenReturn(StatusPessoa.INATIVO);
-
     when(carrinhoRepository.buscaCarrinhoPorId(idCarrinho)).thenReturn(carrinho);
+    doThrow(new APIException(HttpStatus.FORBIDDEN, ErrorCode.CLIENTE_INATIVO))
+        .when(cliente)
+        .validaSeClienteEstaAtivo();
 
     APIException ex =
         assertThrows(APIException.class, () -> applicationService.cadastraPedido(request));
 
-    assertEquals(HttpStatus.CONFLICT, ex.getStatusException());
-    assertEquals("Cliente está inativo e não pode realizar pedidos", ex.getMessage());
-
+    assertEquals(HttpStatus.FORBIDDEN, ex.getStatusException());
     verify(pedidoRepository, never()).salva(any());
   }
 
@@ -385,7 +368,6 @@ class PedidoApplicationServiceTest {
     assertTrue(response.pedidos().isEmpty());
     assertEquals(0, response.totalPedidos());
     assertEquals(0, response.totalPaginas());
-
     verify(clienteService).buscaClienteEspecifico(idCliente);
     verify(pedidoRepository)
         .buscaPedidosDoClientePaginado(eq(idCliente), isNull(), any(Pageable.class));
@@ -453,7 +435,6 @@ class PedidoApplicationServiceTest {
     assertNotNull(response);
     assertEquals(1, response.totalPedidos());
     assertEquals(StatusPedido.PAGO, response.pedidos().get(0).status());
-
     verify(clienteService).buscaClienteEspecifico(idCliente);
     verify(pedidoRepository)
         .buscaPedidosDoClientePaginado(eq(idCliente), eq(statusFiltro), any(Pageable.class));

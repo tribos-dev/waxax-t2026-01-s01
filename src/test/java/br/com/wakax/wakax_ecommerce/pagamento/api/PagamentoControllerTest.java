@@ -147,4 +147,21 @@ class PagamentoControllerTest {
     assertNotNull(response);
     verify(pagamentoService).buscaPagamentoPorIdPedido(pedidoId);
   }
+
+  @Test
+  void deveReprocessarPagamentoComSucesso() {
+    var response =
+        mock(
+            br.com.wakax.wakax_ecommerce.pagamento.application.api.response
+                .ReprocessarPagamentoResponse.class);
+
+    when(pagamentoService.reprocessaPagamento(pagamentoId)).thenReturn(response);
+
+    var resultado = pagamentoController.reprocessaPagamento(pagamentoId);
+
+    assertNotNull(resultado);
+    assertEquals(response, resultado);
+
+    verify(pagamentoService).reprocessaPagamento(pagamentoId);
+  }
 }

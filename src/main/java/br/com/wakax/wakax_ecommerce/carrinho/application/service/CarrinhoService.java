@@ -13,4 +13,8 @@ public interface CarrinhoService {
   CarrinhoResponse buscaCarrinhoPorId(UUID idCliente, UUID idCarrinho);
 
   List<CarrinhosListAllResponse> buscarTodosOsCarrinhos(UUID idCliente);
+
+  void deletaItemDoCarrinho(String token, UUID idCarrinho, UUID idProduto);
+
+  void restaurarCarrinho(UUID id);
 }

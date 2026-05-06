@@ -11,9 +11,13 @@ import org.springframework.http.HttpStatus;
 import br.com.wakax.wakax_ecommerce.cliente.application.api.request.ClienteAtualizaRequest;
 import br.com.wakax.wakax_ecommerce.cliente.application.api.request.ClienteRequest;
 import br.com.wakax.wakax_ecommerce.handler.APIException;
+import br.com.wakax.wakax_ecommerce.handler.ErrorCode;
 import br.com.wakax.wakax_ecommerce.pessoa.domain.Pessoa;
 import br.com.wakax.wakax_ecommerce.pessoa.domain.StatusPessoa;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Data
@@ -29,6 +33,10 @@ public class Cliente {
   @NotNull
   private Pessoa pessoa;
 
+  @Enumerated(EnumType.STRING)
+  @Column(nullable = false)
+  private StatusCliente status;
+
   @Column(nullable = false, name = "data_criacao")
   @NotNull
   private LocalDateTime dataCriacao;
@@ -37,10 +45,13 @@ public class Cliente {
   @NotNull
   private LocalDateTime dataEdicao;
 
+  private LocalDateTime dataReativacao;
+
   @PrePersist
   protected void onCreate() {
     dataCriacao = LocalDateTime.now();
     dataEdicao = LocalDateTime.now();
+    this.status = StatusCliente.INATIVO;
   }
 
   @PreUpdate
@@ -67,5 +78,30 @@ public class Cliente {
   public void alterar(ClienteAtualizaRequest request) {
     this.pessoa.alterar(request);
     this.dataEdicao = LocalDateTime.now();
+  }
+
+  public void ativar() {
+    this.status = StatusCliente.ATIVO;
+    this.dataReativacao = LocalDateTime.now();
+    this.pessoa.ativar();
+  }
+
+  public boolean isAtivo() {
+    return StatusCliente.ATIVO.equals(this.status);
+  }
+
+  public void inativar() {
+    this.status = StatusCliente.INATIVO;
+    this.pessoa.inativar();
+  }
+
+  public boolean isInativo() {
+    return StatusCliente.INATIVO.equals(this.status);
+  }
+
+  public void validaSeClienteEstaAtivo() {
+    if (!this.isAtivo()) {
+      throw new APIException(HttpStatus.FORBIDDEN, ErrorCode.CLIENTE_INATIVO);
+    }
   }
 }

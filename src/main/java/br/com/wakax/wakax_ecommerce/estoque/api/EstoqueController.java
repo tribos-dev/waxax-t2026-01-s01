@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import br.com.wakax.wakax_ecommerce.estoque.api.request.AdicionaQuantidadeRequest;
 import br.com.wakax.wakax_ecommerce.estoque.api.request.EstoqueRequest;
+import br.com.wakax.wakax_ecommerce.estoque.api.request.RemoveEstoqueRequest;
 import br.com.wakax.wakax_ecommerce.estoque.api.response.EstoqueListagemResponse;
 import br.com.wakax.wakax_ecommerce.estoque.api.response.EstoqueResponse;
 import br.com.wakax.wakax_ecommerce.estoque.application.service.EstoqueService;
@@ -39,10 +40,10 @@ public class EstoqueController implements EstoqueAPI {
   @Override
   public ResponseEntity<EstoqueListagemResponse> listarTodoEstoque(
       Integer quantidadeMinima, Boolean apenasEmFalta) {
-    log.info("[start] EstoqueController - listarTodoEstoque");
+    log.debug("[start] EstoqueController - listarTodoEstoque");
     EstoqueListagemResponse response =
         estoqueService.listarTodoEstoque(quantidadeMinima, apenasEmFalta);
-    log.info("[finish] EstoqueController - listarTodoEstoque");
+    log.debug("[finish] EstoqueController - listarTodoEstoque");
     return ResponseEntity.ok(response);
   }
 
@@ -52,5 +53,12 @@ public class EstoqueController implements EstoqueAPI {
     EstoqueResponse estoqueResponse = estoqueService.adicionaQuantidade(idProduto, request);
     log.debug("[finish] EstoqueController - adicionaEstoque");
     return estoqueResponse;
+  }
+
+  @Override
+  public void removeQuantidadeEstoque(UUID idProduto, RemoveEstoqueRequest request) {
+    log.info("[start] EstoqueController - removeQuantidadeEstoque");
+    estoqueService.removeQuantidadeEstoque(idProduto, request);
+    log.debug("[finish] EstoqueController - removeQuantidadeEstoque");
   }
 }

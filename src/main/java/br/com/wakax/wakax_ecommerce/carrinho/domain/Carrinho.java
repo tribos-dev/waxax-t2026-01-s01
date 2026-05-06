@@ -27,6 +27,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Carrinho {
+
   @Id @GeneratedValue private UUID id;
 
   @ManyToOne(optional = false)
@@ -73,9 +74,42 @@ public class Carrinho {
     }
   }
 
+  public void removeItem(UUID idItem, String email) {
+
+    verificaSeCarrinhoPertenceAoUsuario(email);
+    verificaSeCarrinhoEstaAtivo();
+
+    ItemCarrinho item =
+        this.itensCarrinho.stream()
+            .filter(i -> i.getId().equals(idItem))
+            .findFirst()
+            .orElseThrow(
+                () ->
+                    new APIException(HttpStatus.NOT_FOUND, ErrorCode.ITEM_CARRINHO_NAO_ENCONTRADO));
+
+    this.itensCarrinho.remove(item);
+  }
+
   public BigDecimal calculaValorTotal() {
     return itensCarrinho.stream()
         .map(ItemCarrinho::getValorTotalDoItem)
         .reduce(BigDecimal.ZERO, BigDecimal::add);
+  }
+
+  public void finalizar() {
+    verificaSeCarrinhoEstaAtivo();
+    this.statusCarrinho = StatusCarrinho.FINALIZADO;
+  }
+
+  void verificaSeCarrinhoPertenceAoUsuario(String email) {
+    boolean pertenceAoUsuario = this.cliente.getPessoa().getEmails().contains(email);
+
+    if (!pertenceAoUsuario) {
+      throw new APIException(HttpStatus.BAD_REQUEST, ErrorCode.ITEM_CARRINHO_NAO_ENCONTRADO);
+    }
+  }
+
+  public void ativar() {
+    this.statusCarrinho = StatusCarrinho.ATIVO;
   }
 }

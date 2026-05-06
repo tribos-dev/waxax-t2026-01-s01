@@ -8,6 +8,7 @@ import javax.validation.constraints.Size;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import br.com.wakax.wakax_ecommerce.cliente.application.api.request.ClienteEnderecoRequest;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -57,4 +58,15 @@ public class Endereco {
   @ManyToOne(optional = false, fetch = FetchType.LAZY)
   @JoinColumn(name = "pessoa_id", nullable = false)
   private Pessoa pessoa;
+
+  public Endereco(ClienteEnderecoRequest request) {
+    this.logradouro = request.getLogradouro();
+    this.numero = request.getNumero();
+    this.complemento = request.getComplemento();
+    this.bairro = request.getBairro();
+    this.cidade = request.getCidade();
+    this.estado = request.getEstado();
+    this.cep = request.getCep();
+    this.principal = request.isPrincipal();
+  }
 }

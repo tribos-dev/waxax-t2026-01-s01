@@ -9,12 +9,14 @@ import org.springframework.transaction.annotation.Transactional;
 
 import br.com.wakax.wakax_ecommerce.estoque.api.request.AdicionaQuantidadeRequest;
 import br.com.wakax.wakax_ecommerce.estoque.api.request.EstoqueRequest;
+import br.com.wakax.wakax_ecommerce.estoque.api.request.RemoveEstoqueRequest;
 import br.com.wakax.wakax_ecommerce.estoque.api.response.EstoqueListagemResponse;
 import br.com.wakax.wakax_ecommerce.estoque.api.response.EstoqueResponse;
 import br.com.wakax.wakax_ecommerce.estoque.application.repository.EstoqueRepository;
 import br.com.wakax.wakax_ecommerce.estoque.domain.Estoque;
 import br.com.wakax.wakax_ecommerce.handler.APIException;
 import br.com.wakax.wakax_ecommerce.handler.ErrorCode;
+import br.com.wakax.wakax_ecommerce.pedido.domain.ItemPedido;
 import br.com.wakax.wakax_ecommerce.produto.application.repository.ProdutoRepository;
 import br.com.wakax.wakax_ecommerce.produto.domain.Produto;
 import lombok.RequiredArgsConstructor;
@@ -86,6 +88,19 @@ public class EstoqueApplicationService implements EstoqueService {
   }
 
   @Override
+  @Transactional
+  public void liberaReservaDePedido(List<ItemPedido> itensPedido) {
+    log.debug("[start] EstoqueApplicationService - liberaReservaDePedido");
+    itensPedido.forEach(
+        item -> {
+          Estoque estoque = buscaEstoqueExistente(item.getProduto().getId());
+          estoque.liberaReserva(item.getQuantidade());
+          estoqueRepository.salva(estoque);
+        });
+    log.debug("[finish] EstoqueApplicationService - liberaReservaDePedido");
+  }
+
+  @Override
   @Transactional(readOnly = true)
   public EstoqueListagemResponse listarTodoEstoque(
       Integer quantidadeMinima, Boolean apenasEmFalta) {
@@ -104,6 +119,16 @@ public class EstoqueApplicationService implements EstoqueService {
     estoqueRepository.salva(estoque);
     log.info("[finish] EstoqueApplicationService - adicionaEstoque");
     return new EstoqueResponse(estoque);
+  }
+
+  @Override
+  @Transactional
+  public void removeQuantidadeEstoque(UUID idProduto, RemoveEstoqueRequest request) {
+    log.info("[start] EstoqueApplicationService - removeQuantidadeEstoque");
+    Estoque estoque = buscaEstoqueExistente(idProduto);
+    estoque.removeQuantidade(request.quantidade());
+    estoqueRepository.salva(estoque);
+    log.debug("[finish] EstoqueApplicationService - removeQuantidadeEstoque");
   }
 
   private void validaSeJaExisteEstoque(UUID idProduto) {

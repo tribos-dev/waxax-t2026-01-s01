@@ -11,19 +11,26 @@ import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.stubbing.Answer;
 import org.springframework.data.domain.*;
 
+import br.com.wakax.wakax_ecommerce.auth.usuario.domain.Usuario;
 import br.com.wakax.wakax_ecommerce.handler.APIException;
 import br.com.wakax.wakax_ecommerce.handler.ErrorCode;
+import br.com.wakax.wakax_ecommerce.produto.api.request.ProdutoAtualizaRequest;
 import br.com.wakax.wakax_ecommerce.produto.api.request.ProdutoRequest;
+import br.com.wakax.wakax_ecommerce.produto.api.response.ProdutoAtualizaResponse;
 import br.com.wakax.wakax_ecommerce.produto.api.response.ProdutoListResponse;
 import br.com.wakax.wakax_ecommerce.produto.api.response.ProdutoListagemResponse;
 import br.com.wakax.wakax_ecommerce.produto.api.response.ProdutoResponse;
+import br.com.wakax.wakax_ecommerce.produto.application.repository.HistoricoAtualizacaoProdutoRepository;
 import br.com.wakax.wakax_ecommerce.produto.application.repository.ProdutoRepository;
+import br.com.wakax.wakax_ecommerce.produto.domain.HistoricoAtualizacaoProduto;
 import br.com.wakax.wakax_ecommerce.produto.domain.Produto;
 import br.com.wakax.wakax_ecommerce.produto.domain.StatusProduto;
 
@@ -31,6 +38,8 @@ import br.com.wakax.wakax_ecommerce.produto.domain.StatusProduto;
 class ProdutoApplicationServiceTest {
 
   @Mock private ProdutoRepository produtoRepository;
+
+  @Mock private HistoricoAtualizacaoProdutoRepository historicoAtualizacaoProdutoRepository;
 
   @InjectMocks private ProdutoApplicationService produtoApplicationService;
 
@@ -224,5 +233,85 @@ class ProdutoApplicationServiceTest {
     assertEquals("Produto Teste", response.getProdutos().get(0).getDescricao());
     assertEquals("Produto Teste 2", response.getProdutos().get(1).getDescricao());
     verify(produtoRepository, times(1)).listarTodosProdutosPaginado(paginaEsperada);
+  }
+
+  @Test
+  void deveAtualizarProdutoComSucesso() {
+    Produto produtoExistente = new Produto(produtoRequest);
+    produtoExistente.setId(produtoId);
+    Usuario usuarioLogado = mock(Usuario.class);
+
+    when(produtoRepository.buscaProdutoPorId(produtoId)).thenReturn(produtoExistente);
+
+    ProdutoApplicationService spyService = Mockito.spy(produtoApplicationService);
+    doReturn(usuarioLogado).when(spyService).buscaUsuarioLogado();
+
+    ProdutoAtualizaRequest atualizaRequest =
+        new ProdutoAtualizaRequest(
+            "Nova descrição", null, null, null, null, null, null, null, null);
+
+    ProdutoAtualizaResponse response = spyService.atualizaProduto(produtoId, atualizaRequest);
+
+    assertNotNull(response);
+    assertEquals(produtoId, response.getIdProduto());
+    assertEquals("Nova descrição", response.getDescricao());
+    assertNotNull(response.getDataDeAtualizacao());
+    verify(produtoRepository, times(1)).buscaProdutoPorId(produtoId);
+    verify(produtoRepository, times(1)).salva(produtoExistente);
+  }
+
+  @Test
+  void deveLancarExcecaoQuandoAtualizarProdutoNaoEncontrado() {
+    when(produtoRepository.buscaProdutoPorId(produtoId))
+        .thenThrow(
+            new APIException(
+                org.springframework.http.HttpStatus.NOT_FOUND,
+                ErrorCode.PRODUTO_NAO_ENCONTRADO,
+                produtoId));
+
+    ProdutoAtualizaRequest atualizaRequest =
+        new ProdutoAtualizaRequest(
+            "Nova descrição", null, null, null, null, null, null, null, null);
+
+    APIException exception =
+        assertThrows(
+            APIException.class,
+            () -> {
+              produtoApplicationService.atualizaProduto(produtoId, atualizaRequest);
+            });
+
+    assertEquals(ErrorCode.PRODUTO_NAO_ENCONTRADO, exception.getErrorCode());
+    assertEquals(produtoId, exception.getArgs()[0]);
+    verify(produtoRepository, times(1)).buscaProdutoPorId(produtoId);
+    verify(produtoRepository, never()).salva(any(Produto.class));
+    verify(historicoAtualizacaoProdutoRepository, never())
+        .salva(any(HistoricoAtualizacaoProduto.class));
+  }
+
+  @Test
+  void deveSalvarHistoricoAoAtualizarProduto() {
+    Produto produtoExistente = new Produto(produtoRequest);
+    produtoExistente.setId(produtoId);
+    Usuario usuarioLogado = mock(Usuario.class);
+
+    when(produtoRepository.buscaProdutoPorId(produtoId)).thenReturn(produtoExistente);
+
+    ProdutoApplicationService spyService = Mockito.spy(produtoApplicationService);
+    doReturn(usuarioLogado).when(spyService).buscaUsuarioLogado();
+
+    ProdutoAtualizaRequest atualizaRequest =
+        new ProdutoAtualizaRequest(
+            "Nova descrição", null, null, null, null, null, null, null, null);
+
+    spyService.atualizaProduto(produtoId, atualizaRequest);
+
+    ArgumentCaptor<HistoricoAtualizacaoProduto> historicoCaptor =
+        ArgumentCaptor.forClass(HistoricoAtualizacaoProduto.class);
+    verify(historicoAtualizacaoProdutoRepository, times(1)).salva(historicoCaptor.capture());
+
+    HistoricoAtualizacaoProduto historicoSalvo = historicoCaptor.getValue();
+    assertEquals(produtoExistente, historicoSalvo.getProduto());
+    assertEquals(usuarioLogado, historicoSalvo.getUsuario());
+    assertNotNull(historicoSalvo.getDataHora());
   }
 }

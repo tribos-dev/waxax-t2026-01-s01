@@ -12,6 +12,7 @@ import br.com.wakax.wakax_ecommerce.pagamento.application.api.request.PagamentoR
 import br.com.wakax.wakax_ecommerce.pagamento.application.api.response.PagamentoPageResponse;
 import br.com.wakax.wakax_ecommerce.pagamento.application.api.response.PagamentoPedidoResponse;
 import br.com.wakax.wakax_ecommerce.pagamento.application.api.response.PagamentoResponse;
+import br.com.wakax.wakax_ecommerce.pagamento.application.api.response.ReprocessarPagamentoResponse;
 import br.com.wakax.wakax_ecommerce.pagamento.domain.StatusPagamento;
 
 @RestController
@@ -39,4 +40,11 @@ public interface PagamentoAPI {
   void cancelaPagamento(
       @PathVariable UUID idPagamento,
       @Valid @RequestBody CancelaPagamentoRequest cancelaPagamentoRequest);
+
+  @PutMapping("/{idPagamento}/reprocessar")
+  @ResponseStatus(HttpStatus.OK)
+  ReprocessarPagamentoResponse reprocessaPagamento(@PathVariable UUID idPagamento);
+
+  @PostMapping("/{idPagamento}/confirmar")
+  PagamentoResponse confirmarPagamento(@PathVariable UUID idPagamento);
 }

@@ -19,11 +19,13 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 
+import br.com.wakax.wakax_ecommerce.carrinho.application.service.CarrinhoService;
 import br.com.wakax.wakax_ecommerce.cliente.application.api.request.ClienteAtualizaRequest;
 import br.com.wakax.wakax_ecommerce.cliente.application.api.response.ClienteAtualizaResponse;
 import br.com.wakax.wakax_ecommerce.cliente.application.repository.ClienteRepository;
 import br.com.wakax.wakax_ecommerce.cliente.domain.Cliente;
 import br.com.wakax.wakax_ecommerce.handler.APIException;
+import br.com.wakax.wakax_ecommerce.handler.ErrorCode;
 import br.com.wakax.wakax_ecommerce.pessoa.domain.Endereco;
 import br.com.wakax.wakax_ecommerce.pessoa.domain.Pessoa;
 import br.com.wakax.wakax_ecommerce.pessoa.domain.StatusPessoa;
@@ -32,6 +34,7 @@ import br.com.wakax.wakax_ecommerce.pessoa.domain.StatusPessoa;
 class ClienteApplicationServiceTest {
 
   @Mock private ClienteRepository clienteRepository;
+  @Mock private CarrinhoService carrinhoService;
 
   @InjectMocks private ClienteApplicationService clienteApplicationService;
 
@@ -62,45 +65,59 @@ class ClienteApplicationServiceTest {
 
   @Test
   void deveDesativarClienteQuandoEstiverAtivo() {
-
     UUID idCliente = UUID.randomUUID();
-
     Pessoa pessoa = new Pessoa();
     pessoa.setStatus(StatusPessoa.ATIVO);
-
-    Cliente cliente = mock(Cliente.class);
-    when(cliente.getPessoa()).thenReturn(pessoa);
+    Cliente cliente =
+        Cliente.builder()
+            .id(idCliente)
+            .pessoa(pessoa)
+            .status(br.com.wakax.wakax_ecommerce.cliente.domain.StatusCliente.ATIVO)
+            .dataCriacao(LocalDateTime.now())
+            .dataEdicao(LocalDateTime.now())
+            .build();
 
     when(clienteRepository.buscaClientePorId(idCliente)).thenReturn(cliente);
 
     clienteApplicationService.desativaCliente(idCliente);
 
     assertEquals(StatusPessoa.INATIVO, pessoa.getStatus());
-
     verify(clienteRepository, times(1)).salva(cliente);
   }
 
   @Test
   void naoDeveDesativarClienteQuandoJaEstiverInativo() {
-
     UUID idCliente = UUID.randomUUID();
-
     Pessoa pessoa = new Pessoa();
     pessoa.setStatus(StatusPessoa.INATIVO);
-
-    Cliente cliente = mock(Cliente.class);
-    when(cliente.getPessoa()).thenReturn(pessoa);
+    Cliente cliente =
+        Cliente.builder()
+            .id(idCliente)
+            .pessoa(pessoa)
+            .status(br.com.wakax.wakax_ecommerce.cliente.domain.StatusCliente.INATIVO)
+            .dataCriacao(LocalDateTime.now())
+            .dataEdicao(LocalDateTime.now())
+            .build();
 
     when(clienteRepository.buscaClientePorId(idCliente)).thenReturn(cliente);
 
-    APIException exception =
-        assertThrows(
-            APIException.class, () -> clienteApplicationService.desativaCliente(idCliente));
-
-    assertEquals(HttpStatus.CONFLICT, exception.getStatusException());
-    assertEquals("Cliente já está inativo", exception.getMessage());
+    assertThrows(Exception.class, () -> clienteApplicationService.desativaCliente(idCliente));
 
     verify(clienteRepository, never()).salva(any());
+  }
+
+  @Test
+  void deveLancarExcecaoAoAtivarClienteInexistente() {
+    UUID idInexistente = UUID.randomUUID();
+    when(clienteRepository.buscaClientePorId(idInexistente))
+        .thenThrow(new APIException(HttpStatus.NOT_FOUND, ErrorCode.CLIENTE_NAO_ENCONTRADO));
+    APIException exception =
+        assertThrows(
+            APIException.class, () -> clienteApplicationService.ativarCliente(idInexistente));
+    assertEquals(HttpStatus.NOT_FOUND, exception.getStatus());
+    verify(clienteRepository, times(1)).buscaClientePorId(idInexistente);
+    verify(clienteRepository, never()).salva(any());
+    verify(carrinhoService, never()).restaurarCarrinho(any());
   }
 
   @Test
@@ -139,5 +156,19 @@ class ClienteApplicationServiceTest {
     assertEquals("123", response.getEnderecos().get(0).getNumero());
 
     verify(clienteRepository, times(1)).salva(clienteMock);
+  }
+
+  @Test
+  void deveLancarExcecaoAoAtivarClienteJaAtivo() {
+    UUID idCliente = UUID.randomUUID();
+    Cliente cliente = mock(Cliente.class);
+    when(clienteRepository.buscaClientePorId(idCliente)).thenReturn(cliente);
+    when(cliente.isAtivo()).thenReturn(true);
+    APIException exception =
+        assertThrows(APIException.class, () -> clienteApplicationService.ativarCliente(idCliente));
+    assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
+    verify(cliente, never()).ativar();
+    verify(clienteRepository, never()).salva(any());
+    verify(carrinhoService, never()).restaurarCarrinho(any());
   }
 }

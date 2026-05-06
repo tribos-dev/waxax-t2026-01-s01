@@ -9,22 +9,21 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import br.com.wakax.wakax_ecommerce.carrinho.application.repository.CarrinhoRepository;
 import br.com.wakax.wakax_ecommerce.carrinho.domain.Carrinho;
 import br.com.wakax.wakax_ecommerce.cliente.application.service.ClienteService;
 import br.com.wakax.wakax_ecommerce.cliente.domain.Cliente;
-import br.com.wakax.wakax_ecommerce.handler.APIException;
+import br.com.wakax.wakax_ecommerce.estoque.application.service.EstoqueService;
 import br.com.wakax.wakax_ecommerce.pedido.application.api.PedidoListResponse;
 import br.com.wakax.wakax_ecommerce.pedido.application.api.PedidoPageResponse;
 import br.com.wakax.wakax_ecommerce.pedido.application.api.request.PedidoRequest;
+import br.com.wakax.wakax_ecommerce.pedido.application.api.request.StatusPedidoRequest;
 import br.com.wakax.wakax_ecommerce.pedido.application.api.response.PedidoResponse;
 import br.com.wakax.wakax_ecommerce.pedido.application.repository.PedidoRepository;
 import br.com.wakax.wakax_ecommerce.pedido.domain.Pedido;
 import br.com.wakax.wakax_ecommerce.pedido.domain.StatusPedido;
-import br.com.wakax.wakax_ecommerce.pessoa.domain.StatusPessoa;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 
@@ -36,6 +35,7 @@ public class PedidoApplicationService implements PedidoService {
   private final PedidoRepository pedidoRepository;
   private final CarrinhoRepository carrinhoRepository;
   private final ClienteService clienteService;
+  private final EstoqueService estoqueService;
 
   @Override
   @Transactional
@@ -43,12 +43,12 @@ public class PedidoApplicationService implements PedidoService {
     log.info("[start] PedidoApplicationService - cadastraPedido");
     Carrinho carrinho = carrinhoRepository.buscaCarrinhoPorId(request.getIdCarrinho());
     Cliente cliente = carrinho.getCliente();
-    if (cliente.getPessoa().getStatus() == StatusPessoa.INATIVO) {
-      throw APIException.build(
-          HttpStatus.CONFLICT, "Cliente está inativo e não pode realizar pedidos");
-    }
+    cliente.validaSeClienteEstaAtivo();
     Pedido pedido = new Pedido(request, carrinho);
     pedidoRepository.salva(pedido);
+    carrinho.finalizar();
+    carrinhoRepository.salva(carrinho);
+    log.info("[pedido] Pedido criado e carrinho finalizado: {}", carrinho.getId());
     log.debug("[finish] PedidoApplicationService - cadastraPedido");
     return new PedidoResponse(pedido);
   }
@@ -73,5 +73,30 @@ public class PedidoApplicationService implements PedidoService {
         pedidosPaginados.getContent().stream().map(PedidoListResponse::new).toList();
     log.debug("[finish] PedidoApplicationService - buscaPedidosDoCliente");
     return new PedidoPageResponse(idCliente, pedidoList, pedidosPaginados.getTotalPages());
+  }
+
+  @Override
+  @Transactional
+  public void atualizaStatusPedido(UUID idPedido, StatusPedidoRequest statusPedidoRequest) {
+    log.debug("[start] PedidoApplicationService - atualizaStatusPedido");
+    Pedido pedido = pedidoRepository.buscaPedidoPorId(idPedido);
+    StatusPedido statusAnterior = pedido.getStatus();
+    StatusPedido novoStatus = statusPedidoRequest.getNovoStatus();
+    pedido.atualizarStatus(novoStatus);
+    processaAcoesDeStatus(pedido, statusAnterior, novoStatus);
+    pedidoRepository.salva(pedido);
+    log.debug("[finish] PedidoApplicationService - atualizaStatusPedido");
+  }
+
+  private void processaAcoesDeStatus(
+      Pedido pedido, StatusPedido statusAnterior, StatusPedido novoStatus) {
+    if (novoStatus == StatusPedido.CANCELADO && statusAnterior != StatusPedido.CANCELADO) {
+      liberaReservaDeProdutoNoEstoque(pedido);
+    }
+  }
+
+  private void liberaReservaDeProdutoNoEstoque(Pedido pedido) {
+    log.debug("[estoque] Iniciando liberação de estoque para o pedido: {}", pedido.getId());
+    estoqueService.liberaReservaDePedido(pedido.getItensPedido());
   }
 }

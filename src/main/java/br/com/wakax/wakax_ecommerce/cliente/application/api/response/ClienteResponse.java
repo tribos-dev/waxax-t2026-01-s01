@@ -1,5 +1,6 @@
 package br.com.wakax.wakax_ecommerce.cliente.application.api.response;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 import br.com.wakax.wakax_ecommerce.cliente.domain.Cliente;
@@ -13,10 +14,14 @@ public class ClienteResponse {
   private UUID id;
   private String nome;
   private StatusPessoa statusPessoa;
+  private LocalDateTime dataCriacao;
+  private LocalDateTime dataReativacao;
 
   public ClienteResponse(Cliente cliente) {
     this.id = cliente.getId();
     this.nome = cliente.getPessoa().getNome();
     this.statusPessoa = cliente.getPessoa().getStatus();
+    this.dataCriacao = cliente.getDataCriacao();
+    this.dataReativacao = cliente.getDataReativacao();
   }
 }

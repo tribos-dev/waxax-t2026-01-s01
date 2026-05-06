@@ -9,6 +9,7 @@ import br.com.wakax.wakax_ecommerce.pagamento.application.api.request.PagamentoR
 import br.com.wakax.wakax_ecommerce.pagamento.application.api.response.PagamentoPageResponse;
 import br.com.wakax.wakax_ecommerce.pagamento.application.api.response.PagamentoPedidoResponse;
 import br.com.wakax.wakax_ecommerce.pagamento.application.api.response.PagamentoResponse;
+import br.com.wakax.wakax_ecommerce.pagamento.application.api.response.ReprocessarPagamentoResponse;
 import br.com.wakax.wakax_ecommerce.pagamento.application.service.PagamentoService;
 import br.com.wakax.wakax_ecommerce.pagamento.domain.StatusPagamento;
 import lombok.RequiredArgsConstructor;
@@ -60,5 +61,21 @@ public class PagamentoController implements PagamentoAPI {
     log.info("[start] PagamentoController - cancelaPagamento");
     pagamentoService.cancelaPagamento(idPagamento, cancelaPagamentoRequest);
     log.info("[finish] PagamentoController - cancelaPagamento");
+  }
+
+  @Override
+  public ReprocessarPagamentoResponse reprocessaPagamento(UUID idPagamento) {
+    log.info("[start] PagamentoController - reprocessaPagamento");
+    ReprocessarPagamentoResponse response = pagamentoService.reprocessaPagamento(idPagamento);
+    log.debug("[finish] PagamentoController - reprocessaPagamento");
+    return response;
+  }
+
+  @Override
+  public PagamentoResponse confirmarPagamento(UUID idPagamento) {
+    log.debug("[start] PagamentoController - confirmarPagamento");
+    PagamentoResponse response = pagamentoService.confirmarPagamento(idPagamento);
+    log.debug("[finish] PagamentoController - confirmarPagamento");
+    return response;
   }
 }

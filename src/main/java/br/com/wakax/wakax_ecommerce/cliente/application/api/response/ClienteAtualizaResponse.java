@@ -17,11 +17,16 @@ public class ClienteAtualizaResponse {
   private LocalDateTime dataAtualizacao;
 
   public ClienteAtualizaResponse(Cliente cliente) {
+
     this.nome = cliente.getPessoa().getNome();
-    this.emails = cliente.getPessoa().getEmails();
-    this.telefones = cliente.getPessoa().getTelefones();
+
+    this.emails = cliente.getPessoa().getEmails().stream().map(e -> e.toString()).toList();
+
+    this.telefones = cliente.getPessoa().getTelefones().stream().map(t -> t.toString()).toList();
+
     this.enderecos =
         cliente.getPessoa().getEnderecos().stream().map(EnderecoClienteResponse::new).toList();
+
     this.status = cliente.getPessoa().getStatus();
     this.dataAtualizacao = cliente.getDataEdicao();
   }

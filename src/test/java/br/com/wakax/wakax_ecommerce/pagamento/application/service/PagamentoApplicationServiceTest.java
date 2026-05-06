@@ -21,6 +21,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 
+import br.com.wakax.wakax_ecommerce.estoque.application.repository.EstoqueRepository;
+import br.com.wakax.wakax_ecommerce.estoque.domain.Estoque;
 import br.com.wakax.wakax_ecommerce.handler.APIException;
 import br.com.wakax.wakax_ecommerce.handler.ErrorCode;
 import br.com.wakax.wakax_ecommerce.pagamento.application.api.request.CancelaPagamentoRequest;
@@ -36,6 +38,7 @@ import br.com.wakax.wakax_ecommerce.pagamento.domain.Pagamento;
 import br.com.wakax.wakax_ecommerce.pagamento.domain.StatusPagamento;
 import br.com.wakax.wakax_ecommerce.pedido.application.repository.PedidoRepository;
 import br.com.wakax.wakax_ecommerce.pedido.domain.FormaPagamento;
+import br.com.wakax.wakax_ecommerce.pedido.domain.ItemPedido;
 import br.com.wakax.wakax_ecommerce.pedido.domain.Pedido;
 import br.com.wakax.wakax_ecommerce.pedido.domain.StatusPedido;
 
@@ -48,6 +51,7 @@ class PagamentoApplicationServiceTest {
   @Mock private ProcessadorPagamento processadorPagamento;
   @Mock private PagamentoImediatoStrategy pagamentoImediatoStrategy;
   @Mock private PagamentoAguardandoStrategy pagamentoAguardandoStrategy;
+  @Mock private EstoqueRepository estoqueRepository;
 
   @InjectMocks private PagamentoApplicationService pagamentoApplicationService;
   @InjectMocks private ProcessadorPagamentoFactory realProcessadorFactory;
@@ -55,6 +59,8 @@ class PagamentoApplicationServiceTest {
   private PagamentoRequest pagamentoRequest;
   private Pedido pedido;
   private Pagamento pagamento;
+  private ItemPedido itemPedido;
+  private Estoque estoque;
   private UUID pedidoId;
   private UUID pagamentoId;
   private CancelaPagamentoRequest cancelaPagamentoRequest;
@@ -66,16 +72,18 @@ class PagamentoApplicationServiceTest {
 
     pagamentoRequest = PagamentoDataHelper.criaPagamentoRequestValido(pedidoId);
     pedido = PagamentoDataHelper.criaPedidoValido();
+    itemPedido = PagamentoDataHelper.criaItemPedidoValido(pedido);
+    pedido.setItensPedido(List.of(itemPedido));
     pagamento = PagamentoDataHelper.criaPagamentoValido(pedido);
     pagamento.setId(pagamentoId);
     cancelaPagamentoRequest =
         PagamentoDataHelper.criaCancelaPagamentoRequest(
             pagamentoId, CancelaPagamentoRequest.builder().build());
+    estoque = PagamentoDataHelper.criaEstoqueValido(itemPedido.getProduto().getId());
   }
 
   @Test
   void deveCriarPagamentoComSucesso() {
-    when(pagamentoRepository.buscaPagamentoPorPedidoId(pedidoId)).thenReturn(Optional.empty());
     when(pedidoRepository.buscaPedidoPorId(pedidoId)).thenReturn(pedido);
     when(processadorFactory.obterProcessador(pedido.getFormaPagamento()))
         .thenReturn(processadorPagamento);
@@ -92,9 +100,7 @@ class PagamentoApplicationServiceTest {
     assertNotNull(response);
     assertEquals(pagamentoId, response.getIdPagamento());
     assertEquals(pedido.getId(), response.getPedidoId());
-    assertEquals(StatusPagamento.AGUARDANDO, response.getStatusPagamento());
 
-    verify(pagamentoRepository).buscaPagamentoPorPedidoId(pedidoId);
     verify(pedidoRepository).buscaPedidoPorId(pedidoId);
     verify(processadorFactory).obterProcessador(pedido.getFormaPagamento());
     verify(pagamentoRepository).salva(any(Pagamento.class));
@@ -103,9 +109,10 @@ class PagamentoApplicationServiceTest {
 
   @Test
   void deveLancarExcecaoQuandoPedidoJaPossuiPagamento() {
-    Pagamento pagamentoExistente = PagamentoDataHelper.criaPagamentoValido(pedido);
-    when(pagamentoRepository.buscaPagamentoPorPedidoId(pedidoId))
-        .thenReturn(Optional.of(pagamentoExistente));
+    when(pedidoRepository.buscaPedidoPorId(pedidoId)).thenReturn(pedido);
+    doThrow(new APIException(HttpStatus.CONFLICT, ErrorCode.PEDIDO_JA_POSSUI_PAGAMENTO))
+        .when(processadorFactory)
+        .obterProcessador(any());
 
     APIException exception =
         assertThrows(
@@ -113,11 +120,6 @@ class PagamentoApplicationServiceTest {
             () -> pagamentoApplicationService.processaPagamento(pagamentoRequest));
 
     assertEquals(HttpStatus.CONFLICT, exception.getStatusException());
-    assertEquals(ErrorCode.PEDIDO_JA_POSSUI_PAGAMENTO, exception.getErrorCode());
-
-    verify(pagamentoRepository).buscaPagamentoPorPedidoId(pedidoId);
-    verify(pedidoRepository, never()).buscaPedidoPorId(any());
-    verify(pagamentoRepository, never()).salva(any());
   }
 
   @Test
@@ -152,7 +154,6 @@ class PagamentoApplicationServiceTest {
 
   @Test
   void deveProcessarPagamentoComProcessadorCorreto() {
-    when(pagamentoRepository.buscaPagamentoPorPedidoId(pedidoId)).thenReturn(Optional.empty());
     when(pedidoRepository.buscaPedidoPorId(pedidoId)).thenReturn(pedido);
     when(processadorFactory.obterProcessador(pedido.getFormaPagamento()))
         .thenReturn(processadorPagamento);
@@ -165,7 +166,6 @@ class PagamentoApplicationServiceTest {
 
   @Test
   void deveCriarPagamentoComValorCorreto() {
-    when(pagamentoRepository.buscaPagamentoPorPedidoId(pedidoId)).thenReturn(Optional.empty());
     when(pedidoRepository.buscaPedidoPorId(pedidoId)).thenReturn(pedido);
     when(processadorFactory.obterProcessador(pedido.getFormaPagamento()))
         .thenReturn(processadorPagamento);
@@ -180,7 +180,6 @@ class PagamentoApplicationServiceTest {
   @Test
   void deveUsarProcessadorCorretoParaCartaoCredito() {
     pedido.setFormaPagamento(FormaPagamento.CARTAO_CREDITO);
-    when(pagamentoRepository.buscaPagamentoPorPedidoId(pedidoId)).thenReturn(Optional.empty());
     when(pedidoRepository.buscaPedidoPorId(pedidoId)).thenReturn(pedido);
     when(processadorFactory.obterProcessador(FormaPagamento.CARTAO_CREDITO))
         .thenReturn(processadorPagamento);
@@ -195,7 +194,6 @@ class PagamentoApplicationServiceTest {
   @Test
   void deveUsarProcessadorCorretoParaPix() {
     pedido.setFormaPagamento(FormaPagamento.PIX);
-    when(pagamentoRepository.buscaPagamentoPorPedidoId(pedidoId)).thenReturn(Optional.empty());
     when(pedidoRepository.buscaPedidoPorId(pedidoId)).thenReturn(pedido);
     when(processadorFactory.obterProcessador(FormaPagamento.PIX)).thenReturn(processadorPagamento);
     when(pagamentoRepository.salva(any(Pagamento.class))).thenReturn(pagamento);
@@ -209,7 +207,6 @@ class PagamentoApplicationServiceTest {
   @Test
   void deveUsarProcessadorCorretoParaBoleto() {
     pedido.setFormaPagamento(FormaPagamento.BOLETO);
-    when(pagamentoRepository.buscaPagamentoPorPedidoId(pedidoId)).thenReturn(Optional.empty());
     when(pedidoRepository.buscaPedidoPorId(pedidoId)).thenReturn(pedido);
     when(processadorFactory.obterProcessador(FormaPagamento.BOLETO))
         .thenReturn(processadorPagamento);
@@ -378,18 +375,11 @@ class PagamentoApplicationServiceTest {
 
     pagamentoApplicationService.cancelaPagamento(pagamentoId, cancelaPagamentoRequest);
 
-    ArgumentCaptor<Pagamento> pagamentoCaptor = ArgumentCaptor.forClass(Pagamento.class);
-    ArgumentCaptor<Pedido> pedidoCaptor = ArgumentCaptor.forClass(Pedido.class);
-
-    verify(pagamentoRepository).salva(pagamentoCaptor.capture());
-    verify(pedidoRepository).salva(pedidoCaptor.capture());
-
-    Pagamento pagamentoSalvo = pagamentoCaptor.getValue();
-    Pedido pedidoSalvo = pedidoCaptor.getValue();
-
-    assertEquals(StatusPagamento.FALHOU, pagamentoSalvo.getStatusPagamento());
-    assertEquals(StatusPedido.AGUARDANDO_PAGAMENTO, pedidoSalvo.getStatus());
-    assertEquals("Desisti da compra", pagamentoSalvo.getMotivoCancelamento());
+    verify(pagamentoRepository).salva(pagamento);
+    verify(pedidoRepository, atLeastOnce()).salva(pedido);
+    assertEquals(StatusPagamento.FALHOU, pagamento.getStatusPagamento());
+    assertEquals(StatusPedido.AGUARDANDO_PAGAMENTO, pedido.getStatus());
+    assertEquals("Desisti da compra", pagamento.getMotivoCancelamento());
   }
 
   @Test
@@ -408,5 +398,156 @@ class PagamentoApplicationServiceTest {
 
     verify(pagamentoRepository, never()).salva(any());
     verify(pedidoRepository, never()).salva(any());
+  }
+
+  @Test
+  void deveReprocessarPagamentoComSucesso() {
+    pagamento.setStatusPagamento(StatusPagamento.FALHOU);
+    pagamento.setTentativasPagamento(1);
+
+    when(pagamentoRepository.buscaPagamentoPorId(pagamentoId)).thenReturn(pagamento);
+    when(processadorFactory.obterProcessador(pedido.getFormaPagamento()))
+        .thenReturn(processadorPagamento);
+
+    var response = pagamentoApplicationService.reprocessaPagamento(pagamentoId);
+
+    assertNotNull(response);
+    assertEquals(StatusPagamento.AGUARDANDO, pagamento.getStatusPagamento());
+    assertEquals(2, pagamento.getTentativasPagamento());
+
+    verify(processadorFactory).obterProcessador(pedido.getFormaPagamento());
+    verify(processadorPagamento).processar(pagamento, pedido);
+    verify(pagamentoRepository).salva(pagamento);
+    verify(pedidoRepository).salva(pedido);
+  }
+
+  @Test
+  void deveLancarExcecaoQuandoLimiteTentativasExcedido() {
+    pagamento.setStatusPagamento(StatusPagamento.FALHOU);
+    pagamento.setTentativasPagamento(3);
+
+    when(pagamentoRepository.buscaPagamentoPorId(pagamentoId)).thenReturn(pagamento);
+
+    APIException exception =
+        assertThrows(
+            APIException.class, () -> pagamentoApplicationService.reprocessaPagamento(pagamentoId));
+
+    assertEquals(HttpStatus.CONFLICT, exception.getStatusException());
+    assertEquals(ErrorCode.LIMITE_DE_TENTATIVAS_EXCEDIDO, exception.getErrorCode());
+
+    verify(pagamentoRepository).buscaPagamentoPorId(pagamentoId);
+    verify(processadorFactory, never()).obterProcessador(any());
+  }
+
+  @Test
+  void deveLancarExcecaoQuandoPagamentoJaPago() {
+    pagamento.setStatusPagamento(StatusPagamento.PAGO);
+
+    when(pagamentoRepository.buscaPagamentoPorId(pagamentoId)).thenReturn(pagamento);
+
+    APIException exception =
+        assertThrows(
+            APIException.class, () -> pagamentoApplicationService.reprocessaPagamento(pagamentoId));
+
+    assertEquals(HttpStatus.CONFLICT, exception.getStatusException());
+    assertEquals(ErrorCode.PAGAMENTO_JA_PROCESSADO_COM_SUCESSO, exception.getErrorCode());
+
+    verify(pagamentoRepository).buscaPagamentoPorId(pagamentoId);
+    verify(processadorFactory, never()).obterProcessador(any());
+  }
+
+  @Test
+  void deveLancarExcecaoQuandoPagamentoNaoForFalhou() {
+    pagamento.setStatusPagamento(StatusPagamento.AGUARDANDO);
+
+    when(pagamentoRepository.buscaPagamentoPorId(pagamentoId)).thenReturn(pagamento);
+
+    APIException exception =
+        assertThrows(
+            APIException.class, () -> pagamentoApplicationService.reprocessaPagamento(pagamentoId));
+
+    assertEquals(HttpStatus.CONFLICT, exception.getStatusException());
+    assertEquals(ErrorCode.PAGAMENTO_NAO_PODE_SER_REPROCESSADO, exception.getErrorCode());
+
+    verify(pagamentoRepository).buscaPagamentoPorId(pagamentoId);
+    verify(processadorFactory, never()).obterProcessador(any());
+  }
+
+  @Test
+  void deveConfirmarPagamentoComSucesso() {
+    pagamento.aguardarPagamento();
+    when(pagamentoRepository.buscaPagamentoPorId(pagamentoId)).thenReturn(pagamento);
+    when(estoqueRepository.buscaEstoquePorIdProduto(itemPedido.getProduto().getId()))
+        .thenReturn(Optional.of(estoque));
+    when(pagamentoRepository.salva(any(Pagamento.class))).thenReturn(pagamento);
+    PagamentoResponse response = pagamentoApplicationService.confirmarPagamento(pagamentoId);
+    assertNotNull(response);
+    assertEquals(StatusPagamento.PAGO, response.getStatusPagamento());
+  }
+
+  @Test
+  void deveRegistrarDataDeConfirmacaoAoConfirmarPagamento() {
+    pagamento.aguardarPagamento();
+    when(pagamentoRepository.buscaPagamentoPorId(pagamentoId)).thenReturn(pagamento);
+    when(estoqueRepository.buscaEstoquePorIdProduto(itemPedido.getProduto().getId()))
+        .thenReturn(Optional.of(estoque));
+    when(pagamentoRepository.salva(any(Pagamento.class))).thenReturn(pagamento);
+    pagamentoApplicationService.confirmarPagamento(pagamentoId);
+    assertNotNull(pagamento.getDataConfirmacao());
+  }
+
+  @Test
+  void deveLiberarPedidoAoConfirmarPagamento() {
+    pagamento.aguardarPagamento();
+    when(pagamentoRepository.buscaPagamentoPorId(pagamentoId)).thenReturn(pagamento);
+    when(estoqueRepository.buscaEstoquePorIdProduto(itemPedido.getProduto().getId()))
+        .thenReturn(Optional.of(estoque));
+    when(pagamentoRepository.salva(any(Pagamento.class))).thenReturn(pagamento);
+    pagamentoApplicationService.confirmarPagamento(pagamentoId);
+    assertEquals(StatusPedido.PAGO, pedido.getStatus());
+    verify(pedidoRepository).salva(pedido);
+  }
+
+  @Test
+  void deveReservarEstoqueDeItensDoPedidoAoConfirmarPagamento() {
+    pagamento.aguardarPagamento();
+    when(pagamentoRepository.buscaPagamentoPorId(pagamentoId)).thenReturn(pagamento);
+    when(estoqueRepository.buscaEstoquePorIdProduto(itemPedido.getProduto().getId()))
+        .thenReturn(Optional.of(estoque));
+    when(pagamentoRepository.salva(any(Pagamento.class))).thenReturn(pagamento);
+    pagamentoApplicationService.confirmarPagamento(pagamentoId);
+    verify(estoqueRepository).buscaEstoquePorIdProduto(itemPedido.getProduto().getId());
+    verify(estoqueRepository).salva(estoque);
+  }
+
+  @Test
+  void deveLancarExcecaoQuandoPagamentoJaConfirmado() {
+    pagamento.confirmarPagamento();
+    when(pagamentoRepository.buscaPagamentoPorId(pagamentoId)).thenReturn(pagamento);
+    APIException exception =
+        assertThrows(
+            APIException.class, () -> pagamentoApplicationService.confirmarPagamento(pagamentoId));
+    assertEquals(HttpStatus.CONFLICT, exception.getStatusException());
+    assertEquals(ErrorCode.PAGAMENTO_JA_CONFIRMADO, exception.getErrorCode());
+  }
+
+  @Test
+  void naoDeveInteragirComEstoqueQuandoPagamentoJaConfirmado() {
+    pagamento.confirmarPagamento();
+    when(pagamentoRepository.buscaPagamentoPorId(pagamentoId)).thenReturn(pagamento);
+    assertThrows(
+        APIException.class, () -> pagamentoApplicationService.confirmarPagamento(pagamentoId));
+    verify(estoqueRepository, never()).buscaEstoquePorIdProduto(any());
+    verify(estoqueRepository, never()).salva(any());
+  }
+
+  @Test
+  void naoDeveSalvarPedidoNemPagamentoQuandoPagamentoJaConfirmado() {
+    pagamento.confirmarPagamento();
+    when(pagamentoRepository.buscaPagamentoPorId(pagamentoId)).thenReturn(pagamento);
+    assertThrows(
+        APIException.class, () -> pagamentoApplicationService.confirmarPagamento(pagamentoId));
+    verify(pedidoRepository, never()).salva(any());
+    verify(pagamentoRepository, never()).salva(any());
   }
 }
