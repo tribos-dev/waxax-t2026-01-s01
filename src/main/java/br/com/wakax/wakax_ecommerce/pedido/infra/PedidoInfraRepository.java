@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.UUID;
 
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Repository;
@@ -62,7 +61,8 @@ public class PedidoInfraRepository implements PedidoRepository {
   public List<ProdutoMaisVendidoResponse> buscaProdutosMaisVendidos(
       LocalDateTime dataInicio, LocalDateTime dataFim, Pageable limite) {
     log.debug("[start] PedidoInfraRepository - buscaProdutosMaisVendidos");
-    List<ProdutoMaisVendidoResponse> produtos = pedidoJPARepository.findProdutosMaisVendidos(dataInicio, dataFim, limite).getContent();
+    List<ProdutoMaisVendidoResponse> produtos =
+        pedidoJPARepository.findProdutosMaisVendidos(dataInicio, dataFim, limite).getContent();
     log.debug("[finish] PedidoInfraRepository - buscaProdutosMaisVendidos");
     return produtos;
   }

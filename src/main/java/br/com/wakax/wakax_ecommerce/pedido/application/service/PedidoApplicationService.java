@@ -117,6 +117,7 @@ public class PedidoApplicationService implements PedidoService {
     log.debug("[finish] PedidoApplicationService - geraRelatorioProdutosMaisVendidos");
     return produtos;
   }
+
   private void validarDatas(LocalDateTime dataInicio, LocalDateTime dataFim) {
     if (dataInicio == null || dataFim == null) {
       throw new APIException(HttpStatus.BAD_REQUEST, ErrorCode.RELATORIO_DATA_OBRIGATORIA);
