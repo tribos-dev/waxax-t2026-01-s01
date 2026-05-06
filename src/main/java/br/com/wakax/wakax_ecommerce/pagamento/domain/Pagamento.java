@@ -7,12 +7,12 @@ import java.util.UUID;
 import javax.persistence.*;
 import javax.validation.constraints.*;
 
-import br.com.wakax.wakax_ecommerce.pagamento.application.api.request.EstornaPagamentoRequest;
 import org.springframework.http.HttpStatus;
 
 import br.com.wakax.wakax_ecommerce.handler.APIException;
 import br.com.wakax.wakax_ecommerce.handler.ErrorCode;
 import br.com.wakax.wakax_ecommerce.pagamento.application.api.request.CancelaPagamentoRequest;
+import br.com.wakax.wakax_ecommerce.pagamento.application.api.request.EstornaPagamentoRequest;
 import br.com.wakax.wakax_ecommerce.pedido.domain.Pedido;
 import lombok.*;
 
@@ -54,10 +54,10 @@ public class Pagamento {
 
   private LocalDateTime dataConfirmacao;
 
-  @Column
+  @Column(nullable = true)
   private LocalDateTime dataEstorno;
 
-  @Column
+  @Column(nullable = true)
   private String motivoEstorno;
 
   public Pagamento(Pedido pedido) {
@@ -122,34 +122,27 @@ public class Pagamento {
     }
   }
 
-
   public void prepararEstorno(EstornaPagamentoRequest estornaPagamentoRequest) {
     String motivo = estornaPagamentoRequest.getMotivoEstorno();
     validarStatusParaEstorno();
     validarMotivoParaEstorno(motivo);
     this.dataEstorno = LocalDateTime.now();
     this.statusPagamento = StatusPagamento.ESTORNADO;
-    this.motivoEstorno = estornaPagamentoRequest.getMotivoEstorno();
+    this.motivoEstorno = motivo;
   }
-
-
-
 
   public void validarStatusParaEstorno() {
     if (this.statusPagamento != StatusPagamento.PAGO) {
       throw new APIException(
-              HttpStatus.CONFLICT,
-              ErrorCode.PAGAMENTO_NAO_PODE_SER_ESTORNADO,
-              this.getStatusPagamento());
+          HttpStatus.CONFLICT,
+          ErrorCode.PAGAMENTO_NAO_PODE_SER_ESTORNADO,
+          this.getStatusPagamento());
     }
   }
 
   public void validarMotivoParaEstorno(String motivo) {
     if (motivo == null || motivo.isBlank()) {
-      throw new APIException(
-              HttpStatus.BAD_REQUEST,
-              ErrorCode.MOTIVO_ESTORNO_OBRIGATORIO
-      );
+      throw new APIException(HttpStatus.BAD_REQUEST, ErrorCode.MOTIVO_ESTORNO_OBRIGATORIO);
     }
   }
 }

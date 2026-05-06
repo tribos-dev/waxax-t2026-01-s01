@@ -1,10 +1,8 @@
 package br.com.wakax.wakax_ecommerce.pagamento.application.api.request;
 
-import lombok.*;
-
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-import java.util.UUID;
+
+import lombok.*;
 
 @Getter
 @ToString
@@ -13,5 +11,5 @@ import java.util.UUID;
 @AllArgsConstructor
 public class EstornaPagamentoRequest {
 
-    @NotBlank private String motivoEstorno;
+  @NotBlank private String motivoEstorno;
 }

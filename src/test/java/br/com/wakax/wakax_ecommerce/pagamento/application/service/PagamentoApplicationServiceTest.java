@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import br.com.wakax.wakax_ecommerce.pagamento.application.api.request.EstornaPagamentoRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -27,6 +26,7 @@ import br.com.wakax.wakax_ecommerce.estoque.domain.Estoque;
 import br.com.wakax.wakax_ecommerce.handler.APIException;
 import br.com.wakax.wakax_ecommerce.handler.ErrorCode;
 import br.com.wakax.wakax_ecommerce.pagamento.application.api.request.CancelaPagamentoRequest;
+import br.com.wakax.wakax_ecommerce.pagamento.application.api.request.EstornaPagamentoRequest;
 import br.com.wakax.wakax_ecommerce.pagamento.application.api.request.PagamentoRequest;
 import br.com.wakax.wakax_ecommerce.pagamento.application.api.response.PagamentoPageResponse;
 import br.com.wakax.wakax_ecommerce.pagamento.application.api.response.PagamentoResponse;
@@ -554,14 +554,11 @@ class PagamentoApplicationServiceTest {
 
   @Test
   void deveEstornarPagamentoComSucesso() {
-    var request = EstornaPagamentoRequest.builder()
-            .motivoEstorno("Erro no pagamento")
-            .build();
+    var request = EstornaPagamentoRequest.builder().motivoEstorno("Erro no pagamento").build();
 
     pagamento.setStatusPagamento(StatusPagamento.PAGO);
 
-    when(pagamentoRepository.buscaPagamentoPorId(pagamentoId))
-            .thenReturn(pagamento);
+    when(pagamentoRepository.buscaPagamentoPorId(pagamentoId)).thenReturn(pagamento);
 
     var response = pagamentoApplicationService.estornaPagamento(pagamentoId, request);
 
@@ -575,19 +572,16 @@ class PagamentoApplicationServiceTest {
 
   @Test
   void deveLancarExcecaoQuandoPagamentoNaoEstiverPago() {
-    var request = EstornaPagamentoRequest.builder()
-            .motivoEstorno("Erro no pagamento")
-            .build();
-
+    var request = EstornaPagamentoRequest.builder().motivoEstorno("Erro no pagamento").build();
 
     pagamento.setStatusPagamento(StatusPagamento.FALHOU);
 
-    when(pagamentoRepository.buscaPagamentoPorId(pagamentoId))
-            .thenReturn(pagamento);
+    when(pagamentoRepository.buscaPagamentoPorId(pagamentoId)).thenReturn(pagamento);
 
     APIException exception =
-            assertThrows(
-                    APIException.class, () -> pagamentoApplicationService.estornaPagamento(pagamentoId, request));
+        assertThrows(
+            APIException.class,
+            () -> pagamentoApplicationService.estornaPagamento(pagamentoId, request));
 
     assertEquals(HttpStatus.CONFLICT, exception.getStatusException());
     assertEquals(ErrorCode.PAGAMENTO_NAO_PODE_SER_ESTORNADO, exception.getErrorCode());
@@ -598,18 +592,16 @@ class PagamentoApplicationServiceTest {
 
   @Test
   void deveLancarExcecaoQuandoMotivoForInvalido() {
-    var request = EstornaPagamentoRequest.builder()
-            .motivoEstorno("")
-            .build();
+    var request = EstornaPagamentoRequest.builder().motivoEstorno("").build();
 
     pagamento.setStatusPagamento(StatusPagamento.PAGO);
 
-    when(pagamentoRepository.buscaPagamentoPorId(pagamentoId))
-            .thenReturn(pagamento);
+    when(pagamentoRepository.buscaPagamentoPorId(pagamentoId)).thenReturn(pagamento);
 
     APIException exception =
-            assertThrows(
-                    APIException.class, () -> pagamentoApplicationService.estornaPagamento(pagamentoId, request));
+        assertThrows(
+            APIException.class,
+            () -> pagamentoApplicationService.estornaPagamento(pagamentoId, request));
 
     assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusException());
     assertEquals(ErrorCode.MOTIVO_ESTORNO_OBRIGATORIO, exception.getErrorCode());
@@ -617,5 +609,4 @@ class PagamentoApplicationServiceTest {
     verify(pagamentoRepository).buscaPagamentoPorId(pagamentoId);
     verify(pagamentoRepository, never()).salva(any());
   }
-
 }

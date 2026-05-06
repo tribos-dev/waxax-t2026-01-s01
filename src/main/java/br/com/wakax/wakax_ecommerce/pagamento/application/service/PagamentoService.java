@@ -25,5 +25,6 @@ public interface PagamentoService {
 
   ReprocessarPagamentoResponse reprocessaPagamento(UUID idPagamento);
 
-  EstornarPagamentoResponse estornaPagamento(UUID idPagamento, EstornaPagamentoRequest estornaPagamentoRequest);
+  EstornarPagamentoResponse estornaPagamento(
+      UUID idPagamento, EstornaPagamentoRequest estornaPagamentoRequest);
 }

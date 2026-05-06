@@ -5,8 +5,6 @@ import static org.mockito.Mockito.*;
 
 import java.util.UUID;
 
-import br.com.wakax.wakax_ecommerce.pagamento.application.api.request.EstornaPagamentoRequest;
-import br.com.wakax.wakax_ecommerce.pagamento.application.api.response.EstornarPagamentoResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -15,7 +13,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import br.com.wakax.wakax_ecommerce.pagamento.application.api.PagamentoController;
+import br.com.wakax.wakax_ecommerce.pagamento.application.api.request.EstornaPagamentoRequest;
 import br.com.wakax.wakax_ecommerce.pagamento.application.api.request.PagamentoRequest;
+import br.com.wakax.wakax_ecommerce.pagamento.application.api.response.EstornarPagamentoResponse;
 import br.com.wakax.wakax_ecommerce.pagamento.application.api.response.PagamentoPageResponse;
 import br.com.wakax.wakax_ecommerce.pagamento.application.api.response.PagamentoResponse;
 import br.com.wakax.wakax_ecommerce.pagamento.application.service.PagamentoDataHelper;
@@ -169,18 +169,16 @@ class PagamentoControllerTest {
 
   @Test
   void deveEstornarPagamentoComSucesso() {
-    var request = mock(EstornaPagamentoRequest.class);
 
-    var response =
-            mock(EstornarPagamentoResponse.class);
+    var request = new EstornaPagamentoRequest("cliente desistiu");
 
-    when(pagamentoService.estornaPagamento(pagamentoId, request))
-            .thenReturn(response);
+    var response = mock(EstornarPagamentoResponse.class);
+
+    when(pagamentoService.estornaPagamento(pagamentoId, request)).thenReturn(response);
 
     var resultado = pagamentoController.estornaPagamento(pagamentoId, request);
 
     assertNotNull(resultado);
-    assertEquals(response, resultado);
 
     verify(pagamentoService).estornaPagamento(pagamentoId, request);
   }

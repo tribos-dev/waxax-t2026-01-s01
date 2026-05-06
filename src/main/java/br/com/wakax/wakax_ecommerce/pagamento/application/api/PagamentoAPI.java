@@ -4,13 +4,13 @@ import java.util.UUID;
 
 import javax.validation.Valid;
 
-import br.com.wakax.wakax_ecommerce.pagamento.application.api.request.EstornaPagamentoRequest;
-import br.com.wakax.wakax_ecommerce.pagamento.application.api.response.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import br.com.wakax.wakax_ecommerce.pagamento.application.api.request.CancelaPagamentoRequest;
+import br.com.wakax.wakax_ecommerce.pagamento.application.api.request.EstornaPagamentoRequest;
 import br.com.wakax.wakax_ecommerce.pagamento.application.api.request.PagamentoRequest;
+import br.com.wakax.wakax_ecommerce.pagamento.application.api.response.*;
 import br.com.wakax.wakax_ecommerce.pagamento.domain.StatusPagamento;
 
 @RestController
@@ -49,6 +49,6 @@ public interface PagamentoAPI {
   @PutMapping("/{idPagamento}/estornar")
   @ResponseStatus(HttpStatus.OK)
   EstornarPagamentoResponse estornaPagamento(
-          @PathVariable UUID idPagamento,
-          @RequestBody EstornaPagamentoRequest estornaPagamentoRequest);
+      @PathVariable UUID idPagamento,
+      @Valid @RequestBody EstornaPagamentoRequest estornaPagamentoRequest);
 }

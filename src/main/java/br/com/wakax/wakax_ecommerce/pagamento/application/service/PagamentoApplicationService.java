@@ -2,8 +2,6 @@ package br.com.wakax.wakax_ecommerce.pagamento.application.service;
 
 import java.util.UUID;
 
-import br.com.wakax.wakax_ecommerce.pagamento.application.api.request.EstornaPagamentoRequest;
-import br.com.wakax.wakax_ecommerce.pagamento.application.api.response.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -19,7 +17,9 @@ import br.com.wakax.wakax_ecommerce.estoque.domain.Estoque;
 import br.com.wakax.wakax_ecommerce.handler.APIException;
 import br.com.wakax.wakax_ecommerce.handler.ErrorCode;
 import br.com.wakax.wakax_ecommerce.pagamento.application.api.request.CancelaPagamentoRequest;
+import br.com.wakax.wakax_ecommerce.pagamento.application.api.request.EstornaPagamentoRequest;
 import br.com.wakax.wakax_ecommerce.pagamento.application.api.request.PagamentoRequest;
+import br.com.wakax.wakax_ecommerce.pagamento.application.api.response.*;
 import br.com.wakax.wakax_ecommerce.pagamento.application.factory.ProcessadorPagamentoFactory;
 import br.com.wakax.wakax_ecommerce.pagamento.application.repository.PagamentoRepository;
 import br.com.wakax.wakax_ecommerce.pagamento.domain.Pagamento;
@@ -182,7 +182,8 @@ public class PagamentoApplicationService implements PagamentoService {
   }
 
   @Override
-  public EstornarPagamentoResponse estornaPagamento(UUID idPagamento, EstornaPagamentoRequest estornaPagamentoRequest) {
+  public EstornarPagamentoResponse estornaPagamento(
+      UUID idPagamento, EstornaPagamentoRequest estornaPagamentoRequest) {
     log.info("[start] PagamentoApplicationService - estornaPagamento");
     Pagamento pagamento = pagamentoRepository.buscaPagamentoPorId(idPagamento);
 
