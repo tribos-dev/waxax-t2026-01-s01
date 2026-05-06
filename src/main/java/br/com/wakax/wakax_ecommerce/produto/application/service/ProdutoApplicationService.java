@@ -84,4 +84,14 @@ public class ProdutoApplicationService implements ProdutoService {
         (Credencial) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     return credencial.getUser();
   }
+
+  @Override
+  @Transactional
+  public void removerProduto(UUID idProduto) {
+    log.debug("[start] ProdutoApplicationService - inativaProduto");
+    Produto produto = produtoRepository.buscaProdutoPorId(idProduto);
+    produto.inativa();
+    produtoRepository.salva(produto);
+    log.debug("[finish] ProdutoApplicationService - inativaProduto");
+  }
 }

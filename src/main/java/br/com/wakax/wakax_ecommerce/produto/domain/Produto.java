@@ -129,6 +129,11 @@ public class Produto {
     }
   }
 
+  public void inativa() {
+    this.status = StatusProduto.INATIVO;
+    this.dataDeAtualizacao = LocalDateTime.now();
+  }
+
   public BigDecimal getPrecoPadrao() {
     if (this.precos.isEmpty()) {
       return BigDecimal.ZERO;
