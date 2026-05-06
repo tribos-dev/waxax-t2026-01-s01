@@ -1,1 +1,2 @@
-ALTER TABLE produto ADD COLUMN data_de_atualizacao TIMESTAMP;
+ALTER TABLE pagamento
+ADD COLUMN data_estorno TIMESTAMP;
