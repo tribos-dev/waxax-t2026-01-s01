@@ -2,6 +2,7 @@ package br.com.wakax.wakax_ecommerce.produto.api;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 
 import java.math.BigDecimal;
 import java.util.Collections;
@@ -13,6 +14,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import br.com.wakax.wakax_ecommerce.produto.api.request.PrecoRequest;
 import br.com.wakax.wakax_ecommerce.produto.api.request.ProdutoAtualizaRequest;
@@ -30,6 +35,7 @@ class ProdutoControllerTest {
 
   @InjectMocks private ProdutoController produtoController;
 
+  private MockMvc mockMvc;
   private ProdutoRequest produtoRequest;
   private ProdutoResponse produtoResponse;
   private ProdutoListResponse produtoListResponse;
@@ -37,6 +43,7 @@ class ProdutoControllerTest {
 
   @BeforeEach
   void setUp() {
+    mockMvc = MockMvcBuilders.standaloneSetup(produtoController).build();
     produtoId = UUID.randomUUID();
     PrecoRequest precoRequest = new PrecoRequest();
     produtoRequest =
@@ -102,9 +109,10 @@ class ProdutoControllerTest {
   }
 
   @Test
-  void deveRetornar204AoRemoverProduto() {
-    produtoController.removerProduto(produtoId);
+  void deveRemoverProdutoERetornarNoContent() throws Exception {
+    MvcResult result = mockMvc.perform(delete("/produto/" + produtoId)).andReturn();
 
+    assertEquals(HttpStatus.NO_CONTENT.value(), result.getResponse().getStatus());
     verify(produtoService, times(1)).removerProduto(produtoId);
   }
 }
