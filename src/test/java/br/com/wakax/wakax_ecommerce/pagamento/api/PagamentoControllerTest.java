@@ -5,6 +5,8 @@ import static org.mockito.Mockito.*;
 
 import java.util.UUID;
 
+import br.com.wakax.wakax_ecommerce.pagamento.application.api.request.EstornaPagamentoRequest;
+import br.com.wakax.wakax_ecommerce.pagamento.application.api.response.EstornarPagamentoResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -163,5 +165,23 @@ class PagamentoControllerTest {
     assertEquals(response, resultado);
 
     verify(pagamentoService).reprocessaPagamento(pagamentoId);
+  }
+
+  @Test
+  void deveEstornarPagamentoComSucesso() {
+    var request = mock(EstornaPagamentoRequest.class);
+
+    var response =
+            mock(EstornarPagamentoResponse.class);
+
+    when(pagamentoService.estornaPagamento(pagamentoId, request))
+            .thenReturn(response);
+
+    var resultado = pagamentoController.estornaPagamento(pagamentoId, request);
+
+    assertNotNull(resultado);
+    assertEquals(response, resultado);
+
+    verify(pagamentoService).estornaPagamento(pagamentoId, request);
   }
 }
