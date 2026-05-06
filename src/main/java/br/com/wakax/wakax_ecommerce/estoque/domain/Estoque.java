@@ -118,9 +118,9 @@ public class Estoque {
     }
   }
 
-  public void validaQuantidadeMenorZero(Integer quantidade){
-      if (quantidade == null || quantidade <= 0) {
-          throw new APIException(HttpStatus.BAD_REQUEST, ErrorCode.QUANTIDADE_INVALIDA);
-      }
+  public void validaQuantidadeMenorZero(Integer quantidade) {
+    if (quantidade == null || quantidade <= 0) {
+      throw new APIException(HttpStatus.BAD_REQUEST, ErrorCode.QUANTIDADE_INVALIDA);
+    }
   }
 }
