@@ -9,6 +9,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import br.com.wakax.wakax_ecommerce.estoque.api.request.AdicionaQuantidadeRequest;
+import br.com.wakax.wakax_ecommerce.estoque.api.response.EstoqueResponse;
+import br.com.wakax.wakax_ecommerce.produto.domain.Produto;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -102,5 +105,24 @@ class EstoqueApplicationServiceTest {
 
     verify(estoqueRepository, never()).salva(any()); // Garante consistência: não salvou!
     assertEquals(10, estoque.getQuantidadeDisponivel());
+  }
+
+  @Test
+    void DeveAdicionarQuantidadeComRecalculoComSucesso(){
+//      Produto produto = EstoqueDataHelper.criarProdutoComPreco("Toque de seda, extra macio, Cinza", BigDecimal.valueOf(359));
+      Estoque estoque = EstoqueDataHelper.createEstoque(30, "70", "2100" );
+      UUID idProduto = estoque.getProduto().getId();
+      AdicionaQuantidadeRequest request = EstoqueDataHelper.criaRequest();
+
+      when(estoqueRepository.buscaEstoquePorIdProduto(idProduto)).thenReturn(Optional.of(estoque));
+
+      EstoqueResponse response = estoqueService.adicionaQuantidade(idProduto, request);
+
+      assertEquals(40, response.getQuantidadeDisponivel());
+      assertEquals(0, new BigDecimal("67.50").compareTo(response.getCustoMedio()));
+      assertEquals(0, new BigDecimal("2700.00").compareTo(response.getCustoTotal()));
+
+      verify(estoqueRepository, times(1)).salva(estoque);
+
   }
 }
