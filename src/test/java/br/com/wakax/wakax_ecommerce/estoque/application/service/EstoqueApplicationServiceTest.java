@@ -144,7 +144,7 @@ class EstoqueApplicationServiceTest {
     void DeveLancarExcecaoPorQuantidadeInvalida(){
       Estoque estoque = EstoqueDataHelper.createEstoque(30, "70", "2100");
       UUID idProduto = estoque.getProduto().getId();
-      AdicionaQuantidadeRequest request = EstoqueDataHelper.criaRequestInvalido();
+      AdicionaQuantidadeRequest request = EstoqueDataHelper.criaRequestQuantidadeInvalida();
 
       when(estoqueRepository.buscaEstoquePorIdProduto(idProduto)).thenReturn(Optional.of(estoque));
 
@@ -155,5 +155,21 @@ class EstoqueApplicationServiceTest {
 
       verify(estoqueRepository, never()).salva(any());
   }
+
+    @Test
+    void DeveLancarExcecaoPorCustoUnitarioInvalido(){
+        Estoque estoque = EstoqueDataHelper.createEstoque(30, "70", "2100");
+        UUID idProduto = estoque.getProduto().getId();
+        AdicionaQuantidadeRequest request = EstoqueDataHelper.criaRequestCustoUnitarioInvalido();
+
+        when(estoqueRepository.buscaEstoquePorIdProduto(idProduto)).thenReturn(Optional.of(estoque));
+
+        assertThrows(
+                APIException.class,
+                () -> estoqueService.adicionaQuantidade(idProduto, request)
+        );
+
+        verify(estoqueRepository, never()).salva(any());
+    }
 
 }
