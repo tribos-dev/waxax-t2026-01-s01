@@ -69,10 +69,10 @@ public class EstoqueDataHelper {
   }
 
   public static Estoque createEstoque(Integer qtd, String custoMedio, String custoTotal) {
-      Produto produto = criarProdutoComPreco("Edredom King Size Pluma", new BigDecimal(custoMedio));
+    Produto produto = criarProdutoComPreco("Edredom King Size Pluma", new BigDecimal(custoMedio));
     return Estoque.builder()
         .id(UUID.fromString("f47ac10b-58cc-4372-a567-0e02b2c3d479"))
-            .produto(produto)
+        .produto(produto)
         .quantidadeDisponivel(qtd)
         .custoMedio(new BigDecimal(custoMedio))
         .custoTotal(new BigDecimal(custoTotal))
@@ -83,10 +83,10 @@ public class EstoqueDataHelper {
     return new RemoveEstoqueRequest(qtd);
   }
 
-  public static AdicionaQuantidadeRequest criaRequest(){
-      return AdicionaQuantidadeRequest.builder()
-              .quantidade(10)
-              .custoUnitario(BigDecimal.valueOf(60.00))
-              .build();
+  public static AdicionaQuantidadeRequest criaRequest() {
+    return AdicionaQuantidadeRequest.builder()
+        .quantidade(10)
+        .custoUnitario(BigDecimal.valueOf(60.00))
+        .build();
   }
 }

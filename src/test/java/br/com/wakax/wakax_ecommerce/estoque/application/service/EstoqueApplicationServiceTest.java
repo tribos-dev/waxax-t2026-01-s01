@@ -9,16 +9,15 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import br.com.wakax.wakax_ecommerce.estoque.api.request.AdicionaQuantidadeRequest;
-import br.com.wakax.wakax_ecommerce.estoque.api.response.EstoqueResponse;
-import br.com.wakax.wakax_ecommerce.produto.domain.Produto;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import br.com.wakax.wakax_ecommerce.estoque.api.request.AdicionaQuantidadeRequest;
 import br.com.wakax.wakax_ecommerce.estoque.api.response.EstoqueListagemResponse;
+import br.com.wakax.wakax_ecommerce.estoque.api.response.EstoqueResponse;
 import br.com.wakax.wakax_ecommerce.estoque.application.repository.EstoqueRepository;
 import br.com.wakax.wakax_ecommerce.estoque.domain.Estoque;
 import br.com.wakax.wakax_ecommerce.handler.APIException;
@@ -108,9 +107,25 @@ class EstoqueApplicationServiceTest {
   }
 
   @Test
-    void DeveAdicionarQuantidadeComRecalculoComSucesso(){
-//      Produto produto = EstoqueDataHelper.criarProdutoComPreco("Toque de seda, extra macio, Cinza", BigDecimal.valueOf(359));
-      Estoque estoque = EstoqueDataHelper.createEstoque(30, "70", "2100" );
+  void DeveAdicionarQuantidadeComRecalculoComSucesso() {
+    Estoque estoque = EstoqueDataHelper.createEstoque(30, "70", "2100");
+    UUID idProduto = estoque.getProduto().getId();
+    AdicionaQuantidadeRequest request = EstoqueDataHelper.criaRequest();
+
+    when(estoqueRepository.buscaEstoquePorIdProduto(idProduto)).thenReturn(Optional.of(estoque));
+
+    EstoqueResponse response = estoqueService.adicionaQuantidade(idProduto, request);
+
+    assertEquals(40, response.getQuantidadeDisponivel());
+    assertEquals(0, new BigDecimal("67.50").compareTo(response.getCustoMedio()));
+    assertEquals(0, new BigDecimal("2700.00").compareTo(response.getCustoTotal()));
+
+    verify(estoqueRepository, times(1)).salva(estoque);
+  }
+
+  @Test
+  void DeveAdicionarQuantidadeEmEstoqueZeradoComSucesso() {
+      Estoque estoque = EstoqueDataHelper.createEstoque(0, "0", "0");
       UUID idProduto = estoque.getProduto().getId();
       AdicionaQuantidadeRequest request = EstoqueDataHelper.criaRequest();
 
@@ -118,9 +133,9 @@ class EstoqueApplicationServiceTest {
 
       EstoqueResponse response = estoqueService.adicionaQuantidade(idProduto, request);
 
-      assertEquals(40, response.getQuantidadeDisponivel());
-      assertEquals(0, new BigDecimal("67.50").compareTo(response.getCustoMedio()));
-      assertEquals(0, new BigDecimal("2700.00").compareTo(response.getCustoTotal()));
+      assertEquals(10, response.getQuantidadeDisponivel());
+      assertEquals(0, new BigDecimal("60.00").compareTo(response.getCustoMedio()));
+      assertEquals(0, new BigDecimal("600.00").compareTo(response.getCustoTotal()));
 
       verify(estoqueRepository, times(1)).salva(estoque);
 
