@@ -2,14 +2,12 @@ package br.com.wakax.wakax_ecommerce.pagamento.application.api;
 
 import java.util.UUID;
 
+import br.com.wakax.wakax_ecommerce.pagamento.application.api.request.EstornaPagamentoRequest;
+import br.com.wakax.wakax_ecommerce.pagamento.application.api.response.*;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.com.wakax.wakax_ecommerce.pagamento.application.api.request.CancelaPagamentoRequest;
 import br.com.wakax.wakax_ecommerce.pagamento.application.api.request.PagamentoRequest;
-import br.com.wakax.wakax_ecommerce.pagamento.application.api.response.PagamentoPageResponse;
-import br.com.wakax.wakax_ecommerce.pagamento.application.api.response.PagamentoPedidoResponse;
-import br.com.wakax.wakax_ecommerce.pagamento.application.api.response.PagamentoResponse;
-import br.com.wakax.wakax_ecommerce.pagamento.application.api.response.ReprocessarPagamentoResponse;
 import br.com.wakax.wakax_ecommerce.pagamento.application.service.PagamentoService;
 import br.com.wakax.wakax_ecommerce.pagamento.domain.StatusPagamento;
 import lombok.RequiredArgsConstructor;
@@ -76,6 +74,14 @@ public class PagamentoController implements PagamentoAPI {
     log.debug("[start] PagamentoController - confirmarPagamento");
     PagamentoResponse response = pagamentoService.confirmarPagamento(idPagamento);
     log.debug("[finish] PagamentoController - confirmarPagamento");
+    return response;
+  }
+
+  @Override
+  public EstornarPagamentoResponse estornaPagamento(UUID idPagamento, EstornaPagamentoRequest estornaPagamentoRequest) {
+    log.info("[start] PagamentoController - estornaPagamento");
+    EstornarPagamentoResponse response = pagamentoService.estornaPagamento(idPagamento, estornaPagamentoRequest);
+    log.debug("[finish] PagamentoController - estornaPagamento");
     return response;
   }
 }
