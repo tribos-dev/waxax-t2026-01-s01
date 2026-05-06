@@ -7,6 +7,7 @@ import java.util.UUID;
 import javax.persistence.*;
 import javax.validation.constraints.*;
 
+import br.com.wakax.wakax_ecommerce.pagamento.application.api.request.EstornaPagamentoRequest;
 import org.springframework.http.HttpStatus;
 
 import br.com.wakax.wakax_ecommerce.handler.APIException;
@@ -52,6 +53,12 @@ public class Pagamento {
   private static final int MAX_TENTATIVAS = 3;
 
   private LocalDateTime dataConfirmacao;
+
+  @Column
+  private LocalDateTime dataEstorno;
+
+  @Column
+  private String motivoEstorno;
 
   public Pagamento(Pedido pedido) {
     this.pedido = pedido;
@@ -112,6 +119,37 @@ public class Pagamento {
     if (this.tentativasPagamento >= MAX_TENTATIVAS) {
       throw new APIException(
           HttpStatus.CONFLICT, ErrorCode.LIMITE_DE_TENTATIVAS_EXCEDIDO, this.getStatusPagamento());
+    }
+  }
+
+
+  public void prepararEstorno(EstornaPagamentoRequest estornaPagamentoRequest) {
+    String motivo = estornaPagamentoRequest.getMotivoEstorno();
+    validarStatusParaEstorno();
+    validarMotivoParaEstorno(motivo);
+    this.dataEstorno = LocalDateTime.now();
+    this.statusPagamento = StatusPagamento.ESTORNADO;
+    this.motivoEstorno = estornaPagamentoRequest.getMotivoEstorno();
+  }
+
+
+
+
+  public void validarStatusParaEstorno() {
+    if (this.statusPagamento != StatusPagamento.PAGO) {
+      throw new APIException(
+              HttpStatus.CONFLICT,
+              ErrorCode.PAGAMENTO_NAO_PODE_SER_ESTORNADO,
+              this.getStatusPagamento());
+    }
+  }
+
+  public void validarMotivoParaEstorno(String motivo) {
+    if (motivo == null || motivo.isBlank()) {
+      throw new APIException(
+              HttpStatus.BAD_REQUEST,
+              ErrorCode.MOTIVO_ESTORNO_OBRIGATORIO
+      );
     }
   }
 }
