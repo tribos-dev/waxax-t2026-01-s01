@@ -13,8 +13,5 @@ import java.util.UUID;
 @AllArgsConstructor
 public class EstornaPagamentoRequest {
 
-    @NotNull(message = "{validacao.pedido}")
-    private UUID pedidoId;
-
     @NotBlank private String motivoEstorno;
 }
