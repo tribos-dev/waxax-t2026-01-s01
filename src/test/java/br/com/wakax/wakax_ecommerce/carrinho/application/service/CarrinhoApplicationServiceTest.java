@@ -19,6 +19,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
 
 import br.com.wakax.wakax_ecommerce.carrinho.api.request.ItemCarrinhoRequest;
 import br.com.wakax.wakax_ecommerce.carrinho.api.response.CarrinhoResponse;
@@ -31,8 +32,10 @@ import br.com.wakax.wakax_ecommerce.carrinho.domain.StatusCarrinho;
 import br.com.wakax.wakax_ecommerce.cliente.application.repository.ClienteRepository;
 import br.com.wakax.wakax_ecommerce.cliente.domain.Cliente;
 import br.com.wakax.wakax_ecommerce.handler.APIException;
+import br.com.wakax.wakax_ecommerce.handler.ErrorCode;
 import br.com.wakax.wakax_ecommerce.produto.application.repository.ProdutoRepository;
 import br.com.wakax.wakax_ecommerce.produto.domain.Produto;
+import br.com.wakax.wakax_ecommerce.produto.domain.StatusProduto;
 
 @ExtendWith(MockitoExtension.class)
 class CarrinhoApplicationServiceTest {
@@ -247,5 +250,30 @@ class CarrinhoApplicationServiceTest {
         () -> applicationService.deletaItemDoCarrinho(email, carrinho.getId(), idItem));
 
     verify(carrinhoRepository, never()).salva(any());
+  }
+
+  @Test
+  void naoDeveAdicionarItemSeProdutoEstiverInativo() {
+    Cliente cliente = CarrinhoDataHelper.criaCliente();
+    Carrinho carrinho = CarrinhoDataHelper.criaCarrinhoAtivoVazio(cliente);
+    Produto produto = CarrinhoDataHelper.criaProduto();
+    produto.setStatus(StatusProduto.INATIVO);
+    ItemCarrinhoRequest itemCarrinhoRequest =
+        CarrinhoDataHelper.criaItemCarrinhoRequest(produto.getId());
+
+    when(clienteRepository.buscaClientePorId(cliente.getId())).thenReturn(cliente);
+    when(carrinhoRepository.buscaCarrinhoAtivoDoCliente(cliente.getId()))
+        .thenReturn(Optional.of(carrinho));
+    when(produtoRepository.buscaProdutoPorId(produto.getId())).thenReturn(produto);
+
+    APIException exception =
+        assertThrows(
+            APIException.class,
+            () -> applicationService.adicionaItemNoCarrinho(cliente.getId(), itemCarrinhoRequest));
+
+    assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusException());
+    assertEquals(ErrorCode.PRODUTO_INDISPONIVEL, exception.getErrorCode());
+    verify(processadorEstoqueFactory, never()).obterProcessador();
+    verify(carrinhoRepository, never()).salva(any(Carrinho.class));
   }
 }

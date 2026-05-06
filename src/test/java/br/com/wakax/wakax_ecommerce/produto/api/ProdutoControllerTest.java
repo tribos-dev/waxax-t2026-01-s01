@@ -100,4 +100,11 @@ class ProdutoControllerTest {
     assertNotNull(response);
     verify(produtoService, times(1)).atualizaProduto(produtoId, atualizaRequest);
   }
+
+  @Test
+  void deveRetornar204AoRemoverProduto() {
+    produtoController.removerProduto(produtoId);
+
+    verify(produtoService, times(1)).removerProduto(produtoId);
+  }
 }
