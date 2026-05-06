@@ -89,4 +89,11 @@ public class EstoqueDataHelper {
         .custoUnitario(BigDecimal.valueOf(60.00))
         .build();
   }
+
+    public static AdicionaQuantidadeRequest criaRequestInvalido() {
+        return AdicionaQuantidadeRequest.builder()
+                .quantidade(-5)
+                .custoUnitario(BigDecimal.valueOf(60.00))
+                .build();
+    }
 }

@@ -138,6 +138,22 @@ class EstoqueApplicationServiceTest {
       assertEquals(0, new BigDecimal("600.00").compareTo(response.getCustoTotal()));
 
       verify(estoqueRepository, times(1)).salva(estoque);
-
   }
+
+  @Test
+    void DeveLancarExcecaoPorQuantidadeInvalida(){
+      Estoque estoque = EstoqueDataHelper.createEstoque(30, "70", "2100");
+      UUID idProduto = estoque.getProduto().getId();
+      AdicionaQuantidadeRequest request = EstoqueDataHelper.criaRequestInvalido();
+
+      when(estoqueRepository.buscaEstoquePorIdProduto(idProduto)).thenReturn(Optional.of(estoque));
+
+      assertThrows(
+              APIException.class,
+              () -> estoqueService.adicionaQuantidade(idProduto, request)
+      );
+
+      verify(estoqueRepository, never()).salva(any());
+  }
+
 }
