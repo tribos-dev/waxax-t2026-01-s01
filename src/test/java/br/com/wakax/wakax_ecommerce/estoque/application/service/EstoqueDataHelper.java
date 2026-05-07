@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
+import br.com.wakax.wakax_ecommerce.estoque.api.request.AdicionaQuantidadeRequest;
 import br.com.wakax.wakax_ecommerce.estoque.api.request.RemoveEstoqueRequest;
 import br.com.wakax.wakax_ecommerce.estoque.api.response.EstoqueListagemResponse;
 import br.com.wakax.wakax_ecommerce.estoque.api.response.EstoqueResponse;
@@ -20,6 +21,7 @@ public class EstoqueDataHelper {
   public static Produto criarProdutoComPreco(String descricao, BigDecimal precoVenda) {
     Produto produto =
         Produto.builder()
+            .id(UUID.fromString("e8b9b4a0-5b2c-4e1a-8c9d-2f3a4b5c6d7e"))
             .descricao(descricao)
             .pesoLiquido(BigDecimal.ONE)
             .pesoBruto(BigDecimal.ONE)
@@ -67,8 +69,10 @@ public class EstoqueDataHelper {
   }
 
   public static Estoque createEstoque(Integer qtd, String custoMedio, String custoTotal) {
+    Produto produto = criarProdutoComPreco("Edredom King Size Pluma", new BigDecimal(custoMedio));
     return Estoque.builder()
         .id(UUID.fromString("f47ac10b-58cc-4372-a567-0e02b2c3d479"))
+        .produto(produto)
         .quantidadeDisponivel(qtd)
         .custoMedio(new BigDecimal(custoMedio))
         .custoTotal(new BigDecimal(custoTotal))
@@ -77,5 +81,26 @@ public class EstoqueDataHelper {
 
   public static RemoveEstoqueRequest createRequest(Integer qtd) {
     return new RemoveEstoqueRequest(qtd);
+  }
+
+  public static AdicionaQuantidadeRequest criaRequest() {
+    return AdicionaQuantidadeRequest.builder()
+        .quantidade(10)
+        .custoUnitario(BigDecimal.valueOf(60.00))
+        .build();
+  }
+
+  public static AdicionaQuantidadeRequest criaRequestQuantidadeInvalida() {
+    return AdicionaQuantidadeRequest.builder()
+        .quantidade(-5)
+        .custoUnitario(BigDecimal.valueOf(60.00))
+        .build();
+  }
+
+  public static AdicionaQuantidadeRequest criaRequestCustoUnitarioInvalido() {
+    return AdicionaQuantidadeRequest.builder()
+        .quantidade(5)
+        .custoUnitario(BigDecimal.valueOf(-60.00))
+        .build();
   }
 }

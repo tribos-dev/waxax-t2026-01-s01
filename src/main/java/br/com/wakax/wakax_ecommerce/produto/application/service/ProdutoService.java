@@ -17,4 +17,6 @@ public interface ProdutoService {
   ProdutoListagemResponse listarTodosProdutos(int page, int size);
 
   ProdutoAtualizaResponse atualizaProduto(UUID idProduto, ProdutoAtualizaRequest atualizaRequest);
+
+  void removerProduto(UUID idProduto);
 }
