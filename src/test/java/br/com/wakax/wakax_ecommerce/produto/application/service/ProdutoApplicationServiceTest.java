@@ -314,4 +314,37 @@ class ProdutoApplicationServiceTest {
     assertEquals(usuarioLogado, historicoSalvo.getUsuario());
     assertNotNull(historicoSalvo.getDataHora());
   }
+
+  @Test
+  void deveRemoverProdutoComSucesso() {
+    Produto produtoExistente = new Produto(produtoRequest);
+    produtoExistente.setId(produtoId);
+
+    when(produtoRepository.buscaProdutoPorId(produtoId)).thenReturn(produtoExistente);
+
+    produtoApplicationService.removerProduto(produtoId);
+
+    assertEquals(StatusProduto.INATIVO, produtoExistente.getStatus());
+    assertNotNull(produtoExistente.getDataDeAtualizacao());
+    verify(produtoRepository, times(1)).buscaProdutoPorId(produtoId);
+    verify(produtoRepository, times(1)).salva(produtoExistente);
+  }
+
+  @Test
+  void deveLancarExcecaoAoTentarRemoverProdutoInexistente() {
+    when(produtoRepository.buscaProdutoPorId(produtoId))
+        .thenThrow(
+            new APIException(
+                org.springframework.http.HttpStatus.NOT_FOUND,
+                ErrorCode.PRODUTO_NAO_ENCONTRADO,
+                produtoId));
+
+    APIException exception =
+        assertThrows(APIException.class, () -> produtoApplicationService.removerProduto(produtoId));
+
+    assertEquals(ErrorCode.PRODUTO_NAO_ENCONTRADO, exception.getErrorCode());
+    assertEquals(produtoId, exception.getArgs()[0]);
+    verify(produtoRepository, times(1)).buscaProdutoPorId(produtoId);
+    verify(produtoRepository, never()).salva(any(Produto.class));
+  }
 }
