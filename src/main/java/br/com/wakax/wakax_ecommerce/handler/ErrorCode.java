@@ -7,6 +7,7 @@ public enum ErrorCode {
   ACESSO_NEGADO("acesso.negado"),
   PRODUTO_NAO_ENCONTRADO("produto.nao.encontrado"),
   PRODUTO_DUPLICADO("produto.duplicado"),
+  PRODUTO_INDISPONIVEL("produto.indisponivel"),
   PESO_LIQUIDO_MAIOR_QUE_BRUTO("peso.liquido.maior.que.bruto"),
   PRODUTO_INATIVO("produto.inativo"),
   STATUS_PRODUTO_INVALIDO("status.produto.invalido"),
@@ -42,6 +43,8 @@ public enum ErrorCode {
   CLIENTE_JA_INATIVO("cliente.ja.inativo"),
   CLIENTE_INATIVO("cliente.inativo"),
   TRANSICAO_STATUS_INVALIDA("transicao.status.invalida"),
+  MOTIVO_ESTORNO_OBRIGATORIO("motivo.estorno.obrigatorio"),
+  PAGAMENTO_NAO_PODE_SER_ESTORNADO("pagamento.nao.pode.ser.estornado"),
   PRODUTO_JA_ATIVO("produto.ja.ativo"),
   PRODUTO_JA_INATIVO("produto.ja.inativo");
 

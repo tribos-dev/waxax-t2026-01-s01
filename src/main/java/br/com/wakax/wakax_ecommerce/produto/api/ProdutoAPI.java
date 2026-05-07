@@ -34,6 +34,10 @@ public interface ProdutoAPI {
   ProdutoAtualizaResponse atualizarProduto(
       @PathVariable UUID idProduto, @RequestBody @Valid ProdutoAtualizaRequest atualizaRequest);
 
+  @DeleteMapping("/{idProduto}")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  void removerProduto(@PathVariable UUID idProduto);
+
   @PatchMapping("/{idProduto}/status")
   @ResponseStatus(HttpStatus.NO_CONTENT)
   void alteraStatusProduto(

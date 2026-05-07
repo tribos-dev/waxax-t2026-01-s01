@@ -19,5 +19,7 @@ public interface ProdutoService {
 
   ProdutoAtualizaResponse atualizaProduto(UUID idProduto, ProdutoAtualizaRequest atualizaRequest);
 
+  void removerProduto(UUID idProduto);
+
   void alteraStatusProduto(UUID idProduto, ProdutoAlteraStatusRequest statusRequest);
 }

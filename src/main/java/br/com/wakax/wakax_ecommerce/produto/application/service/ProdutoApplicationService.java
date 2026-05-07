@@ -87,6 +87,16 @@ public class ProdutoApplicationService implements ProdutoService {
   }
 
   @Override
+  @Transactional
+  public void removerProduto(UUID idProduto) {
+    log.debug("[start] ProdutoApplicationService - removerProduto");
+    Produto produto = produtoRepository.buscaProdutoPorId(idProduto);
+    produto.inativa();
+    produtoRepository.salva(produto);
+    log.debug("[finish] ProdutoApplicationService - removerProduto");
+  }
+
+  @Override
   public void alteraStatusProduto(UUID idProduto, ProdutoAlteraStatusRequest statusRequest) {
     log.debug("[start] ProdutoApplicationService - alteraStatusProduto");
     Produto produto = produtoRepository.buscaProdutoPorId(idProduto);
