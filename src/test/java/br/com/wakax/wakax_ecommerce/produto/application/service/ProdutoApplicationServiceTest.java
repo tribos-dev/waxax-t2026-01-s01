@@ -18,12 +18,13 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.stubbing.Answer;
 import org.springframework.data.domain.*;
+import org.springframework.http.HttpStatus;
 
 import br.com.wakax.wakax_ecommerce.auth.usuario.domain.Usuario;
 import br.com.wakax.wakax_ecommerce.handler.APIException;
 import br.com.wakax.wakax_ecommerce.handler.ErrorCode;
-import br.com.wakax.wakax_ecommerce.produto.api.request.ProdutoAtualizaRequest;
 import br.com.wakax.wakax_ecommerce.produto.api.ProdutoAlteraStatusRequest;
+import br.com.wakax.wakax_ecommerce.produto.api.request.ProdutoAtualizaRequest;
 import br.com.wakax.wakax_ecommerce.produto.api.request.ProdutoRequest;
 import br.com.wakax.wakax_ecommerce.produto.api.response.ProdutoAtualizaResponse;
 import br.com.wakax.wakax_ecommerce.produto.api.response.ProdutoListResponse;
@@ -316,91 +317,86 @@ class ProdutoApplicationServiceTest {
     assertNotNull(historicoSalvo.getDataHora());
   }
 
-    @Test
-    void deveAlterarStatusProdutoComSucesso() {
-        Produto produto = new Produto(produtoRequest);
-        produto.setId(produtoId);
+  @Test
+  void deveAlterarStatusProdutoParaInativo() {
+    Produto produto = new Produto(produtoRequest);
+    produto.setId(produtoId);
 
-        ProdutoAlteraStatusRequest statusRequest = ProdutoAlteraStatusRequest.builder()
-                .status(StatusProduto.INATIVO)
-                .motivo("Fora de temporada")
-                .build();
+    ProdutoAlteraStatusRequest statusRequest =
+        ProdutoAlteraStatusRequest.builder()
+            .status(StatusProduto.INATIVO)
+            .motivo("Fora de temporada")
+            .build();
 
-        when(produtoRepository.buscaProdutoPorId(produtoId)).thenReturn(produto);
-        when(produtoRepository.salva(any(Produto.class))).thenReturn(produto);
+    when(produtoRepository.buscaProdutoPorId(produtoId)).thenReturn(produto);
+    when(produtoRepository.salva(any(Produto.class))).thenReturn(produto);
 
-        assertDoesNotThrow(
-                () -> produtoApplicationService.alteraStatusProduto(produtoId, statusRequest));
+    assertDoesNotThrow(
+        () -> produtoApplicationService.alteraStatusProduto(produtoId, statusRequest));
 
-        assertEquals(StatusProduto.INATIVO, produto.getStatus());
-        assertNotNull(produto.getDataAlteracaoStatus());
-        assertEquals("Fora de temporada", produto.getMotivoAlteracao());
-        verify(produtoRepository, times(1)).buscaProdutoPorId(produtoId);
-        verify(produtoRepository, times(1)).salva(any(Produto.class));
+    assertEquals(StatusProduto.INATIVO, produto.getStatus());
+    assertNotNull(produto.getDataAlteracaoStatus());
+    assertEquals("Fora de temporada", produto.getMotivoAlteracao());
+    verify(produtoRepository, times(1)).buscaProdutoPorId(produtoId);
+    verify(produtoRepository, times(1)).salva(any(Produto.class));
   }
 
-    @Test
-    void deveAlterarStatusParaAtivoComSucesso() {
-        Produto produto = new Produto(produtoRequest);
-        produto.setId(produtoId);
-        produto.alteraStatus(StatusProduto.INATIVO, "Inativado anteriormente");
+  @Test
+  void deveAlterarStatusParaAtivoComSucesso() {
+    Produto produto = new Produto(produtoRequest);
+    produto.setId(produtoId);
+    produto.alteraStatus(StatusProduto.INATIVO, "Inativado anteriormente");
 
-        ProdutoAlteraStatusRequest statusRequest = ProdutoAlteraStatusRequest.builder()
-                .status(StatusProduto.ATIVO)
-                .build();
+    ProdutoAlteraStatusRequest statusRequest =
+        ProdutoAlteraStatusRequest.builder().status(StatusProduto.ATIVO).build();
 
-        when(produtoRepository.buscaProdutoPorId(produtoId)).thenReturn(produto);
-        when(produtoRepository.salva(any(Produto.class))).thenReturn(produto);
+    when(produtoRepository.buscaProdutoPorId(produtoId)).thenReturn(produto);
+    when(produtoRepository.salva(any(Produto.class))).thenReturn(produto);
 
-        assertDoesNotThrow(
-                () -> produtoApplicationService.alteraStatusProduto(produtoId, statusRequest));
+    assertDoesNotThrow(
+        () -> produtoApplicationService.alteraStatusProduto(produtoId, statusRequest));
 
-        assertEquals(StatusProduto.ATIVO, produto.getStatus());
-        verify(produtoRepository, times(1)).buscaProdutoPorId(produtoId);
-        verify(produtoRepository, times(1)).salva(any(Produto.class));
+    assertEquals(StatusProduto.ATIVO, produto.getStatus());
+    verify(produtoRepository, times(1)).buscaProdutoPorId(produtoId);
+    verify(produtoRepository, times(1)).salva(any(Produto.class));
   }
 
-    @Test
-    void deveLancarExcecaoQuandoProdutoNaoEncontradoParaAlterarStatus() {
-        ProdutoAlteraStatusRequest statusRequest = ProdutoAlteraStatusRequest.builder()
-                .status(StatusProduto.INATIVO)
-                .build();
+  @Test
+  void deveLancarExcecaoQuandoProdutoNaoEncontradoParaAlterarStatus() {
+    ProdutoAlteraStatusRequest statusRequest =
+        ProdutoAlteraStatusRequest.builder().status(StatusProduto.INATIVO).build();
 
-        when(produtoRepository.buscaProdutoPorId(produtoId))
-                .thenThrow(
-                        new APIException(
-                                org.springframework.http.HttpStatus.NOT_FOUND,
-                                ErrorCode.PRODUTO_NAO_ENCONTRADO,
-                                produtoId));
+    when(produtoRepository.buscaProdutoPorId(produtoId))
+        .thenThrow(
+            new APIException(HttpStatus.NOT_FOUND, ErrorCode.PRODUTO_NAO_ENCONTRADO, produtoId));
 
-        APIException exception =
-                assertThrows(
-                        APIException.class,
-                        () -> produtoApplicationService.alteraStatusProduto(produtoId, statusRequest));
+    APIException exception =
+        assertThrows(
+            APIException.class,
+            () -> produtoApplicationService.alteraStatusProduto(produtoId, statusRequest));
 
-        assertEquals(ErrorCode.PRODUTO_NAO_ENCONTRADO, exception.getErrorCode());
-        verify(produtoRepository, times(1)).buscaProdutoPorId(produtoId);
-        verify(produtoRepository, never()).salva(any(Produto.class));
+    assertEquals(ErrorCode.PRODUTO_NAO_ENCONTRADO, exception.getErrorCode());
+    verify(produtoRepository, times(1)).buscaProdutoPorId(produtoId);
+    verify(produtoRepository, never()).salva(any(Produto.class));
   }
 
-    @Test
-    void deveAlterarStatusSemMotivo() {
-        Produto produto = new Produto(produtoRequest);
-        produto.setId(produtoId);
+  @Test
+  void deveAlterarStatusSemMotivo() {
+    Produto produto = new Produto(produtoRequest);
+    produto.setId(produtoId);
 
-        ProdutoAlteraStatusRequest statusRequest = ProdutoAlteraStatusRequest.builder()
-                .status(StatusProduto.INATIVO)
-                .build();
+    ProdutoAlteraStatusRequest statusRequest =
+        ProdutoAlteraStatusRequest.builder().status(StatusProduto.INATIVO).build();
 
-        when(produtoRepository.buscaProdutoPorId(produtoId)).thenReturn(produto);
-        when(produtoRepository.salva(any(Produto.class))).thenReturn(produto);
+    when(produtoRepository.buscaProdutoPorId(produtoId)).thenReturn(produto);
+    when(produtoRepository.salva(any(Produto.class))).thenReturn(produto);
 
-        assertDoesNotThrow(
-                () -> produtoApplicationService.alteraStatusProduto(produtoId, statusRequest));
+    assertDoesNotThrow(
+        () -> produtoApplicationService.alteraStatusProduto(produtoId, statusRequest));
 
-        assertEquals(StatusProduto.INATIVO, produto.getStatus());
-        assertNull(produto.getMotivoAlteracao());
-        verify(produtoRepository, times(1)).buscaProdutoPorId(produtoId);
-        verify(produtoRepository, times(1)).salva(any(Produto.class));
+    assertEquals(StatusProduto.INATIVO, produto.getStatus());
+    assertNull(produto.getMotivoAlteracao());
+    verify(produtoRepository, times(1)).buscaProdutoPorId(produtoId);
+    verify(produtoRepository, times(1)).salva(any(Produto.class));
   }
 }

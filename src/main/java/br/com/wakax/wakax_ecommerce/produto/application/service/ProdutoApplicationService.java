@@ -13,8 +13,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import br.com.wakax.wakax_ecommerce.auth.credencial.domain.Credencial;
 import br.com.wakax.wakax_ecommerce.auth.usuario.domain.Usuario;
-import br.com.wakax.wakax_ecommerce.produto.api.request.ProdutoAtualizaRequest;
 import br.com.wakax.wakax_ecommerce.produto.api.ProdutoAlteraStatusRequest;
+import br.com.wakax.wakax_ecommerce.produto.api.request.ProdutoAtualizaRequest;
 import br.com.wakax.wakax_ecommerce.produto.api.request.ProdutoRequest;
 import br.com.wakax.wakax_ecommerce.produto.api.response.ProdutoAtualizaResponse;
 import br.com.wakax.wakax_ecommerce.produto.api.response.ProdutoListResponse;

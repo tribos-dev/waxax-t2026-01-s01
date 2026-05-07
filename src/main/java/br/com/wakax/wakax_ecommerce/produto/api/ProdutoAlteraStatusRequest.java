@@ -14,5 +14,6 @@ public class ProdutoAlteraStatusRequest {
 
   @NotNull(message = "Status é obrigatório")
   private StatusProduto status;
+
   private String motivo;
 }
