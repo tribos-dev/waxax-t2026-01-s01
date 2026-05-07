@@ -118,7 +118,7 @@ public class EstoqueApplicationService implements EstoqueService {
     estoque.adicionaQuantidade(request.getQuantidade(), request.getCustoUnitario());
     estoque.validaQuantidadeMenorZero(request.getQuantidade());
     estoqueRepository.salva(estoque);
-    log.info("[finish] EstoqueApplicationService - adicionaEstoque");
+    log.debug("[finish] EstoqueApplicationService - adicionaEstoque");
     return new EstoqueResponse(estoque);
   }
 
