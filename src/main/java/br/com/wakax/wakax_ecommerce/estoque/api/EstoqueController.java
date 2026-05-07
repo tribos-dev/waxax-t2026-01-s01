@@ -49,9 +49,9 @@ public class EstoqueController implements EstoqueAPI {
 
   @Override
   public EstoqueResponse adicionaQuantidade(UUID idProduto, AdicionaQuantidadeRequest request) {
-    log.info("[start] EstoqueController - adicionaEstoque");
+    log.info("[start] EstoqueController - adicionaQuantidade");
     EstoqueResponse estoqueResponse = estoqueService.adicionaQuantidade(idProduto, request);
-    log.debug("[finish] EstoqueController - adicionaEstoque");
+    log.debug("[finish] EstoqueController - adicionaQuantidade");
     return estoqueResponse;
   }
 
