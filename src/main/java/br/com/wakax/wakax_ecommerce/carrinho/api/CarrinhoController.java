@@ -3,6 +3,7 @@ package br.com.wakax.wakax_ecommerce.carrinho.api;
 import java.util.List;
 import java.util.UUID;
 
+import br.com.wakax.wakax_ecommerce.carrinho.api.request.AlteraQuantidadeDeItemRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -55,7 +56,14 @@ public class CarrinhoController implements CarrinhoAPI {
     log.info("[finish] CarrinhoController - deletaItemDoCarrinho");
   }
 
-  private String getUsuarioByToken(String token) {
+    @Override
+    public void alteraQuantidadeDeItem(UUID idCarrinho, UUID idCliente, AlteraQuantidadeDeItemRequest request) {
+        log.info("[start] CarrinhoController - alteraQuantidadeDeItem");
+
+        log.debug("[finish] CarrinhoController - alteraQuantidadeDeItem");
+    }
+
+    private String getUsuarioByToken(String token) {
     log.info("[token] {}", token);
     String usuario =
         tokenService

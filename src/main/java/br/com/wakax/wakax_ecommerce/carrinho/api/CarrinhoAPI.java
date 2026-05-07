@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import javax.validation.Valid;
 
+import br.com.wakax.wakax_ecommerce.carrinho.api.request.AlteraQuantidadeDeItemRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -35,4 +36,11 @@ public interface CarrinhoAPI {
       @RequestHeader(name = "Authorization", required = true) String token,
       @PathVariable UUID idCarrinho,
       @PathVariable UUID idItem);
+
+  @PatchMapping("/{idCarrinho}/altera-quantidade-item/{idCliente}")
+    @ResponseStatus(code = HttpStatus.NO_CONTENT)
+    void alteraQuantidadeDeItem(
+          @PathVariable("idCarrinho") UUID idCarrinho,
+          @PathVariable("idCliente") UUID idCliente,
+          @Valid @RequestBody AlteraQuantidadeDeItemRequest request);
 }
