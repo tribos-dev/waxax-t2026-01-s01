@@ -113,12 +113,12 @@ public class EstoqueApplicationService implements EstoqueService {
   @Transactional
   @Override
   public EstoqueResponse adicionaQuantidade(UUID idProduto, AdicionaQuantidadeRequest request) {
-    log.info("[start] EstoqueApplicationService - adicionaEstoque");
+    log.info("[start] EstoqueApplicationService - adicionaQuantidade");
     Estoque estoque = buscaEstoqueExistente(idProduto);
     estoque.adicionaQuantidade(request.getQuantidade(), request.getCustoUnitario());
     estoque.validaQuantidadeMenorZero(request.getQuantidade());
     estoqueRepository.salva(estoque);
-    log.debug("[finish] EstoqueApplicationService - adicionaEstoque");
+    log.debug("[finish] EstoqueApplicationService - adicionaQuantidade");
     return new EstoqueResponse(estoque);
   }
 
