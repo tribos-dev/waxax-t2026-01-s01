@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import br.com.wakax.wakax_ecommerce.auth.credencial.domain.Credencial;
 import br.com.wakax.wakax_ecommerce.auth.usuario.domain.Usuario;
+import br.com.wakax.wakax_ecommerce.produto.api.ProdutoAlteraStatusRequest;
 import br.com.wakax.wakax_ecommerce.produto.api.request.ProdutoAtualizaRequest;
 import br.com.wakax.wakax_ecommerce.produto.api.request.ProdutoRequest;
 import br.com.wakax.wakax_ecommerce.produto.api.response.ProdutoAtualizaResponse;
@@ -83,5 +84,24 @@ public class ProdutoApplicationService implements ProdutoService {
     Credencial credencial =
         (Credencial) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     return credencial.getUser();
+  }
+
+  @Override
+  @Transactional
+  public void removerProduto(UUID idProduto) {
+    log.debug("[start] ProdutoApplicationService - removerProduto");
+    Produto produto = produtoRepository.buscaProdutoPorId(idProduto);
+    produto.inativa();
+    produtoRepository.salva(produto);
+    log.debug("[finish] ProdutoApplicationService - removerProduto");
+  }
+
+  @Override
+  public void alteraStatusProduto(UUID idProduto, ProdutoAlteraStatusRequest statusRequest) {
+    log.debug("[start] ProdutoApplicationService - alteraStatusProduto");
+    Produto produto = produtoRepository.buscaProdutoPorId(idProduto);
+    produto.alteraStatus(statusRequest.getStatus(), statusRequest.getMotivo());
+    produtoRepository.salva(produto);
+    log.debug("[finish] ProdutoApplicationService - alteraStatusProduto");
   }
 }

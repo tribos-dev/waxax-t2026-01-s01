@@ -3,6 +3,7 @@ package br.com.wakax.wakax_ecommerce.carrinho.application.service;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,8 +17,11 @@ import br.com.wakax.wakax_ecommerce.carrinho.application.strategy.ProcessadorEst
 import br.com.wakax.wakax_ecommerce.carrinho.domain.Carrinho;
 import br.com.wakax.wakax_ecommerce.cliente.application.repository.ClienteRepository;
 import br.com.wakax.wakax_ecommerce.cliente.domain.Cliente;
+import br.com.wakax.wakax_ecommerce.handler.APIException;
+import br.com.wakax.wakax_ecommerce.handler.ErrorCode;
 import br.com.wakax.wakax_ecommerce.produto.application.repository.ProdutoRepository;
 import br.com.wakax.wakax_ecommerce.produto.domain.Produto;
+import br.com.wakax.wakax_ecommerce.produto.domain.StatusProduto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 
@@ -40,7 +44,11 @@ public class CarrinhoApplicationService implements CarrinhoService {
     Cliente cliente = clienteRepository.buscaClientePorId(idCliente);
     Carrinho carrinho = buscaCarrinhoAtivoDoClienteOuCria(cliente);
     Produto produto = produtoRepository.buscaProdutoPorId(itemCarrinhoRequest.getIdProduto());
+    if (produto.getStatus() == StatusProduto.INATIVO) {
+      throw new APIException(HttpStatus.BAD_REQUEST, ErrorCode.PRODUTO_INDISPONIVEL);
+    }
 
+    produto.validaDisponibilidade();
     ProcessadorEstoque processadorEstoque = processadorEstoqueFactory.obterProcessador();
     processadorEstoque.aoAdicionarItem(produto, itemCarrinhoRequest.getQuantidade());
 

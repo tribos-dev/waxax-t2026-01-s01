@@ -117,4 +117,10 @@ public class Estoque {
       throw new APIException(HttpStatus.BAD_REQUEST, ErrorCode.CUSTO_INVALIDO);
     }
   }
+
+  public void validaQuantidadeMenorZero(Integer quantidade) {
+    if (quantidade == null || quantidade <= 0) {
+      throw new APIException(HttpStatus.BAD_REQUEST, ErrorCode.QUANTIDADE_INVALIDA);
+    }
+  }
 }

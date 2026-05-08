@@ -2,6 +2,7 @@ package br.com.wakax.wakax_ecommerce.produto.application.service;
 
 import java.util.UUID;
 
+import br.com.wakax.wakax_ecommerce.produto.api.ProdutoAlteraStatusRequest;
 import br.com.wakax.wakax_ecommerce.produto.api.request.ProdutoAtualizaRequest;
 import br.com.wakax.wakax_ecommerce.produto.api.request.ProdutoRequest;
 import br.com.wakax.wakax_ecommerce.produto.api.response.ProdutoAtualizaResponse;
@@ -17,4 +18,8 @@ public interface ProdutoService {
   ProdutoListagemResponse listarTodosProdutos(int page, int size);
 
   ProdutoAtualizaResponse atualizaProduto(UUID idProduto, ProdutoAtualizaRequest atualizaRequest);
+
+  void removerProduto(UUID idProduto);
+
+  void alteraStatusProduto(UUID idProduto, ProdutoAlteraStatusRequest statusRequest);
 }
