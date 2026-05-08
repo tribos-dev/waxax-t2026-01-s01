@@ -5,7 +5,10 @@ import java.util.UUID;
 
 public interface ProdutoMaisVendidoProjection {
   UUID getProdutoId();
+
   String getDescricaoProduto();
+
   Long getQuantidadeTotal();
+
   BigDecimal getReceitaBruta();
 }

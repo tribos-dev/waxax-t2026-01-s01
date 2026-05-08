@@ -11,7 +11,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import br.com.wakax.wakax_ecommerce.pedido.application.api.response.ProdutoMaisVendidoResponse;
 import br.com.wakax.wakax_ecommerce.pedido.domain.Pedido;
 import br.com.wakax.wakax_ecommerce.pedido.domain.StatusPedido;
 
@@ -35,23 +34,19 @@ public interface PedidoJPARepository extends JpaRepository<Pedido, UUID> {
       UUID idCliente, StatusPedido statusPedido, Pageable pageable);
 
   @Query(
-      value =
-          """
-              SELECT new br.com.wakax.wakax_ecommerce.pedido.application.api.response.ProdutoMaisVendidoResponse(
-                  p.id,
-                  p.descricao,
-                  SUM(ip.quantidade),
-                  SUM(ip.quantidade * ip.valorUnitario)
-              )
-              FROM ItemPedido ip
-              JOIN ip.produto p
-              JOIN ip.pedido ped
-              WHERE ped.dataPedido BETWEEN :dataInicio AND :dataFim
-              GROUP BY p.id, p.descricao
-              ORDER BY SUM(ip.quantidade) DESC
-              """,
-      nativeQuery = false)
-  Page<ProdutoMaisVendidoResponse> findProdutosMaisVendidos(
+      """
+          SELECT p.id AS produtoId,
+                 p.descricao AS descricaoProduto,
+                 SUM(ip.quantidade) AS quantidadeTotal,
+                 SUM(ip.quantidade * ip.valorUnitario) AS receitaBruta
+          FROM ItemPedido ip
+          JOIN ip.produto p
+          JOIN ip.pedido ped
+          WHERE ped.dataPedido BETWEEN :dataInicio AND :dataFim
+          GROUP BY p.id, p.descricao
+          ORDER BY SUM(ip.quantidade) DESC
+          """)
+  Page<ProdutoMaisVendidoProjection> findProdutosMaisVendidos(
       @Param("dataInicio") LocalDateTime dataInicio,
       @Param("dataFim") LocalDateTime dataFim,
       Pageable pageable);
