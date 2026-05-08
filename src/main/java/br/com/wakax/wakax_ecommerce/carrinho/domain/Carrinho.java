@@ -10,6 +10,8 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 
 import br.com.wakax.wakax_ecommerce.estoque.api.response.EstoqueResponse;
+import br.com.wakax.wakax_ecommerce.carrinho.api.request.AlteraQuantidadeDeItemRequest;
+import br.com.wakax.wakax_ecommerce.estoque.domain.Estoque;
 import org.springframework.http.HttpStatus;
 
 import br.com.wakax.wakax_ecommerce.carrinho.api.request.AlteraQuantidadeDeItemRequest;

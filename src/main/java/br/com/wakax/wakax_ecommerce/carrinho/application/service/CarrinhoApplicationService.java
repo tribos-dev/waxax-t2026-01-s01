@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import br.com.wakax.wakax_ecommerce.estoque.api.response.EstoqueResponse;
 import br.com.wakax.wakax_ecommerce.estoque.application.service.EstoqueService;
+import br.com.wakax.wakax_ecommerce.carrinho.api.request.AlteraQuantidadeDeItemRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,7 +42,6 @@ public class CarrinhoApplicationService implements CarrinhoService {
   private final ClienteRepository clienteRepository;
   private final ProcessadorEstoqueFactory processadorEstoqueFactory;
   private final TokenService tokenService;
-  private final EstoqueRepository estoqueRepository;
     private final EstoqueService estoqueService;
 
     @Override
