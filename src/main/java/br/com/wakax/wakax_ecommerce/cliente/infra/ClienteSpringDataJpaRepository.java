@@ -11,7 +11,8 @@ import org.springframework.data.jpa.repository.Query;
 
 import br.com.wakax.wakax_ecommerce.cliente.domain.Cliente;
 
-public interface ClienteSpringDataJpaRepository extends JpaRepository<Cliente, UUID>, JpaSpecificationExecutor<Cliente> {
+public interface ClienteSpringDataJpaRepository
+    extends JpaRepository<Cliente, UUID>, JpaSpecificationExecutor<Cliente> {
 
   @EntityGraph(attributePaths = {"pessoa", "pessoa.emails"})
   @Query(

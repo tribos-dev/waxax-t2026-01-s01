@@ -41,7 +41,6 @@ public enum ErrorCode {
   TRANSICAO_STATUS_INVALIDA("transicao.status.invalida"),
   CRITERIO_BUSCA_OBRIGATORIO("criterio.busca.obrigatorio");
 
-
   private final String code;
 
   ErrorCode(String code) {

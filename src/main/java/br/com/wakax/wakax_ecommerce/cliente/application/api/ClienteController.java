@@ -2,14 +2,14 @@ package br.com.wakax.wakax_ecommerce.cliente.application.api;
 
 import java.util.UUID;
 
-import br.com.wakax.wakax_ecommerce.cliente.application.api.request.ClienteBuscaRequest;
-import br.com.wakax.wakax_ecommerce.cliente.application.api.response.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.com.wakax.wakax_ecommerce.cliente.application.api.request.ClienteAtualizaRequest;
+import br.com.wakax.wakax_ecommerce.cliente.application.api.request.ClienteBuscaRequest;
 import br.com.wakax.wakax_ecommerce.cliente.application.api.request.ClienteRequest;
+import br.com.wakax.wakax_ecommerce.cliente.application.api.response.*;
 import br.com.wakax.wakax_ecommerce.cliente.application.service.ClienteService;
 import br.com.wakax.wakax_ecommerce.cliente.domain.Cliente;
 import lombok.RequiredArgsConstructor;

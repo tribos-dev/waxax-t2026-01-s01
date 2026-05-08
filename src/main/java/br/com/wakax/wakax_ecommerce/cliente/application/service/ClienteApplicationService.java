@@ -1,8 +1,9 @@
 package br.com.wakax.wakax_ecommerce.cliente.application.service;
 
+import static org.apache.commons.lang3.StringUtils.isBlank;
+
 import java.util.UUID;
 
-import br.com.wakax.wakax_ecommerce.cliente.application.api.request.ClienteBuscaRequest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -12,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import br.com.wakax.wakax_ecommerce.carrinho.application.service.CarrinhoService;
 import br.com.wakax.wakax_ecommerce.cliente.application.api.request.ClienteAtualizaRequest;
+import br.com.wakax.wakax_ecommerce.cliente.application.api.request.ClienteBuscaRequest;
 import br.com.wakax.wakax_ecommerce.cliente.application.api.request.ClienteRequest;
 import br.com.wakax.wakax_ecommerce.cliente.application.api.response.ClienteAtualizaResponse;
 import br.com.wakax.wakax_ecommerce.cliente.application.api.response.ClienteResponse;
@@ -21,8 +23,6 @@ import br.com.wakax.wakax_ecommerce.handler.APIException;
 import br.com.wakax.wakax_ecommerce.handler.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-
-import static org.apache.commons.lang3.StringUtils.isBlank;
 
 @Service
 @Log4j2
@@ -115,7 +115,8 @@ public class ClienteApplicationService implements ClienteService {
       throw new APIException(HttpStatus.BAD_REQUEST, ErrorCode.CRITERIO_BUSCA_OBRIGATORIO);
     }
     Pageable pageable = PageRequest.of(filtro.getPage(), filtro.getSize());
-    Page<Cliente> clientes = clienteRepository.buscarClientePorCriterios(
+    Page<Cliente> clientes =
+        clienteRepository.buscarClientePorCriterios(
             filtro.getCpf(), filtro.getEmail(), filtro.getNome(), pageable);
     log.debug("[finish] ClienteApplicationService - buscarClientePorCriterios");
     return clientes;

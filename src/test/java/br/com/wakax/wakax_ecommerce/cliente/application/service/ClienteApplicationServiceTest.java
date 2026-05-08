@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import br.com.wakax.wakax_ecommerce.cliente.application.api.request.ClienteBuscaRequest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -22,6 +21,7 @@ import org.springframework.http.HttpStatus;
 
 import br.com.wakax.wakax_ecommerce.carrinho.application.service.CarrinhoService;
 import br.com.wakax.wakax_ecommerce.cliente.application.api.request.ClienteAtualizaRequest;
+import br.com.wakax.wakax_ecommerce.cliente.application.api.request.ClienteBuscaRequest;
 import br.com.wakax.wakax_ecommerce.cliente.application.api.response.ClienteAtualizaResponse;
 import br.com.wakax.wakax_ecommerce.cliente.application.repository.ClienteRepository;
 import br.com.wakax.wakax_ecommerce.cliente.domain.Cliente;
@@ -183,14 +183,14 @@ class ClienteApplicationServiceTest {
 
     when(clienteRepository.buscarClientePorCriterios(
             eq("026.801.105-28"), isNull(), isNull(), any()))
-            .thenReturn(pageMock);
+        .thenReturn(pageMock);
 
     Page<Cliente> resultado = clienteApplicationService.buscarClientePorCriterios(filtro);
 
     assertNotNull(resultado);
     assertEquals(1, resultado.getTotalElements());
     verify(clienteRepository, times(1))
-            .buscarClientePorCriterios(eq("026.801.105-28"), isNull(), isNull(), any());
+        .buscarClientePorCriterios(eq("026.801.105-28"), isNull(), isNull(), any());
   }
 
   @Test
@@ -203,14 +203,14 @@ class ClienteApplicationServiceTest {
 
     when(clienteRepository.buscarClientePorCriterios(
             isNull(), eq("ARIIRAFA8@EMAIL.COM"), isNull(), any()))
-            .thenReturn(pageMock);
+        .thenReturn(pageMock);
 
     Page<Cliente> resultado = clienteApplicationService.buscarClientePorCriterios(filtro);
 
     assertNotNull(resultado);
     assertEquals(1, resultado.getTotalElements());
     verify(clienteRepository, times(1))
-            .buscarClientePorCriterios(isNull(), eq("ARIIRAFA8@EMAIL.COM"), isNull(), any());
+        .buscarClientePorCriterios(isNull(), eq("ARIIRAFA8@EMAIL.COM"), isNull(), any());
   }
 
   @Test
@@ -221,16 +221,15 @@ class ClienteApplicationServiceTest {
     Cliente clienteMock = mock(Cliente.class);
     Page<Cliente> pageMock = new PageImpl<>(List.of(clienteMock), PageRequest.of(0, 10), 1);
 
-    when(clienteRepository.buscarClientePorCriterios(
-            isNull(), isNull(), eq("Aria"), any()))
-            .thenReturn(pageMock);
+    when(clienteRepository.buscarClientePorCriterios(isNull(), isNull(), eq("Aria"), any()))
+        .thenReturn(pageMock);
 
     Page<Cliente> resultado = clienteApplicationService.buscarClientePorCriterios(filtro);
 
     assertNotNull(resultado);
     assertEquals(1, resultado.getTotalElements());
     verify(clienteRepository, times(1))
-            .buscarClientePorCriterios(isNull(), isNull(), eq("Aria"), any());
+        .buscarClientePorCriterios(isNull(), isNull(), eq("Aria"), any());
   }
 
   @Test
@@ -244,27 +243,28 @@ class ClienteApplicationServiceTest {
 
     when(clienteRepository.buscarClientePorCriterios(
             isNull(), eq("ariirafa8@email.com"), eq("Ariane"), any()))
-            .thenReturn(pageMock);
+        .thenReturn(pageMock);
 
     Page<Cliente> resultado = clienteApplicationService.buscarClientePorCriterios(filtro);
 
     assertNotNull(resultado);
     assertEquals(1, resultado.getTotalElements());
     verify(clienteRepository, times(1))
-            .buscarClientePorCriterios(isNull(), eq("ariirafa8@email.com"), eq("Ariane"), any());
+        .buscarClientePorCriterios(isNull(), eq("ariirafa8@email.com"), eq("Ariane"), any());
   }
 
   @Test
   void deveLancarExcecaoQuandoNenhumCriterioForInformado() {
     ClienteBuscaRequest filtro = new ClienteBuscaRequest();
 
-    APIException exception = assertThrows(APIException.class,
-            () -> clienteApplicationService.buscarClientePorCriterios(filtro));
+    APIException exception =
+        assertThrows(
+            APIException.class, () -> clienteApplicationService.buscarClientePorCriterios(filtro));
 
     assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
-    verify(clienteRepository, never())
-            .buscarClientePorCriterios(any(), any(), any(), any());
+    verify(clienteRepository, never()).buscarClientePorCriterios(any(), any(), any(), any());
   }
+
   @Test
   void deveRetornarListaVaziaQuandoNenhumClienteForEncontrado() {
     ClienteBuscaRequest filtro = new ClienteBuscaRequest();
@@ -274,7 +274,7 @@ class ClienteApplicationServiceTest {
 
     when(clienteRepository.buscarClientePorCriterios(
             isNull(), eq("naoexiste@email.com"), isNull(), any()))
-            .thenReturn(pageVazia);
+        .thenReturn(pageVazia);
 
     Page<Cliente> resultado = clienteApplicationService.buscarClientePorCriterios(filtro);
 
@@ -282,6 +282,6 @@ class ClienteApplicationServiceTest {
     assertTrue(resultado.isEmpty());
     assertEquals(0, resultado.getTotalElements());
     verify(clienteRepository, times(1))
-            .buscarClientePorCriterios(isNull(), eq("naoexiste@email.com"), isNull(), any());
+        .buscarClientePorCriterios(isNull(), eq("naoexiste@email.com"), isNull(), any());
   }
 }

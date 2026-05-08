@@ -8,9 +8,9 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ClienteBuscaRequest {
-    private String cpf;
-    private String email;
-    private String nome;
-    private int page = 0;
-    private int size = 10;
+  private String cpf;
+  private String email;
+  private String nome;
+  private int page = 0;
+  private int size = 10;
 }
