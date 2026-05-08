@@ -14,6 +14,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import br.com.wakax.wakax_ecommerce.carrinho.domain.ItemCarrinho;
+import br.com.wakax.wakax_ecommerce.estoque.application.service.EstoqueDataHelper;
+import br.com.wakax.wakax_ecommerce.estoque.domain.Estoque;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -275,5 +278,17 @@ class CarrinhoApplicationServiceTest {
     assertEquals(ErrorCode.PRODUTO_INDISPONIVEL, exception.getErrorCode());
     verify(processadorEstoqueFactory, never()).obterProcessador();
     verify(carrinhoRepository, never()).salva(any(Carrinho.class));
+  }
+
+  @Test
+    void DeveAlterarQuantidadeComSucesso(){
+      Cliente cliente = CarrinhoDataHelper.criaCliente();
+      Carrinho carrinho = CarrinhoDataHelper.criaCarrinhoAtivoComUmItem(cliente);
+      ItemCarrinho itemCarrinho =CarrinhoDataHelper.criaItemCarrinho();
+    Estoque estoque = CarrinhoDataHelper.criaEstoque();
+
+    when(carrinhoRepository.buscaCarrinhoPorId(carrinho.getId())).thenReturn(carrinho);
+    when(clienteRepository.buscaClientePorId(cliente.getId())).thenReturn(cliente);
+    when(carrinho.buscaItemPorId(itemCarrinho.getId())).thenReturn(itemCarrinho);
   }
 }

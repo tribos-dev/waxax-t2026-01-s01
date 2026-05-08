@@ -5,10 +5,10 @@ import java.util.UUID;
 
 import javax.validation.Valid;
 
-import br.com.wakax.wakax_ecommerce.carrinho.api.request.AlteraQuantidadeDeItemRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import br.com.wakax.wakax_ecommerce.carrinho.api.request.AlteraQuantidadeDeItemRequest;
 import br.com.wakax.wakax_ecommerce.carrinho.api.request.ItemCarrinhoRequest;
 import br.com.wakax.wakax_ecommerce.carrinho.api.response.CarrinhoResponse;
 import br.com.wakax.wakax_ecommerce.carrinho.api.response.CarrinhosListAllResponse;
@@ -38,11 +38,10 @@ public interface CarrinhoAPI {
       @PathVariable UUID idItem);
 
   @PatchMapping("/{idCarrinho}/altera-quantidade-item/{idItem}/cliente/{idCliente}")
-    @ResponseStatus(code = HttpStatus.NO_CONTENT)
-    void alteraQuantidadeDeItem(
-          @PathVariable("idCarrinho") UUID idCarrinho,
-          @PathVariable("idItem") UUID idItem,
-          @PathVariable("idCliente") UUID idCliente,
-          @Valid @RequestBody AlteraQuantidadeDeItemRequest request);
-
+  @ResponseStatus(code = HttpStatus.NO_CONTENT)
+  void alteraQuantidadeDeItem(
+      @PathVariable("idCarrinho") UUID idCarrinho,
+      @PathVariable("idItem") UUID idItem,
+      @PathVariable("idCliente") UUID idCliente,
+      @Valid @RequestBody AlteraQuantidadeDeItemRequest request);
 }

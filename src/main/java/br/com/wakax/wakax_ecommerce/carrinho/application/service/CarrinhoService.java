@@ -19,5 +19,6 @@ public interface CarrinhoService {
 
   void restaurarCarrinho(UUID id);
 
-    void alteraQuantidadeDeItem(UUID idCarrinho, UUID idItem, UUID idCliente, AlteraQuantidadeDeItemRequest request);
+  void alteraQuantidadeDeItem(
+      UUID idCarrinho, UUID idItem, UUID idCliente, AlteraQuantidadeDeItemRequest request);
 }

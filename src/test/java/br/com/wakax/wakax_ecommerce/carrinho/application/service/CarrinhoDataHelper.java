@@ -11,6 +11,7 @@ import br.com.wakax.wakax_ecommerce.carrinho.domain.Carrinho;
 import br.com.wakax.wakax_ecommerce.carrinho.domain.ItemCarrinho;
 import br.com.wakax.wakax_ecommerce.carrinho.domain.StatusCarrinho;
 import br.com.wakax.wakax_ecommerce.cliente.domain.Cliente;
+import br.com.wakax.wakax_ecommerce.estoque.domain.Estoque;
 import br.com.wakax.wakax_ecommerce.pessoa.domain.Pessoa;
 import br.com.wakax.wakax_ecommerce.pessoa.domain.StatusPessoa;
 import br.com.wakax.wakax_ecommerce.produto.domain.Preco;
@@ -156,5 +157,13 @@ public final class CarrinhoDataHelper {
 
     carrinho.getItensCarrinho().add(item);
     return carrinho;
+  }
+
+  public static Estoque criaEstoque(){
+      return Estoque.builder()
+              .id(UUID.fromString("f47ac10b-58cc-4372-a567-0e02b2c3d479"))
+              .quantidadeDisponivel(40)
+              .produto(criaProduto())
+              .build();
   }
 }

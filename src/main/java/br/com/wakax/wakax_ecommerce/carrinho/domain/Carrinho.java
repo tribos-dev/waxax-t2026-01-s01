@@ -9,14 +9,13 @@ import java.util.UUID;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 
-import br.com.wakax.wakax_ecommerce.carrinho.api.request.AlteraQuantidadeDeItemRequest;
-import br.com.wakax.wakax_ecommerce.estoque.application.service.EstoqueApplicationService;
-import br.com.wakax.wakax_ecommerce.estoque.domain.Estoque;
-import org.hibernate.cache.spi.support.AbstractReadWriteAccess;
+import br.com.wakax.wakax_ecommerce.estoque.api.response.EstoqueResponse;
 import org.springframework.http.HttpStatus;
 
+import br.com.wakax.wakax_ecommerce.carrinho.api.request.AlteraQuantidadeDeItemRequest;
 import br.com.wakax.wakax_ecommerce.carrinho.api.request.ItemCarrinhoRequest;
 import br.com.wakax.wakax_ecommerce.cliente.domain.Cliente;
+import br.com.wakax.wakax_ecommerce.estoque.domain.Estoque;
 import br.com.wakax.wakax_ecommerce.handler.APIException;
 import br.com.wakax.wakax_ecommerce.handler.ErrorCode;
 import br.com.wakax.wakax_ecommerce.produto.domain.Produto;
@@ -117,25 +116,34 @@ public class Carrinho {
     this.statusCarrinho = StatusCarrinho.ATIVO;
   }
 
-  public void validaSeCarrinhoEstaAptoAModificacoes(Cliente cliente, UUID idItem){
-      verificaSeCarrinhoEstaAtivo();
-      verificaSeCarrinhoPertenceAoCliente(cliente);
-      buscaItemPorId(idItem);
+  public void validaSeCarrinhoEstaAptoAModificacoes(UUID idCliente, UUID idItem) {
+    verificaSeCarrinhoEstaAtivo();
+    verificaSeCarrinhoPertenceAoCliente(idCliente);
+    buscaItemPorId(idItem);
   }
 
-    private void verificaSeCarrinhoPertenceAoCliente(Cliente cliente) {
-        if (cliente == null || !this.cliente.getId().equals(cliente.getId())) {
-            throw new APIException(HttpStatus.FORBIDDEN, ErrorCode.CARRINHO_NAO_PERTENCE_AO_CLIENTE_AUTENTICADO);
-        }
+  private void verificaSeCarrinhoPertenceAoCliente(UUID idCliente) {
+    if (cliente == null || !this.cliente.getId().equals(idCliente)) {
+      throw new APIException(
+          HttpStatus.FORBIDDEN, ErrorCode.CARRINHO_NAO_PERTENCE_AO_CLIENTE_AUTENTICADO);
     }
+  }
 
-    public void validaQuantidade(AlteraQuantidadeDeItemRequest request){
-      validaQuantidadeMinima(request);
-    }
+  public void validaQuantidade(AlteraQuantidadeDeItemRequest request, Estoque estoque) {
+    validaQuantidadeMinima(request);
+    validaSeExisteQuantidadeEmEstoque(request, estoque);
+  }
 
-    private void validaQuantidadeMinima(AlteraQuantidadeDeItemRequest request) {
-      if (request.getQuantidade() < 1){
-          throw new APIException(HttpStatus.BAD_REQUEST, ErrorCode.QUANTIDADE_INVALIDA);
-      }
+  private void validaSeExisteQuantidadeEmEstoque(
+      AlteraQuantidadeDeItemRequest request, Estoque estoque) {
+    if (!estoque.temQuantidadeDisponivel(request.getQuantidade())) {
+      throw new APIException(HttpStatus.BAD_REQUEST, ErrorCode.QUANTIDADE_INSUFICIENTE_ESTOQUE);
     }
+  }
+
+  private void validaQuantidadeMinima(AlteraQuantidadeDeItemRequest request) {
+    if (request.getQuantidade() < 1) {
+      throw new APIException(HttpStatus.BAD_REQUEST, ErrorCode.QUANTIDADE_INVALIDA);
+    }
+  }
 }

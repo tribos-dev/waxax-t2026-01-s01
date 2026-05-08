@@ -8,6 +8,7 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.PositiveOrZero;
 
+import br.com.wakax.wakax_ecommerce.estoque.api.response.EstoqueResponse;
 import org.springframework.http.HttpStatus;
 
 import br.com.wakax.wakax_ecommerce.estoque.api.request.EstoqueRequest;
@@ -54,7 +55,15 @@ public class Estoque {
     this.custoTotal = request.getCustoTotal();
   }
 
-  public void adicionaQuantidade(Integer quantidade, BigDecimal custoUnitario) {
+    public Estoque(UUID id, UUID idProduto, String descricaoProduto, Integer quantidadeDisponivel, BigDecimal custoMedio, BigDecimal custoTotal, BigDecimal precoVenda) {
+        this.id = id;
+        this.produto = produto;
+        this.quantidadeDisponivel = quantidadeDisponivel;
+        this.custoMedio = custoMedio;
+        this.custoTotal = custoTotal;
+  }
+
+    public void adicionaQuantidade(Integer quantidade, BigDecimal custoUnitario) {
     validaQuantidade(quantidade);
     validaCustoUnitario(custoUnitario);
 
@@ -123,4 +132,15 @@ public class Estoque {
       throw new APIException(HttpStatus.BAD_REQUEST, ErrorCode.QUANTIDADE_INVALIDA);
     }
   }
+
+    public static Estoque fromResponse(EstoqueResponse response) {
+        return new Estoque(
+                response.getId(),
+                response.getIdProduto(),
+                response.getDescricaoProduto(),
+                response.getQuantidadeDisponivel(),
+                response.getCustoMedio(),
+                response.getCustoTotal(),
+                response.getPrecoVenda());
+    }
 }

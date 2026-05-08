@@ -3,13 +3,14 @@ package br.com.wakax.wakax_ecommerce.carrinho.application.service;
 import java.util.List;
 import java.util.UUID;
 
-import br.com.wakax.wakax_ecommerce.carrinho.api.request.AlteraQuantidadeDeItemRequest;
-import br.com.wakax.wakax_ecommerce.carrinho.domain.ItemCarrinho;
+import br.com.wakax.wakax_ecommerce.estoque.api.response.EstoqueResponse;
+import br.com.wakax.wakax_ecommerce.estoque.application.service.EstoqueService;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import br.com.wakax.wakax_ecommerce.auth.security.service.TokenService;
+import br.com.wakax.wakax_ecommerce.carrinho.api.request.AlteraQuantidadeDeItemRequest;
 import br.com.wakax.wakax_ecommerce.carrinho.api.request.ItemCarrinhoRequest;
 import br.com.wakax.wakax_ecommerce.carrinho.api.response.CarrinhoResponse;
 import br.com.wakax.wakax_ecommerce.carrinho.api.response.CarrinhosListAllResponse;
@@ -17,8 +18,11 @@ import br.com.wakax.wakax_ecommerce.carrinho.application.factory.ProcessadorEsto
 import br.com.wakax.wakax_ecommerce.carrinho.application.repository.CarrinhoRepository;
 import br.com.wakax.wakax_ecommerce.carrinho.application.strategy.ProcessadorEstoque;
 import br.com.wakax.wakax_ecommerce.carrinho.domain.Carrinho;
+import br.com.wakax.wakax_ecommerce.carrinho.domain.ItemCarrinho;
 import br.com.wakax.wakax_ecommerce.cliente.application.repository.ClienteRepository;
 import br.com.wakax.wakax_ecommerce.cliente.domain.Cliente;
+import br.com.wakax.wakax_ecommerce.estoque.application.repository.EstoqueRepository;
+import br.com.wakax.wakax_ecommerce.estoque.domain.Estoque;
 import br.com.wakax.wakax_ecommerce.handler.APIException;
 import br.com.wakax.wakax_ecommerce.handler.ErrorCode;
 import br.com.wakax.wakax_ecommerce.produto.application.repository.ProdutoRepository;
@@ -37,8 +41,10 @@ public class CarrinhoApplicationService implements CarrinhoService {
   private final ClienteRepository clienteRepository;
   private final ProcessadorEstoqueFactory processadorEstoqueFactory;
   private final TokenService tokenService;
+  private final EstoqueRepository estoqueRepository;
+    private final EstoqueService estoqueService;
 
-  @Override
+    @Override
   @Transactional
   public CarrinhoResponse adicionaItemNoCarrinho(
       UUID idCliente, ItemCarrinhoRequest itemCarrinhoRequest) {
@@ -108,14 +114,25 @@ public class CarrinhoApplicationService implements CarrinhoService {
     log.debug("[finish] CarrinhoApplicationService - restaurarCarrinho");
   }
 
-    @Override
-    @Transactional
-    public void alteraQuantidadeDeItem(UUID idCarrinho, UUID idItem, UUID idCliente, AlteraQuantidadeDeItemRequest request) {
-        log.info("[start] CarrinhoApplicationService - alteraQuantidadeDeItem");
-        Carrinho carrinho = carrinhoRepository.buscaCarrinhoPorId(idCarrinho);
-        Cliente cliente = clienteRepository.buscaClientePorId(idCliente);
-        carrinho.validaSeCarrinhoEstaAptoAModificacoes(cliente, idItem);
-        carrinho.validaQuantidade(request);
-        log.debug("[finish] CarrinhoApplicationService - alteraQuantidadeDeItem");
+  @Override
+  @Transactional
+  public void alteraQuantidadeDeItem(
+      UUID idCarrinho, UUID idItem, UUID idCliente, AlteraQuantidadeDeItemRequest request) {
+    log.info("[start] CarrinhoApplicationService - alteraQuantidadeDeItem");
+    Carrinho carrinho = carrinhoRepository.buscaCarrinhoPorId(idCarrinho);
+    ItemCarrinho itemCarrinho = carrinho.buscaItemPorId(idItem);
+    EstoqueResponse estoqueResponse = estoqueService.buscaEstoquePorIdProduto(itemCarrinho.getProduto().getId());
+    Estoque estoque = Estoque.fromResponse(estoqueResponse);
+    carrinho.validaSeCarrinhoEstaAptoAModificacoes(idCliente, idItem);
+    carrinho.validaQuantidade(request, estoque);
+    itemCarrinho.novaQuantidadeTotal(request);
+    carrinhoRepository.salva(carrinho);
+    log.debug("[finish] CarrinhoApplicationService - alteraQuantidadeDeItem");
+  }
+
+    private Estoque buscaEstoqueDoProduto(UUID idItem, Carrinho carrinho) {
+        ItemCarrinho item = carrinho.buscaItemPorId(idItem);
+        EstoqueResponse response = estoqueService.buscaEstoquePorIdProduto(item.getProduto().getId());
+        return Estoque.fromResponse(response);
     }
 }
