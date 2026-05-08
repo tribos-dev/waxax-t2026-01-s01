@@ -62,7 +62,10 @@ public class PedidoInfraRepository implements PedidoRepository {
       LocalDateTime dataInicio, LocalDateTime dataFim, Pageable limite) {
     log.debug("[start] PedidoInfraRepository - buscaProdutosMaisVendidos");
     List<ProdutoMaisVendidoResponse> produtos =
-        pedidoJPARepository.findProdutosMaisVendidos(dataInicio, dataFim, limite).getContent();
+        pedidoJPARepository.findProdutosMaisVendidos(dataInicio, dataFim, limite).getContent()
+            .stream()
+            .map(p -> new ProdutoMaisVendidoResponse(p.getProdutoId(), p.getDescricaoProduto(), p.getQuantidadeTotal(), p.getReceitaBruta()))
+            .toList();
     log.debug("[finish] PedidoInfraRepository - buscaProdutosMaisVendidos");
     return produtos;
   }
