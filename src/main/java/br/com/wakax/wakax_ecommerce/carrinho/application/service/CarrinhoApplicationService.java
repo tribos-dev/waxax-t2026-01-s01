@@ -3,6 +3,8 @@ package br.com.wakax.wakax_ecommerce.carrinho.application.service;
 import java.util.List;
 import java.util.UUID;
 
+import br.com.wakax.wakax_ecommerce.carrinho.api.request.AlteraQuantidadeDeItemRequest;
+import br.com.wakax.wakax_ecommerce.carrinho.domain.ItemCarrinho;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -105,4 +107,14 @@ public class CarrinhoApplicationService implements CarrinhoService {
     }
     log.debug("[finish] CarrinhoApplicationService - restaurarCarrinho");
   }
+
+    @Override
+    @Transactional
+    public void alteraQuantidadeDeItem(UUID idCarrinho, UUID idItem, UUID idCliente, AlteraQuantidadeDeItemRequest request) {
+        log.info("[start] CarrinhoApplicationService - alteraQuantidadeDeItem");
+        Carrinho carrinho = carrinhoRepository.buscaCarrinhoPorId(idCarrinho);
+        Cliente cliente = clienteRepository.buscaClientePorId(idCliente);
+        carrinho.validaSeCarrinhoEstaAptoAModificacoes();
+        log.debug("[finish] CarrinhoApplicationService - alteraQuantidadeDeItem");
+    }
 }

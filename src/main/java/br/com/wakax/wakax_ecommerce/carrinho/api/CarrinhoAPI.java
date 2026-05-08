@@ -37,10 +37,12 @@ public interface CarrinhoAPI {
       @PathVariable UUID idCarrinho,
       @PathVariable UUID idItem);
 
-  @PatchMapping("/{idCarrinho}/altera-quantidade-item/{idCliente}")
+  @PatchMapping("/{idCarrinho}/altera-quantidade-item/{idItem}/cliente/{idCliente}")
     @ResponseStatus(code = HttpStatus.NO_CONTENT)
     void alteraQuantidadeDeItem(
           @PathVariable("idCarrinho") UUID idCarrinho,
+          @PathVariable("idItem") UUID idItem,
           @PathVariable("idCliente") UUID idCliente,
           @Valid @RequestBody AlteraQuantidadeDeItemRequest request);
+
 }

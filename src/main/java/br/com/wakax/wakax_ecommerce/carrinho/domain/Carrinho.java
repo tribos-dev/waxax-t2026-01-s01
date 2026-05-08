@@ -9,6 +9,9 @@ import java.util.UUID;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 
+import br.com.wakax.wakax_ecommerce.estoque.application.service.EstoqueApplicationService;
+import br.com.wakax.wakax_ecommerce.estoque.domain.Estoque;
+import org.hibernate.cache.spi.support.AbstractReadWriteAccess;
 import org.springframework.http.HttpStatus;
 
 import br.com.wakax.wakax_ecommerce.carrinho.api.request.ItemCarrinhoRequest;
@@ -112,4 +115,9 @@ public class Carrinho {
   public void ativar() {
     this.statusCarrinho = StatusCarrinho.ATIVO;
   }
+
+  public void validaSeCarrinhoEstaAptoAModificacoes(){
+      verificaSeCarrinhoEstaAtivo();
+//      verificaSeCarrinhoPertenceAoUsuario(cliente.getPessoa().getEmails().toString());
+  };
 }

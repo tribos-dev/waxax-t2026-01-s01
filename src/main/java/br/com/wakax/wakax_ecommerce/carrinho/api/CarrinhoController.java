@@ -57,9 +57,9 @@ public class CarrinhoController implements CarrinhoAPI {
   }
 
     @Override
-    public void alteraQuantidadeDeItem(UUID idCarrinho, UUID idCliente, AlteraQuantidadeDeItemRequest request) {
+    public void alteraQuantidadeDeItem(UUID idCarrinho, UUID idItem, UUID idCliente, AlteraQuantidadeDeItemRequest request) {
         log.info("[start] CarrinhoController - alteraQuantidadeDeItem");
-
+        carrinhoService.alteraQuantidadeDeItem(idCarrinho, idItem, idCliente, request);
         log.debug("[finish] CarrinhoController - alteraQuantidadeDeItem");
     }
 
