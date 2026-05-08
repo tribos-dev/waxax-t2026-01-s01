@@ -116,9 +116,10 @@ public class Carrinho {
     this.statusCarrinho = StatusCarrinho.ATIVO;
   }
 
-  public void validaSeCarrinhoEstaAptoAModificacoes(Cliente cliente){
+  public void validaSeCarrinhoEstaAptoAModificacoes(Cliente cliente, UUID idItem){
       verificaSeCarrinhoEstaAtivo();
       verificaSeCarrinhoPertenceAoCliente(cliente);
+      buscaItemPorId(idItem);
   }
 
     private void verificaSeCarrinhoPertenceAoCliente(Cliente cliente) {
