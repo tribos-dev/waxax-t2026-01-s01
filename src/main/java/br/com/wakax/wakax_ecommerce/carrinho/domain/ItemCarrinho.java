@@ -53,7 +53,7 @@ public class ItemCarrinho {
     return this.precoUnitario.multiply(new BigDecimal(this.quantidade));
   }
 
-  public void novaQuantidadeTotal(AlteraQuantidadeDeItemRequest request) {
-    this.quantidade += request.getQuantidade();
+  public void novaQuantidadeTotal(Integer quantidade) {
+    this.quantidade += quantidade;
   }
 }

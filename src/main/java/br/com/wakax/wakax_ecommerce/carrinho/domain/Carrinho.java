@@ -131,21 +131,23 @@ public class Carrinho {
     }
   }
 
-  public void validaQuantidade(AlteraQuantidadeDeItemRequest request, Estoque estoque) {
-    validaQuantidadeMinima(request);
-    validaSeExisteQuantidadeEmEstoque(request, estoque);
+  public void validaQuantidade(Integer quantidade, Estoque estoque) {
+    validaQuantidadeMinima(quantidade);
+    validaSeExisteQuantidadeEmEstoque(quantidade, estoque);
   }
 
   private void validaSeExisteQuantidadeEmEstoque(
-      AlteraQuantidadeDeItemRequest request, Estoque estoque) {
-    if (!estoque.temQuantidadeDisponivel(request.getQuantidade())) {
+      Integer quantidade, Estoque estoque) {
+    if (!estoque.temQuantidadeDisponivel(quantidade)) {
       throw new APIException(HttpStatus.BAD_REQUEST, ErrorCode.QUANTIDADE_INSUFICIENTE_ESTOQUE);
     }
   }
 
-  private void validaQuantidadeMinima(AlteraQuantidadeDeItemRequest request) {
-    if (request.getQuantidade() < 1) {
+  private void validaQuantidadeMinima(Integer quantidade) {
+    if (quantidade < 1) {
       throw new APIException(HttpStatus.BAD_REQUEST, ErrorCode.QUANTIDADE_INVALIDA);
     }
   }
+
+
 }

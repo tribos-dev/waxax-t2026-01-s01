@@ -121,18 +121,16 @@ public class CarrinhoApplicationService implements CarrinhoService {
     log.info("[start] CarrinhoApplicationService - alteraQuantidadeDeItem");
     Carrinho carrinho = carrinhoRepository.buscaCarrinhoPorId(idCarrinho);
     ItemCarrinho itemCarrinho = carrinho.buscaItemPorId(idItem);
-    EstoqueResponse estoqueResponse = estoqueService.buscaEstoquePorIdProduto(itemCarrinho.getProduto().getId());
-    Estoque estoque = Estoque.fromResponse(estoqueResponse);
     carrinho.validaSeCarrinhoEstaAptoAModificacoes(idCliente, idItem);
-    carrinho.validaQuantidade(request, estoque);
-    itemCarrinho.novaQuantidadeTotal(request);
+    Estoque estoque = buscaEstoqueDoProduto(itemCarrinho);
+    carrinho.validaQuantidade(request.getQuantidade(), estoque);
+    itemCarrinho.novaQuantidadeTotal(request.getQuantidade());
     carrinhoRepository.salva(carrinho);
     log.debug("[finish] CarrinhoApplicationService - alteraQuantidadeDeItem");
   }
 
-    private Estoque buscaEstoqueDoProduto(UUID idItem, Carrinho carrinho) {
-        ItemCarrinho item = carrinho.buscaItemPorId(idItem);
-        EstoqueResponse response = estoqueService.buscaEstoquePorIdProduto(item.getProduto().getId());
+    private Estoque buscaEstoqueDoProduto(ItemCarrinho itemCarrinho) {
+        EstoqueResponse response = estoqueService.buscaEstoquePorIdProduto(itemCarrinho.getProduto().getId());
         return Estoque.fromResponse(response);
     }
 }
