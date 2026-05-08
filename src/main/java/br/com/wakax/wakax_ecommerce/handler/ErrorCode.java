@@ -42,7 +42,8 @@ public enum ErrorCode {
   CLIENTE_INATIVO("cliente.inativo"),
   TRANSICAO_STATUS_INVALIDA("transicao.status.invalida"),
   MOTIVO_ESTORNO_OBRIGATORIO("motivo.estorno.obrigatorio"),
-  PAGAMENTO_NAO_PODE_SER_ESTORNADO("pagamento.nao.pode.ser.estornado");
+  PAGAMENTO_NAO_PODE_SER_ESTORNADO("pagamento.nao.pode.ser.estornado"),
+  CARRINHO_NAO_PERTENCE_AO_CLIENTE_AUTENTICADO("carrinho.nao.pertence.ao.cliente.autenticado");
 
   private final String code;
 

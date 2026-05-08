@@ -114,7 +114,7 @@ public class CarrinhoApplicationService implements CarrinhoService {
         log.info("[start] CarrinhoApplicationService - alteraQuantidadeDeItem");
         Carrinho carrinho = carrinhoRepository.buscaCarrinhoPorId(idCarrinho);
         Cliente cliente = clienteRepository.buscaClientePorId(idCliente);
-        carrinho.validaSeCarrinhoEstaAptoAModificacoes();
+        carrinho.validaSeCarrinhoEstaAptoAModificacoes(cliente);
         log.debug("[finish] CarrinhoApplicationService - alteraQuantidadeDeItem");
     }
 }

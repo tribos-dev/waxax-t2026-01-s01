@@ -116,8 +116,14 @@ public class Carrinho {
     this.statusCarrinho = StatusCarrinho.ATIVO;
   }
 
-  public void validaSeCarrinhoEstaAptoAModificacoes(){
+  public void validaSeCarrinhoEstaAptoAModificacoes(Cliente cliente){
       verificaSeCarrinhoEstaAtivo();
-//      verificaSeCarrinhoPertenceAoUsuario(cliente.getPessoa().getEmails().toString());
-  };
+      verificaSeCarrinhoPertenceAoCliente(cliente);
+  }
+
+    private void verificaSeCarrinhoPertenceAoCliente(Cliente cliente) {
+        if (cliente == null || !this.cliente.getId().equals(cliente.getId())) {
+            throw new APIException(HttpStatus.FORBIDDEN, ErrorCode.CARRINHO_NAO_PERTENCE_AO_CLIENTE_AUTENTICADO);
+        }
+    }
 }
