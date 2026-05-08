@@ -9,6 +9,7 @@ import java.util.UUID;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 
+import br.com.wakax.wakax_ecommerce.carrinho.api.request.AlteraQuantidadeDeItemRequest;
 import br.com.wakax.wakax_ecommerce.estoque.application.service.EstoqueApplicationService;
 import br.com.wakax.wakax_ecommerce.estoque.domain.Estoque;
 import org.hibernate.cache.spi.support.AbstractReadWriteAccess;
@@ -126,5 +127,15 @@ public class Carrinho {
         if (cliente == null || !this.cliente.getId().equals(cliente.getId())) {
             throw new APIException(HttpStatus.FORBIDDEN, ErrorCode.CARRINHO_NAO_PERTENCE_AO_CLIENTE_AUTENTICADO);
         }
+    }
+
+    public void validaQuantidade(AlteraQuantidadeDeItemRequest request){
+      validaQuantidadeMinima(request);
+    }
+
+    private void validaQuantidadeMinima(AlteraQuantidadeDeItemRequest request) {
+      if (request.getQuantidade() < 1){
+          throw new APIException(HttpStatus.BAD_REQUEST, ErrorCode.QUANTIDADE_INVALIDA);
+      }
     }
 }
