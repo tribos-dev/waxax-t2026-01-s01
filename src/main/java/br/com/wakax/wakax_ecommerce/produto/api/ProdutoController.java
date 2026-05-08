@@ -4,7 +4,9 @@ import java.util.UUID;
 
 import org.springframework.web.bind.annotation.RestController;
 
+import br.com.wakax.wakax_ecommerce.produto.api.request.ProdutoAtualizaRequest;
 import br.com.wakax.wakax_ecommerce.produto.api.request.ProdutoRequest;
+import br.com.wakax.wakax_ecommerce.produto.api.response.ProdutoAtualizaResponse;
 import br.com.wakax.wakax_ecommerce.produto.api.response.ProdutoListResponse;
 import br.com.wakax.wakax_ecommerce.produto.api.response.ProdutoListagemResponse;
 import br.com.wakax.wakax_ecommerce.produto.api.response.ProdutoResponse;
@@ -40,5 +42,22 @@ public class ProdutoController implements ProdutoAPI {
     ProdutoListagemResponse response = produtoService.listarTodosProdutos(page, size);
     log.debug("[finish] ProdutoController - listarTodosProdutos");
     return response;
+  }
+
+  @Override
+  public ProdutoAtualizaResponse atualizarProduto(
+      UUID idProduto, ProdutoAtualizaRequest atualizaRequest) {
+    log.debug("[start] ProdutoController - atualizarProduto");
+    ProdutoAtualizaResponse produtoAtualizado =
+        produtoService.atualizaProduto(idProduto, atualizaRequest);
+    log.debug("[finish] ProdutoController - atualizarProduto");
+    return produtoAtualizado;
+  }
+
+  @Override
+  public void removerProduto(UUID idProduto) {
+    log.debug("[start] ProdutoController - removerProduto");
+    produtoService.removerProduto(idProduto);
+    log.debug("[finish] ProdutoController - removerProduto");
   }
 }

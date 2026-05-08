@@ -2,13 +2,20 @@ package br.com.wakax.wakax_ecommerce.produto.domain;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import javax.persistence.*;
 import javax.validation.constraints.*;
 
+import org.springframework.http.HttpStatus;
+
+import br.com.wakax.wakax_ecommerce.handler.APIException;
+import br.com.wakax.wakax_ecommerce.handler.ErrorCode;
+import br.com.wakax.wakax_ecommerce.produto.api.request.ProdutoAtualizaRequest;
 import br.com.wakax.wakax_ecommerce.produto.api.request.ProdutoRequest;
 import lombok.*;
 
@@ -59,6 +66,9 @@ public class Produto {
   @Column(name = "data_de_cadastro")
   private LocalDateTime dataDeCadastro;
 
+  @Column(name = "data_de_atualizacao")
+  private LocalDateTime dataDeAtualizacao;
+
   public Produto(ProdutoRequest request) {
     this.descricao = request.getDescricao();
     this.status = StatusProduto.ATIVO;
@@ -76,6 +86,52 @@ public class Produto {
               .collect(Collectors.toList());
     }
     this.dataDeCadastro = LocalDateTime.now();
+  }
+
+  public void atualiza(ProdutoAtualizaRequest request) {
+    atualizaSeNaoNulo(request.getDescricao(), valor -> this.descricao = valor);
+    atualizaSeNaoNulo(request.getPesoLiquido(), valor -> this.pesoLiquido = valor);
+    atualizaSeNaoNulo(request.getPesoBruto(), valor -> this.pesoBruto = valor);
+    atualizaSeNaoNulo(
+        request.getDescricaoComplementar(), valor -> this.descricaoComplementar = valor);
+    atualizaSeNaoNulo(request.getGrupo(), valor -> this.grupo = valor);
+    atualizaSeNaoNulo(request.getUnidade(), valor -> this.unidade = valor);
+    atualizaSeNaoNulo(request.getEstoqueMinimo(), valor -> this.estoqueMinimo = valor);
+    atualizaSeNaoNulo(request.getEstoqueMaximo(), valor -> this.estoqueMaximo = valor);
+    if (request.getPrecos() != null) {
+      if (this.precos == null) {
+        this.precos = new ArrayList<>();
+      }
+      request
+          .getPrecos()
+          .forEach(
+              precoReq ->
+                  this.precos.stream()
+                      .filter(p -> p.getTipo().equals(precoReq.getTipo()))
+                      .findFirst()
+                      .ifPresentOrElse(
+                          existente -> existente.setValor(precoReq.getValor()),
+                          () ->
+                              this.precos.add(
+                                  new Preco(precoReq.getTipo(), precoReq.getValor(), this))));
+    }
+    if (this.pesoLiquido != null
+        && this.pesoBruto != null
+        && this.pesoLiquido.compareTo(this.pesoBruto) > 0) {
+      throw new APIException(HttpStatus.BAD_REQUEST, ErrorCode.PESO_LIQUIDO_MAIOR_QUE_BRUTO);
+    }
+    this.dataDeAtualizacao = LocalDateTime.now();
+  }
+
+  private <T> void atualizaSeNaoNulo(T valor, Consumer<T> setter) {
+    if (valor != null) {
+      setter.accept(valor);
+    }
+  }
+
+  public void inativa() {
+    this.status = StatusProduto.INATIVO;
+    this.dataDeAtualizacao = LocalDateTime.now();
   }
 
   public BigDecimal getPrecoPadrao() {
