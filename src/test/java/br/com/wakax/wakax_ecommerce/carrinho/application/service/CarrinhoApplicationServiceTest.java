@@ -31,6 +31,7 @@ import br.com.wakax.wakax_ecommerce.carrinho.domain.Carrinho;
 import br.com.wakax.wakax_ecommerce.carrinho.domain.StatusCarrinho;
 import br.com.wakax.wakax_ecommerce.cliente.application.repository.ClienteRepository;
 import br.com.wakax.wakax_ecommerce.cliente.domain.Cliente;
+import br.com.wakax.wakax_ecommerce.estoque.application.repository.EstoqueRepository;
 import br.com.wakax.wakax_ecommerce.handler.APIException;
 import br.com.wakax.wakax_ecommerce.handler.ErrorCode;
 import br.com.wakax.wakax_ecommerce.produto.application.repository.ProdutoRepository;
@@ -49,6 +50,8 @@ class CarrinhoApplicationServiceTest {
   @Mock ClienteRepository clienteRepository;
 
   @Mock ProcessadorEstoqueFactory processadorEstoqueFactory;
+
+  @Mock EstoqueRepository estoqueRepository;
 
   @Mock ProcessadorEstoque processadorEstoque;
 

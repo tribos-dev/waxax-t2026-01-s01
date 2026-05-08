@@ -10,9 +10,7 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 
 import br.com.wakax.wakax_ecommerce.carrinho.api.request.AlteraQuantidadeDeItemRequest;
-import br.com.wakax.wakax_ecommerce.estoque.application.service.EstoqueApplicationService;
 import br.com.wakax.wakax_ecommerce.estoque.domain.Estoque;
-import org.hibernate.cache.spi.support.AbstractReadWriteAccess;
 import org.springframework.http.HttpStatus;
 
 import br.com.wakax.wakax_ecommerce.carrinho.api.request.ItemCarrinhoRequest;
@@ -129,13 +127,28 @@ public class Carrinho {
         }
     }
 
-    public void validaQuantidade(AlteraQuantidadeDeItemRequest request){
+    public void validaQuantidade(
+        AlteraQuantidadeDeItemRequest request, ItemCarrinho item, Estoque estoque) {
       validaQuantidadeMinima(request);
+      validaEstoqueParaNovaQuantidadeDoItem(request, item, estoque);
     }
 
     private void validaQuantidadeMinima(AlteraQuantidadeDeItemRequest request) {
       if (request.getQuantidade() < 1){
           throw new APIException(HttpStatus.BAD_REQUEST, ErrorCode.QUANTIDADE_INVALIDA);
+      }
+    }
+
+    private void validaEstoqueParaNovaQuantidadeDoItem(
+        AlteraQuantidadeDeItemRequest request, ItemCarrinho item, Estoque estoque) {
+      int novaQuantidade = request.getQuantidade();
+      int quantidadeAtual = item.getQuantidade();
+      if (novaQuantidade <= quantidadeAtual) {
+        return;
+      }
+      int quantidadeAdicional = novaQuantidade - quantidadeAtual;
+      if (!estoque.temQuantidadeDisponivel(quantidadeAdicional)) {
+        throw new APIException(HttpStatus.BAD_REQUEST, ErrorCode.QUANTIDADE_INSUFICIENTE_ESTOQUE);
       }
     }
 }

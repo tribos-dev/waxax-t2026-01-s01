@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.UUID;
 
 import br.com.wakax.wakax_ecommerce.carrinho.api.request.AlteraQuantidadeDeItemRequest;
-import br.com.wakax.wakax_ecommerce.carrinho.domain.ItemCarrinho;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,8 +16,11 @@ import br.com.wakax.wakax_ecommerce.carrinho.application.factory.ProcessadorEsto
 import br.com.wakax.wakax_ecommerce.carrinho.application.repository.CarrinhoRepository;
 import br.com.wakax.wakax_ecommerce.carrinho.application.strategy.ProcessadorEstoque;
 import br.com.wakax.wakax_ecommerce.carrinho.domain.Carrinho;
+import br.com.wakax.wakax_ecommerce.carrinho.domain.ItemCarrinho;
 import br.com.wakax.wakax_ecommerce.cliente.application.repository.ClienteRepository;
 import br.com.wakax.wakax_ecommerce.cliente.domain.Cliente;
+import br.com.wakax.wakax_ecommerce.estoque.application.repository.EstoqueRepository;
+import br.com.wakax.wakax_ecommerce.estoque.domain.Estoque;
 import br.com.wakax.wakax_ecommerce.handler.APIException;
 import br.com.wakax.wakax_ecommerce.handler.ErrorCode;
 import br.com.wakax.wakax_ecommerce.produto.application.repository.ProdutoRepository;
@@ -36,6 +38,7 @@ public class CarrinhoApplicationService implements CarrinhoService {
   private final ProdutoRepository produtoRepository;
   private final ClienteRepository clienteRepository;
   private final ProcessadorEstoqueFactory processadorEstoqueFactory;
+  private final EstoqueRepository estoqueRepository;
   private final TokenService tokenService;
 
   @Override
@@ -115,7 +118,14 @@ public class CarrinhoApplicationService implements CarrinhoService {
         Carrinho carrinho = carrinhoRepository.buscaCarrinhoPorId(idCarrinho);
         Cliente cliente = clienteRepository.buscaClientePorId(idCliente);
         carrinho.validaSeCarrinhoEstaAptoAModificacoes(cliente, idItem);
-        carrinho.validaQuantidade(request);
+        ItemCarrinho item = carrinho.buscaItemPorId(idItem);
+        Estoque estoque =
+            estoqueRepository
+                .buscaEstoquePorIdProduto(item.getProduto().getId())
+                .orElseThrow(
+                    () ->
+                        new APIException(HttpStatus.NOT_FOUND, ErrorCode.ESTOQUE_NAO_ENCONTRADO));
+        carrinho.validaQuantidade(request, item, estoque);
         log.debug("[finish] CarrinhoApplicationService - alteraQuantidadeDeItem");
     }
 }
