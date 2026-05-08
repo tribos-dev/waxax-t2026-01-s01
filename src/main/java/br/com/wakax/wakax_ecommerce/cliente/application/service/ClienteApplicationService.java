@@ -22,6 +22,8 @@ import br.com.wakax.wakax_ecommerce.handler.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 
+import static org.apache.commons.lang3.StringUtils.isBlank;
+
 @Service
 @Log4j2
 @RequiredArgsConstructor
@@ -109,7 +111,7 @@ public class ClienteApplicationService implements ClienteService {
   @Transactional(readOnly = true)
   public Page<Cliente> buscarClientePorCriterios(ClienteBuscaRequest filtro) {
     log.info("[start] ClienteApplicationService - buscarClientePorCriterios");
-    if(filtro.getCpf() == null && filtro.getEmail() == null && filtro.getNome() == null){
+    if (isBlank(filtro.getCpf()) && isBlank(filtro.getEmail()) && isBlank(filtro.getNome())) {
       throw new APIException(HttpStatus.BAD_REQUEST, ErrorCode.CRITERIO_BUSCA_OBRIGATORIO);
     }
     Pageable pageable = PageRequest.of(filtro.getPage(), filtro.getSize());
