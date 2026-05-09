@@ -7,6 +7,7 @@ import javax.validation.Valid;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.com.wakax.wakax_ecommerce.pedido.application.api.request.PedidoRequest;
+import br.com.wakax.wakax_ecommerce.pedido.application.api.request.CancelamentoPedidoRequest;
 import br.com.wakax.wakax_ecommerce.pedido.application.api.request.StatusPedidoRequest;
 import br.com.wakax.wakax_ecommerce.pedido.application.api.response.PedidoResponse;
 import br.com.wakax.wakax_ecommerce.pedido.application.service.PedidoService;
@@ -51,5 +52,12 @@ public class PedidoController implements PedidoAPI {
     log.debug("[start] PedidoController - atualizaStatus");
     pedidoService.atualizaStatusPedido(idPedido, statusPedidoRequest);
     log.debug("[finish] PedidoController - atualizaStatus");
+  }
+
+  @Override
+  public void cancelaPedido(UUID idPedido, CancelamentoPedidoRequest cancelamentoPedidoRequest) {
+    log.debug("[start] PedidoController - cancelaPedido");
+    pedidoService.cancelarPedido(idPedido, cancelamentoPedidoRequest);
+    log.debug("[finish] PedidoController - cancelaPedido");
   }
 }

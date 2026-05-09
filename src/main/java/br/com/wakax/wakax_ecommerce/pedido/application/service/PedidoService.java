@@ -3,6 +3,7 @@ package br.com.wakax.wakax_ecommerce.pedido.application.service;
 import java.util.UUID;
 
 import br.com.wakax.wakax_ecommerce.pedido.application.api.PedidoPageResponse;
+import br.com.wakax.wakax_ecommerce.pedido.application.api.request.CancelamentoPedidoRequest;
 import br.com.wakax.wakax_ecommerce.pedido.application.api.request.PedidoRequest;
 import br.com.wakax.wakax_ecommerce.pedido.application.api.request.StatusPedidoRequest;
 import br.com.wakax.wakax_ecommerce.pedido.application.api.response.PedidoResponse;
@@ -15,6 +16,8 @@ public interface PedidoService {
   PedidoResponse buscaPedidoPorId(UUID idPedido);
 
   void atualizaStatusPedido(UUID idPedido, StatusPedidoRequest statusPedidoRequest);
+
+  void cancelarPedido(UUID idPedido, CancelamentoPedidoRequest cancelamentoPedidoRequest);
 
   PedidoPageResponse buscaPedidosDoCliente(
       UUID idCliente, StatusPedido statusPedido, int page, int size);
