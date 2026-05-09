@@ -18,12 +18,16 @@ import br.com.wakax.wakax_ecommerce.cliente.domain.Cliente;
 import br.com.wakax.wakax_ecommerce.estoque.application.service.EstoqueService;
 import br.com.wakax.wakax_ecommerce.pedido.application.api.PedidoListResponse;
 import br.com.wakax.wakax_ecommerce.pedido.application.api.PedidoPageResponse;
+import br.com.wakax.wakax_ecommerce.pedido.application.api.request.CancelamentoPedidoRequest;
 import br.com.wakax.wakax_ecommerce.pedido.application.api.request.PedidoRequest;
 import br.com.wakax.wakax_ecommerce.pedido.application.api.request.StatusPedidoRequest;
 import br.com.wakax.wakax_ecommerce.pedido.application.api.response.PedidoResponse;
 import br.com.wakax.wakax_ecommerce.pedido.application.repository.PedidoRepository;
 import br.com.wakax.wakax_ecommerce.pedido.domain.Pedido;
 import br.com.wakax.wakax_ecommerce.pedido.domain.StatusPedido;
+import br.com.wakax.wakax_ecommerce.pagamento.application.api.request.EstornaPagamentoRequest;
+import br.com.wakax.wakax_ecommerce.pagamento.application.repository.PagamentoRepository;
+import br.com.wakax.wakax_ecommerce.pagamento.domain.StatusPagamento;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 
@@ -36,6 +40,7 @@ public class PedidoApplicationService implements PedidoService {
   private final CarrinhoRepository carrinhoRepository;
   private final ClienteService clienteService;
   private final EstoqueService estoqueService;
+  private final PagamentoRepository pagamentoRepository;
 
   @Override
   @Transactional
@@ -86,6 +91,31 @@ public class PedidoApplicationService implements PedidoService {
     processaAcoesDeStatus(pedido, statusAnterior, novoStatus);
     pedidoRepository.salva(pedido);
     log.debug("[finish] PedidoApplicationService - atualizaStatusPedido");
+  }
+
+  @Override
+  @Transactional
+  public void cancelarPedido(UUID idPedido, CancelamentoPedidoRequest cancelamentoPedidoRequest) {
+    log.debug("[start] PedidoApplicationService - cancelarPedido");
+    Pedido pedido = pedidoRepository.buscaPedidoPorId(idPedido);
+    pedido.cancelar(cancelamentoPedidoRequest.getMotivoCancelamento());
+    processaEstornoDePagamentoQuandoAplicavel(pedido, cancelamentoPedidoRequest);
+    liberaReservaDeProdutoNoEstoque(pedido);
+    pedidoRepository.salva(pedido);
+    log.debug("[finish] PedidoApplicationService - cancelarPedido");
+  }
+
+  private void processaEstornoDePagamentoQuandoAplicavel(
+      Pedido pedido, CancelamentoPedidoRequest cancelamentoPedidoRequest) {
+      pagamentoRepository
+        .buscaPagamentoPorPedidoId(pedido.getId())
+        .filter(pagamento -> pagamento.getStatusPagamento() == StatusPagamento.PAGO)
+        .ifPresent(
+            pagamento -> {
+              pagamento.prepararEstorno(
+                  new EstornaPagamentoRequest(cancelamentoPedidoRequest.getMotivoCancelamento()));
+              pagamentoRepository.salva(pagamento);
+            });
   }
 
   private void processaAcoesDeStatus(
