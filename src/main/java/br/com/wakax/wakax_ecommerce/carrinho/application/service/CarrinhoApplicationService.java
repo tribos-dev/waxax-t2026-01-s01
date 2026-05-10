@@ -48,6 +48,7 @@ public class CarrinhoApplicationService implements CarrinhoService {
       throw new APIException(HttpStatus.BAD_REQUEST, ErrorCode.PRODUTO_INDISPONIVEL);
     }
 
+    produto.validaDisponibilidade();
     ProcessadorEstoque processadorEstoque = processadorEstoqueFactory.obterProcessador();
     processadorEstoque.aoAdicionarItem(produto, itemCarrinhoRequest.getQuantidade());
 
