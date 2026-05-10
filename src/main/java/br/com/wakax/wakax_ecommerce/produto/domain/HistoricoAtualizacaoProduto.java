@@ -1,5 +1,6 @@
 package br.com.wakax.wakax_ecommerce.produto.domain;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -31,4 +32,43 @@ public class HistoricoAtualizacaoProduto {
   @Column(name = "data_hora", nullable = false)
   @NotNull
   private LocalDateTime dataHora;
+
+  @Enumerated(EnumType.STRING)
+  @Column(name = "tipo_preco")
+  private TipoPreco tipoPreco;
+
+  @Column(name = "valor_anterior")
+  private BigDecimal valorAnterior;
+
+  @Column(name = "valor_novo")
+  private BigDecimal valorNovo;
+
+  @Column(name = "motivo")
+  private String motivo;
+
+  public static HistoricoAtualizacaoProduto deAtualizacao(Produto produto, Usuario usuario) {
+    return HistoricoAtualizacaoProduto.builder()
+        .produto(produto)
+        .usuario(usuario)
+        .dataHora(LocalDateTime.now())
+        .build();
+  }
+
+  public static HistoricoAtualizacaoProduto deAtualizacaoPreco(
+      Produto produto,
+      Usuario usuario,
+      TipoPreco tipoPreco,
+      BigDecimal valorAnterior,
+      BigDecimal valorNovo,
+      String motivo) {
+    return HistoricoAtualizacaoProduto.builder()
+        .produto(produto)
+        .usuario(usuario)
+        .dataHora(LocalDateTime.now())
+        .tipoPreco(tipoPreco)
+        .valorAnterior(valorAnterior)
+        .valorNovo(valorNovo)
+        .motivo(motivo)
+        .build();
+  }
 }
