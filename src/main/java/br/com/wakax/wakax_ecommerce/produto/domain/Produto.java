@@ -9,7 +9,8 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import javax.persistence.*;
-import javax.validation.constraints.*;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 import org.springframework.http.HttpStatus;
 
@@ -17,7 +18,10 @@ import br.com.wakax.wakax_ecommerce.handler.APIException;
 import br.com.wakax.wakax_ecommerce.handler.ErrorCode;
 import br.com.wakax.wakax_ecommerce.produto.api.request.ProdutoAtualizaRequest;
 import br.com.wakax.wakax_ecommerce.produto.api.request.ProdutoRequest;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Data
@@ -68,6 +72,12 @@ public class Produto {
 
   @Column(name = "data_de_atualizacao")
   private LocalDateTime dataDeAtualizacao;
+
+  @Column(name = "data_de_alteracao_status")
+  private LocalDateTime dataAlteracaoStatus;
+
+  @Column(length = 255)
+  private String motivoAlteracao;
 
   public Produto(ProdutoRequest request) {
     this.descricao = request.getDescricao();
@@ -129,6 +139,11 @@ public class Produto {
     }
   }
 
+  public void inativa() {
+    this.status = StatusProduto.INATIVO;
+    this.dataDeAtualizacao = LocalDateTime.now();
+  }
+
   public BigDecimal getPrecoPadrao() {
     if (this.precos.isEmpty()) {
       return BigDecimal.ZERO;
@@ -145,5 +160,24 @@ public class Produto {
         .map(Preco::getValor)
         .findFirst()
         .orElse(BigDecimal.ZERO);
+  }
+
+  public void alteraStatus(StatusProduto novoStatus, String motivo) {
+    if (this.status == novoStatus) {
+      ErrorCode errorCode =
+          novoStatus == StatusProduto.ATIVO
+              ? ErrorCode.PRODUTO_JA_ATIVO
+              : ErrorCode.PRODUTO_JA_INATIVO;
+      throw new APIException(HttpStatus.CONFLICT, errorCode);
+    }
+    this.status = novoStatus;
+    this.dataAlteracaoStatus = LocalDateTime.now();
+    this.motivoAlteracao = motivo;
+  }
+
+  public void validaDisponibilidade() {
+    if (this.status == StatusProduto.INATIVO) {
+      throw new APIException(HttpStatus.UNPROCESSABLE_ENTITY, ErrorCode.PRODUTO_INATIVO);
+    }
   }
 }
