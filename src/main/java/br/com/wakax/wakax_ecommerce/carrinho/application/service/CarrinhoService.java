@@ -7,8 +7,6 @@ import br.com.wakax.wakax_ecommerce.carrinho.api.request.AlteraQuantidadeDeItemR
 import br.com.wakax.wakax_ecommerce.carrinho.api.request.ItemCarrinhoRequest;
 import br.com.wakax.wakax_ecommerce.carrinho.api.response.CarrinhoResponse;
 import br.com.wakax.wakax_ecommerce.carrinho.api.response.CarrinhosListAllResponse;
-import br.com.wakax.wakax_ecommerce.carrinho.domain.ItemCarrinho;
-import br.com.wakax.wakax_ecommerce.estoque.domain.Estoque;
 
 public interface CarrinhoService {
   CarrinhoResponse adicionaItemNoCarrinho(UUID idCliente, ItemCarrinhoRequest itemCarrinho);
