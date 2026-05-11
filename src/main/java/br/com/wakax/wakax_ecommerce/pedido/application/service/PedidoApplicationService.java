@@ -18,12 +18,14 @@ import br.com.wakax.wakax_ecommerce.cliente.domain.Cliente;
 import br.com.wakax.wakax_ecommerce.estoque.application.service.EstoqueService;
 import br.com.wakax.wakax_ecommerce.pedido.application.api.PedidoListResponse;
 import br.com.wakax.wakax_ecommerce.pedido.application.api.PedidoPageResponse;
+import br.com.wakax.wakax_ecommerce.pedido.application.api.request.EnderecoEntregaRequest;
 import br.com.wakax.wakax_ecommerce.pedido.application.api.request.PedidoRequest;
 import br.com.wakax.wakax_ecommerce.pedido.application.api.request.StatusPedidoRequest;
 import br.com.wakax.wakax_ecommerce.pedido.application.api.response.PedidoResponse;
 import br.com.wakax.wakax_ecommerce.pedido.application.repository.PedidoRepository;
 import br.com.wakax.wakax_ecommerce.pedido.domain.Pedido;
 import br.com.wakax.wakax_ecommerce.pedido.domain.StatusPedido;
+import br.com.wakax.wakax_ecommerce.pessoa.domain.Endereco;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 
@@ -98,5 +100,17 @@ public class PedidoApplicationService implements PedidoService {
   private void liberaReservaDeProdutoNoEstoque(Pedido pedido) {
     log.debug("[estoque] Iniciando liberação de estoque para o pedido: {}", pedido.getId());
     estoqueService.liberaReservaDePedido(pedido.getItensPedido());
+  }
+
+  @Override
+  @Transactional
+  public void alteraEnderecoEntrega(UUID idPedido, EnderecoEntregaRequest request) {
+    log.debug("[start] PedidoApplicationService - alteraEnderecoEntrega");
+    Pedido pedido = pedidoRepository.buscaPedidoPorId(idPedido);
+    Cliente cliente = pedido.getCliente();
+    Endereco novoEndereco = cliente.buscaEnderecoEspecifico(request.getIdEnderecoEntrega());
+    pedido.alteraEnderecoDeEntrega(novoEndereco);
+    pedidoRepository.salva(pedido);
+    log.debug("[finish] PedidoApplicationService - alteraEnderecoEntrega");
   }
 }
