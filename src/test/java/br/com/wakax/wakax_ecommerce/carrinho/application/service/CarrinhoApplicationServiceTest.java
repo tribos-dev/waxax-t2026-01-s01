@@ -374,6 +374,8 @@ class CarrinhoApplicationServiceTest {
     int quantidadeOriginal = itemCarrinho.getQuantidade();
 
     when(carrinhoRepository.buscaCarrinhoPorId(carrinho.getId())).thenReturn(carrinho);
+    when(estoqueService.buscaEstoquePorIdProduto(itemCarrinho.getProduto().getId()))
+        .thenReturn(EstoqueDataHelper.criaEstoqueResponse(itemCarrinho));
 
     APIException ex =
         assertThrows(
@@ -388,7 +390,7 @@ class CarrinhoApplicationServiceTest {
     assertEquals(HttpStatus.CONFLICT, ex.getStatusException());
     assertEquals(ErrorCode.CARRINHO_NAO_ATIVO, ex.getErrorCode());
     assertEquals(quantidadeOriginal, itemCarrinho.getQuantidade());
-    verify(estoqueService, never()).buscaEstoquePorIdProduto(any());
+    verify(estoqueService, times(1)).buscaEstoquePorIdProduto(itemCarrinho.getProduto().getId());
   }
 
   @Test
@@ -400,6 +402,8 @@ class CarrinhoApplicationServiceTest {
     UUID outroClienteId = UUID.fromString("b2b2b2b2-c3c3-d4d4-e5e5-f6f6f6f6f6f6");
 
     when(carrinhoRepository.buscaCarrinhoPorId(carrinho.getId())).thenReturn(carrinho);
+    when(estoqueService.buscaEstoquePorIdProduto(itemCarrinho.getProduto().getId()))
+        .thenReturn(EstoqueDataHelper.criaEstoqueResponse(itemCarrinho));
 
     APIException ex =
         assertThrows(
@@ -414,6 +418,6 @@ class CarrinhoApplicationServiceTest {
     assertEquals(HttpStatus.FORBIDDEN, ex.getStatusException());
     assertEquals(ErrorCode.CARRINHO_NAO_PERTENCE_AO_CLIENTE_AUTENTICADO, ex.getErrorCode());
     assertEquals(quantidadeOriginal, itemCarrinho.getQuantidade());
-    verify(estoqueService, never()).buscaEstoquePorIdProduto(any());
+    verify(estoqueService, times(1)).buscaEstoquePorIdProduto(itemCarrinho.getProduto().getId());
   }
 }
