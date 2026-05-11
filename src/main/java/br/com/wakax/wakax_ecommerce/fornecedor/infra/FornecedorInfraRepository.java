@@ -2,6 +2,7 @@ package br.com.wakax.wakax_ecommerce.fornecedor.infra;
 
 import java.util.UUID;
 
+import br.com.wakax.wakax_ecommerce.fornecedor.domain.StatusFornecedor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -54,7 +55,7 @@ public class FornecedorInfraRepository implements FornecedorRepository {
   public Page<Fornecedor> buscaFornecedoresComFiltro(StatusPessoa status, Pageable pageable) {
     log.debug("[start] FornecedorInfraRepository - buscaFornecedoresComFiltro");
     Page<Fornecedor> fornecedores =
-        fornecedorJPARepository.buscaFornecedoresComFiltro(status, pageable);
+        fornecedorJPARepository.buscaFornecedoresComFiltro(status,  StatusFornecedor.INATIVO, pageable);
     log.debug("[finaliza] FornecedorInfraRepository - buscaFornecedoresComFiltro");
     return fornecedores;
   }
