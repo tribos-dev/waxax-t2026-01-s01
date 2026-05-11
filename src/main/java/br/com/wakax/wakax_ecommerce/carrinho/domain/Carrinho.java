@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.UUID;
 
 import javax.persistence.*;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
 import org.springframework.http.HttpStatus;
@@ -114,10 +115,11 @@ public class Carrinho {
     this.statusCarrinho = StatusCarrinho.ATIVO;
   }
 
-  public void validaSeCarrinhoEstaAptoAModificacoes(UUID idCliente, UUID idItem) {
-    verificaSeCarrinhoEstaAtivo();
-    verificaSeCarrinhoPertenceAoCliente(idCliente);
-    buscaItemPorId(idItem);
+    public void validaAlteracaoDeQuantidadeDoItem(UUID idCliente, UUID idItem, Integer quantidade, Estoque estoque) {
+      verificaSeCarrinhoPertenceAoCliente(idCliente);
+      verificaSeCarrinhoEstaAtivo();
+      buscaItemPorId(idItem);
+      validaQuantidade(quantidade, estoque);
   }
 
   private void verificaSeCarrinhoPertenceAoCliente(UUID idCliente) {
@@ -127,7 +129,7 @@ public class Carrinho {
     }
   }
 
-  public void validaQuantidade(Integer quantidade, Estoque estoque) {
+  private void validaQuantidade(Integer quantidade, Estoque estoque) {
     validaQuantidadeMinima(quantidade);
     validaSeExisteQuantidadeEmEstoque(quantidade, estoque);
   }
@@ -143,4 +145,6 @@ public class Carrinho {
       throw new APIException(HttpStatus.BAD_REQUEST, ErrorCode.QUANTIDADE_INVALIDA);
     }
   }
+
+
 }

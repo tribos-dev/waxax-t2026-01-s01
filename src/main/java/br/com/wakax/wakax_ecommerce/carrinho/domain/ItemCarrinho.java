@@ -52,7 +52,7 @@ public class ItemCarrinho {
     return this.precoUnitario.multiply(new BigDecimal(this.quantidade));
   }
 
-  public void novaQuantidadeTotal(Integer quantidade) {
-    this.quantidade = quantidade;
-  }
+    public void novaQuantidadeDoItem(Integer quantidade) {
+        this.quantidade = quantidade;
+    }
 }
