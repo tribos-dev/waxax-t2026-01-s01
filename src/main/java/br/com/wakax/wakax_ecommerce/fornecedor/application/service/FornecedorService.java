@@ -22,4 +22,6 @@ public interface FornecedorService {
 
   FornecedorAtualizaResponse atualizarFornecedor(
       UUID idFornecedor, FornecedorAtualizaRequest atualizaFornecedor);
+
+  void removerFornecedor(UUID idFornecedor);
 }
