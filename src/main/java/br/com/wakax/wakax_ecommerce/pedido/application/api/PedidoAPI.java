@@ -1,15 +1,19 @@
 package br.com.wakax.wakax_ecommerce.pedido.application.api;
 
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 import javax.validation.Valid;
 
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import br.com.wakax.wakax_ecommerce.pedido.application.api.request.PedidoRequest;
 import br.com.wakax.wakax_ecommerce.pedido.application.api.request.StatusPedidoRequest;
 import br.com.wakax.wakax_ecommerce.pedido.application.api.response.PedidoResponse;
+import br.com.wakax.wakax_ecommerce.pedido.application.api.response.ProdutoMaisVendidoResponse;
 import br.com.wakax.wakax_ecommerce.pedido.domain.StatusPedido;
 
 @RestController
@@ -34,4 +38,10 @@ public interface PedidoAPI {
   @ResponseStatus(HttpStatus.NO_CONTENT)
   void atualizaStatus(
       @PathVariable UUID idPedido, @Valid @RequestBody StatusPedidoRequest statusPedidoRequest);
+
+  @GetMapping("/relatorios/produtos-mais-vendidos")
+  List<ProdutoMaisVendidoResponse> geraRelatorioProdutosMaisVendidos(
+      @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime dataInicio,
+      @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime dataFim,
+      @RequestParam(defaultValue = "10") Integer limite);
 }
