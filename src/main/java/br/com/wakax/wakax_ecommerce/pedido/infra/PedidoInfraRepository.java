@@ -1,5 +1,7 @@
 package br.com.wakax.wakax_ecommerce.pedido.infra;
 
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.data.domain.Page;
@@ -9,6 +11,7 @@ import org.springframework.stereotype.Repository;
 
 import br.com.wakax.wakax_ecommerce.handler.APIException;
 import br.com.wakax.wakax_ecommerce.handler.ErrorCode;
+import br.com.wakax.wakax_ecommerce.pedido.application.api.response.ProdutoMaisVendidoResponse;
 import br.com.wakax.wakax_ecommerce.pedido.application.repository.PedidoRepository;
 import br.com.wakax.wakax_ecommerce.pedido.domain.Pedido;
 import br.com.wakax.wakax_ecommerce.pedido.domain.StatusPedido;
@@ -52,5 +55,26 @@ public class PedidoInfraRepository implements PedidoRepository {
             idCliente, statusPedido, pageable);
     log.debug("[finish] PedidoInfraRepository - buscaPedidosDoClientePaginado");
     return pedidos;
+  }
+
+  @Override
+  public List<ProdutoMaisVendidoResponse> buscaProdutosMaisVendidos(
+      LocalDateTime dataInicio, LocalDateTime dataFim, Pageable limite) {
+    log.debug("[start] PedidoInfraRepository - buscaProdutosMaisVendidos");
+    List<ProdutoMaisVendidoResponse> produtos =
+        pedidoJPARepository
+            .findProdutosMaisVendidos(dataInicio, dataFim, limite)
+            .getContent()
+            .stream()
+            .map(
+                p ->
+                    new ProdutoMaisVendidoResponse(
+                        p.getProdutoId(),
+                        p.getDescricaoProduto(),
+                        p.getQuantidadeTotal(),
+                        p.getReceitaBruta()))
+            .toList();
+    log.debug("[finish] PedidoInfraRepository - buscaProdutosMaisVendidos");
+    return produtos;
   }
 }
