@@ -46,7 +46,9 @@ public enum ErrorCode {
   MOTIVO_ESTORNO_OBRIGATORIO("motivo.estorno.obrigatorio"),
   PAGAMENTO_NAO_PODE_SER_ESTORNADO("pagamento.nao.pode.ser.estornado"),
   PRODUTO_JA_ATIVO("produto.ja.ativo"),
-  PRODUTO_JA_INATIVO("produto.ja.inativo");
+  PRODUTO_JA_INATIVO("produto.ja.inativo"),
+  RELATORIO_DATA_OBRIGATORIA("relatorio.data.obrigatoria"),
+  RELATORIO_DATA_INVALIDA("relatorio.data.invalida");
 
   private final String code;
 
