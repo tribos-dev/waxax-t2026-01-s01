@@ -4,8 +4,8 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -23,15 +23,18 @@ import org.springframework.http.HttpStatus;
 import br.com.wakax.wakax_ecommerce.auth.usuario.domain.Usuario;
 import br.com.wakax.wakax_ecommerce.handler.APIException;
 import br.com.wakax.wakax_ecommerce.handler.ErrorCode;
-import br.com.wakax.wakax_ecommerce.produto.api.request.ProdutoAtualizaPrecoRequest;
+import br.com.wakax.wakax_ecommerce.produto.api.ProdutoAlteraStatusRequest;
+import br.com.wakax.wakax_ecommerce.produto.api.request.ProdutoAtualizaRequest;
 import br.com.wakax.wakax_ecommerce.produto.api.request.ProdutoRequest;
-import br.com.wakax.wakax_ecommerce.produto.api.response.ProdutoAtualizaPrecoResponse;
+import br.com.wakax.wakax_ecommerce.produto.api.response.ProdutoAtualizaResponse;
+import br.com.wakax.wakax_ecommerce.produto.api.response.ProdutoListResponse;
+import br.com.wakax.wakax_ecommerce.produto.api.response.ProdutoListagemResponse;
+import br.com.wakax.wakax_ecommerce.produto.api.response.ProdutoResponse;
 import br.com.wakax.wakax_ecommerce.produto.application.repository.HistoricoAtualizacaoProdutoRepository;
 import br.com.wakax.wakax_ecommerce.produto.application.repository.ProdutoRepository;
 import br.com.wakax.wakax_ecommerce.produto.domain.HistoricoAtualizacaoProduto;
-import br.com.wakax.wakax_ecommerce.produto.domain.Preco;
 import br.com.wakax.wakax_ecommerce.produto.domain.Produto;
-import br.com.wakax.wakax_ecommerce.produto.domain.TipoPreco;
+import br.com.wakax.wakax_ecommerce.produto.domain.StatusProduto;
 
 @ExtendWith(MockitoExtension.class)
 class ProdutoApplicationServiceTest {
@@ -43,6 +46,7 @@ class ProdutoApplicationServiceTest {
   @InjectMocks private ProdutoApplicationService produtoApplicationService;
 
   private ProdutoRequest produtoRequest;
+  private Produto produto;
   private UUID produtoId;
 
   @BeforeEach
@@ -75,183 +79,357 @@ class ProdutoApplicationServiceTest {
                 });
   }
 
-  private Produto criaProdutoComPrecoPadrao(BigDecimal valor) {
-    Produto produto = new Produto(produtoRequest);
-    produto.setId(produtoId);
-
-    Preco precoPadrao = new Preco(TipoPreco.PADRAO, valor, produto);
-
-    produto.setPrecos(new ArrayList<>());
-    produto.getPrecos().add(precoPadrao);
-
-    return produto;
+  @Test
+  void deveCadastrarProdutoComSucesso() {
+    mockProdutoRepositorySalvaComId();
+    ProdutoResponse response = produtoApplicationService.cadastraProduto(produtoRequest);
+    assertNotNull(response);
+    assertEquals(produtoId, response.getIdProduto());
+    assertEquals(produtoRequest.getDescricao(), response.getDescricao());
+    verify(produtoRepository, times(1)).salva(any(Produto.class));
   }
 
   @Test
-  void deveAtualizarPrecoComSucesso() {
-    Produto produto = criaProdutoComPrecoPadrao(new BigDecimal("50.00"));
+  void deveLancarExcecaoQuandoProdutoDuplicado() {
+    when(produtoRepository.salva(any(Produto.class)))
+        .thenThrow(
+            new APIException(
+                org.springframework.http.HttpStatus.CONFLICT,
+                ErrorCode.PRODUTO_DUPLICADO,
+                produtoRequest.getDescricao()));
 
-    Usuario usuarioLogado = mock(Usuario.class);
+    APIException exception =
+        assertThrows(
+            APIException.class,
+            () -> {
+              produtoApplicationService.cadastraProduto(produtoRequest);
+            });
 
+    assertEquals(ErrorCode.PRODUTO_DUPLICADO, exception.getErrorCode());
+    assertEquals(produtoRequest.getDescricao(), exception.getArgs()[0]);
+    verify(produtoRepository, times(1)).salva(any(Produto.class));
+  }
+
+  @Test
+  void deveBuscarProdutoPorIdComSucesso() {
+    Produto produto = new Produto(produtoRequest);
+    produto.setId(produtoId);
     when(produtoRepository.buscaProdutoPorId(produtoId)).thenReturn(produto);
 
-    ProdutoApplicationService spyService = Mockito.spy(produtoApplicationService);
-
-    doReturn(usuarioLogado).when(spyService).buscaUsuarioLogado();
-
-    ProdutoAtualizaPrecoRequest request =
-        ProdutoAtualizaPrecoRequest.builder()
-            .tipoPreco(TipoPreco.PADRAO)
-            .novoPreco(new BigDecimal("99.99"))
-            .motivo("Ajuste de preço")
-            .build();
-
-    ProdutoAtualizaPrecoResponse response = spyService.atualizaPreco(produtoId, request);
+    ProdutoListResponse response = produtoApplicationService.buscaProdutoPorId(produtoId);
 
     assertNotNull(response);
     assertEquals(produtoId, response.getIdProduto());
-    assertEquals(TipoPreco.PADRAO, response.getTipoPreco());
-    assertEquals(new BigDecimal("99.99"), response.getNovoPreco());
-
-    assertEquals(new BigDecimal("99.99"), produto.buscaPrecoPorTipo(TipoPreco.PADRAO).getValor());
-
+    assertEquals(produtoRequest.getDescricao(), response.getDescricao());
+    assertEquals(StatusProduto.ATIVO, response.getStatus());
+    assertEquals(produtoRequest.getPesoLiquido(), response.getPesoLiquido());
+    assertEquals(produtoRequest.getPesoBruto(), response.getPesoBruto());
+    assertEquals(produtoRequest.getDescricaoComplementar(), response.getDescricaoComplementar());
+    assertEquals(produtoRequest.getGrupo(), response.getGrupo());
+    assertEquals(produtoRequest.getUnidade(), response.getUnidade());
+    assertEquals(produtoRequest.getEstoqueMinimo(), response.getEstoqueMinimo());
+    assertEquals(produtoRequest.getEstoqueMaximo(), response.getEstoqueMaximo());
     verify(produtoRepository, times(1)).buscaProdutoPorId(produtoId);
+  }
 
-    verify(produtoRepository, times(1)).salva(produto);
+  @Test
+  void deveLancarExcecaoQuandoProdutoNaoEncontrado() {
+    when(produtoRepository.buscaProdutoPorId(produtoId))
+        .thenThrow(
+            new APIException(
+                org.springframework.http.HttpStatus.NOT_FOUND,
+                ErrorCode.PRODUTO_NAO_ENCONTRADO,
+                produtoId));
 
-    verify(historicoAtualizacaoProdutoRepository, times(1))
+    APIException exception =
+        assertThrows(
+            APIException.class,
+            () -> {
+              produtoApplicationService.buscaProdutoPorId(produtoId);
+            });
+
+    assertEquals(ErrorCode.PRODUTO_NAO_ENCONTRADO, exception.getErrorCode());
+    assertEquals(produtoId, exception.getArgs()[0]);
+    verify(produtoRepository, times(1)).buscaProdutoPorId(produtoId);
+  }
+
+  @Test
+  void deveCriarProdutoComPrecoCorreto() {
+    mockProdutoRepositorySalvaComId();
+    ProdutoResponse response = produtoApplicationService.cadastraProduto(produtoRequest);
+    assertNotNull(response);
+    assertEquals(produtoId, response.getIdProduto());
+    assertEquals(produtoRequest.getDescricao(), response.getDescricao());
+    verify(produtoRepository, times(1)).salva(any(Produto.class));
+  }
+
+  @Test
+  void deveCadastrarProdutoComCamposOpcionaisNulos() {
+    ProdutoRequest requestComCamposNulos =
+        ProdutoRequest.builder()
+            .descricao("Produto Mínimo")
+            .pesoLiquido(new BigDecimal("1.0"))
+            .pesoBruto(new BigDecimal("1.5"))
+            .preco(new BigDecimal("19.99"))
+            .precos(Collections.emptyList())
+            .build();
+
+    mockProdutoRepositorySalvaComId();
+    ProdutoResponse response = produtoApplicationService.cadastraProduto(requestComCamposNulos);
+
+    assertNotNull(response);
+    assertEquals(produtoId, response.getIdProduto());
+    assertEquals(requestComCamposNulos.getDescricao(), response.getDescricao());
+    verify(produtoRepository, times(1)).salva(any(Produto.class));
+  }
+
+  @Test
+  void deveCadastrarProdutoComListaDePrecosNula() {
+    ProdutoRequest requestComPrecosNulos =
+        ProdutoRequest.builder()
+            .descricao("Produto sem Preços")
+            .pesoLiquido(new BigDecimal("1.0"))
+            .pesoBruto(new BigDecimal("1.5"))
+            .preco(new BigDecimal("19.99"))
+            .precos(null)
+            .build();
+
+    mockProdutoRepositorySalvaComId();
+
+    assertThrows(
+        NullPointerException.class,
+        () -> {
+          produtoApplicationService.cadastraProduto(requestComPrecosNulos);
+        });
+
+    verify(produtoRepository, times(1)).salva(any(Produto.class));
+  }
+
+  @Test
+  void deveListarTodosProdutosComSucesso() {
+    Produto produto1 = new Produto(produtoRequest);
+    produto1.setId(UUID.randomUUID());
+
+    ProdutoRequest produto2Request =
+        ProdutoRequest.builder()
+            .descricao("Produto Teste 2")
+            .pesoLiquido(new BigDecimal("2.0"))
+            .pesoBruto(new BigDecimal("2.5"))
+            .preco(new BigDecimal("39.99"))
+            .precos(Collections.emptyList())
+            .build();
+    Produto produto2 = new Produto(produto2Request);
+    produto2.setId(UUID.randomUUID());
+
+    List<Produto> produtos = List.of(produto1, produto2);
+    Pageable paginaEsperada = PageRequest.of(0, 10, Sort.by("descricao"));
+    Page<Produto> produtoPage = new PageImpl<>(produtos, paginaEsperada, produtos.size());
+
+    when(produtoRepository.listarTodosProdutosPaginado(paginaEsperada)).thenReturn(produtoPage);
+
+    ProdutoListagemResponse response = produtoApplicationService.listarTodosProdutos(0, 10);
+
+    assertNotNull(response);
+    assertEquals(2, response.getTotalProdutos());
+    assertEquals(2, response.getProdutos().size());
+    assertEquals("Produto Teste", response.getProdutos().get(0).getDescricao());
+    assertEquals("Produto Teste 2", response.getProdutos().get(1).getDescricao());
+    verify(produtoRepository, times(1)).listarTodosProdutosPaginado(paginaEsperada);
+  }
+
+  @Test
+  void deveAtualizarProdutoComSucesso() {
+    Produto produtoExistente = new Produto(produtoRequest);
+    produtoExistente.setId(produtoId);
+    Usuario usuarioLogado = mock(Usuario.class);
+
+    when(produtoRepository.buscaProdutoPorId(produtoId)).thenReturn(produtoExistente);
+
+    ProdutoApplicationService spyService = Mockito.spy(produtoApplicationService);
+    doReturn(usuarioLogado).when(spyService).buscaUsuarioLogado();
+
+    ProdutoAtualizaRequest atualizaRequest =
+        new ProdutoAtualizaRequest(
+            "Nova descrição", null, null, null, null, null, null, null, null);
+
+    ProdutoAtualizaResponse response = spyService.atualizaProduto(produtoId, atualizaRequest);
+
+    assertNotNull(response);
+    assertEquals(produtoId, response.getIdProduto());
+    assertEquals("Nova descrição", response.getDescricao());
+    assertNotNull(response.getDataDeAtualizacao());
+    verify(produtoRepository, times(1)).buscaProdutoPorId(produtoId);
+    verify(produtoRepository, times(1)).salva(produtoExistente);
+  }
+
+  @Test
+  void deveLancarExcecaoQuandoAtualizarProdutoNaoEncontrado() {
+    when(produtoRepository.buscaProdutoPorId(produtoId))
+        .thenThrow(
+            new APIException(
+                org.springframework.http.HttpStatus.NOT_FOUND,
+                ErrorCode.PRODUTO_NAO_ENCONTRADO,
+                produtoId));
+
+    ProdutoAtualizaRequest atualizaRequest =
+        new ProdutoAtualizaRequest(
+            "Nova descrição", null, null, null, null, null, null, null, null);
+
+    APIException exception =
+        assertThrows(
+            APIException.class,
+            () -> {
+              produtoApplicationService.atualizaProduto(produtoId, atualizaRequest);
+            });
+
+    assertEquals(ErrorCode.PRODUTO_NAO_ENCONTRADO, exception.getErrorCode());
+    assertEquals(produtoId, exception.getArgs()[0]);
+    verify(produtoRepository, times(1)).buscaProdutoPorId(produtoId);
+    verify(produtoRepository, never()).salva(any(Produto.class));
+    verify(historicoAtualizacaoProdutoRepository, never())
         .salva(any(HistoricoAtualizacaoProduto.class));
   }
 
   @Test
-  void deveLancarExcecaoQuandoProdutoNaoEncontradoParaAtualizarPreco() {
-    when(produtoRepository.buscaProdutoPorId(produtoId))
-        .thenThrow(
-            new APIException(HttpStatus.NOT_FOUND, ErrorCode.PRODUTO_NAO_ENCONTRADO, produtoId));
-
-    ProdutoAtualizaPrecoRequest request =
-        ProdutoAtualizaPrecoRequest.builder()
-            .tipoPreco(TipoPreco.PADRAO)
-            .novoPreco(new BigDecimal("99.99"))
-            .build();
-
-    APIException exception =
-        assertThrows(
-            APIException.class, () -> produtoApplicationService.atualizaPreco(produtoId, request));
-
-    assertEquals(ErrorCode.PRODUTO_NAO_ENCONTRADO, exception.getErrorCode());
-
-    verify(produtoRepository, times(1)).buscaProdutoPorId(produtoId);
-
-    verify(produtoRepository, never()).salva(any());
-
-    verify(historicoAtualizacaoProdutoRepository, never()).salva(any());
-  }
-
-  @Test
-  void deveLancarExcecaoQuandoPrecoNaoEncontrado() {
-    Produto produto = new Produto(produtoRequest);
-    produto.setId(produtoId);
-    produto.setPrecos(new ArrayList<>());
-
-    when(produtoRepository.buscaProdutoPorId(produtoId)).thenReturn(produto);
-
-    ProdutoAtualizaPrecoRequest request =
-        ProdutoAtualizaPrecoRequest.builder()
-            .tipoPreco(TipoPreco.PROMOCIONAL)
-            .novoPreco(new BigDecimal("99.99"))
-            .build();
-
-    APIException exception =
-        assertThrows(
-            APIException.class, () -> produtoApplicationService.atualizaPreco(produtoId, request));
-
-    assertEquals(ErrorCode.PRECO_NAO_ENCONTRADO, exception.getErrorCode());
-
-    verify(produtoRepository, times(1)).buscaProdutoPorId(produtoId);
-
-    verify(produtoRepository, never()).salva(any());
-
-    verify(historicoAtualizacaoProdutoRepository, never()).salva(any());
-  }
-
-  @Test
-  void deveSalvarHistoricoAoAtualizarPreco() {
-    Produto produto = criaProdutoComPrecoPadrao(new BigDecimal("50.00"));
-
+  void deveSalvarHistoricoAoAtualizarProduto() {
+    Produto produtoExistente = new Produto(produtoRequest);
+    produtoExistente.setId(produtoId);
     Usuario usuarioLogado = mock(Usuario.class);
 
-    when(produtoRepository.buscaProdutoPorId(produtoId)).thenReturn(produto);
+    when(produtoRepository.buscaProdutoPorId(produtoId)).thenReturn(produtoExistente);
 
     ProdutoApplicationService spyService = Mockito.spy(produtoApplicationService);
-
     doReturn(usuarioLogado).when(spyService).buscaUsuarioLogado();
 
-    ProdutoAtualizaPrecoRequest request =
-        ProdutoAtualizaPrecoRequest.builder()
-            .tipoPreco(TipoPreco.PADRAO)
-            .novoPreco(new BigDecimal("150.00"))
-            .motivo("Ajuste sazonal")
-            .build();
+    ProdutoAtualizaRequest atualizaRequest =
+        new ProdutoAtualizaRequest(
+            "Nova descrição", null, null, null, null, null, null, null, null);
 
-    spyService.atualizaPreco(produtoId, request);
+    spyService.atualizaProduto(produtoId, atualizaRequest);
 
     ArgumentCaptor<HistoricoAtualizacaoProduto> historicoCaptor =
         ArgumentCaptor.forClass(HistoricoAtualizacaoProduto.class);
-
     verify(historicoAtualizacaoProdutoRepository, times(1)).salva(historicoCaptor.capture());
 
     HistoricoAtualizacaoProduto historicoSalvo = historicoCaptor.getValue();
-
-    assertEquals(produto, historicoSalvo.getProduto());
+    assertEquals(produtoExistente, historicoSalvo.getProduto());
     assertEquals(usuarioLogado, historicoSalvo.getUsuario());
-
-    assertEquals(TipoPreco.PADRAO, historicoSalvo.getTipoPreco());
-
-    assertEquals(new BigDecimal("50.00"), historicoSalvo.getValorAnterior());
-
-    assertEquals(new BigDecimal("150.00"), historicoSalvo.getValorNovo());
-
-    assertEquals("Ajuste sazonal", historicoSalvo.getMotivo());
-
     assertNotNull(historicoSalvo.getDataHora());
   }
 
   @Test
-  void deveAtualizarPrecoSemMotivo() {
-    Produto produto = criaProdutoComPrecoPadrao(new BigDecimal("50.00"));
+  void deveRemoverProdutoComSucesso() {
+    Produto produtoExistente = new Produto(produtoRequest);
+    produtoExistente.setId(produtoId);
 
-    Usuario usuarioLogado = mock(Usuario.class);
+    when(produtoRepository.buscaProdutoPorId(produtoId)).thenReturn(produtoExistente);
 
-    when(produtoRepository.buscaProdutoPorId(produtoId)).thenReturn(produto);
+    produtoApplicationService.removerProduto(produtoId);
 
-    ProdutoApplicationService spyService = Mockito.spy(produtoApplicationService);
+    assertEquals(StatusProduto.INATIVO, produtoExistente.getStatus());
+    assertNotNull(produtoExistente.getDataDeAtualizacao());
+    verify(produtoRepository, times(1)).buscaProdutoPorId(produtoId);
+    verify(produtoRepository, times(1)).salva(produtoExistente);
+  }
 
-    doReturn(usuarioLogado).when(spyService).buscaUsuarioLogado();
+  @Test
+  void deveLancarExcecaoAoTentarRemoverProdutoInexistente() {
+    when(produtoRepository.buscaProdutoPorId(produtoId))
+        .thenThrow(
+            new APIException(
+                org.springframework.http.HttpStatus.NOT_FOUND,
+                ErrorCode.PRODUTO_NAO_ENCONTRADO,
+                produtoId));
 
-    ProdutoAtualizaPrecoRequest request =
-        ProdutoAtualizaPrecoRequest.builder()
-            .tipoPreco(TipoPreco.PADRAO)
-            .novoPreco(new BigDecimal("75.50"))
+    APIException exception =
+        assertThrows(APIException.class, () -> produtoApplicationService.removerProduto(produtoId));
+
+    assertEquals(ErrorCode.PRODUTO_NAO_ENCONTRADO, exception.getErrorCode());
+    assertEquals(produtoId, exception.getArgs()[0]);
+    verify(produtoRepository, times(1)).buscaProdutoPorId(produtoId);
+    verify(produtoRepository, never()).salva(any(Produto.class));
+  }
+
+  @Test
+  void deveAlterarStatusProdutoParaInativo() {
+    Produto produto = new Produto(produtoRequest);
+    produto.setId(produtoId);
+
+    ProdutoAlteraStatusRequest statusRequest =
+        ProdutoAlteraStatusRequest.builder()
+            .status(StatusProduto.INATIVO)
+            .motivo("Fora de temporada")
             .build();
 
-    ProdutoAtualizaPrecoResponse response = spyService.atualizaPreco(produtoId, request);
+    when(produtoRepository.buscaProdutoPorId(produtoId)).thenReturn(produto);
+    when(produtoRepository.salva(any(Produto.class))).thenReturn(produto);
 
-    assertNotNull(response);
+    assertDoesNotThrow(
+        () -> produtoApplicationService.alteraStatusProduto(produtoId, statusRequest));
 
-    assertEquals(new BigDecimal("75.50"), produto.buscaPrecoPorTipo(TipoPreco.PADRAO).getValor());
-
-    ArgumentCaptor<HistoricoAtualizacaoProduto> historicoCaptor =
-        ArgumentCaptor.forClass(HistoricoAtualizacaoProduto.class);
-
-    verify(historicoAtualizacaoProdutoRepository, times(1)).salva(historicoCaptor.capture());
-
-    HistoricoAtualizacaoProduto historicoSalvo = historicoCaptor.getValue();
-
-    assertNull(historicoSalvo.getMotivo());
-
+    assertEquals(StatusProduto.INATIVO, produto.getStatus());
+    assertNotNull(produto.getDataAlteracaoStatus());
+    assertEquals("Fora de temporada", produto.getMotivoAlteracao());
     verify(produtoRepository, times(1)).buscaProdutoPorId(produtoId);
+    verify(produtoRepository, times(1)).salva(any(Produto.class));
+  }
 
-    verify(produtoRepository, times(1)).salva(produto);
+  @Test
+  void deveAlterarStatusParaAtivoComSucesso() {
+    Produto produto = new Produto(produtoRequest);
+    produto.setId(produtoId);
+    produto.alteraStatus(StatusProduto.INATIVO, "Inativado anteriormente");
+
+    ProdutoAlteraStatusRequest statusRequest =
+        ProdutoAlteraStatusRequest.builder().status(StatusProduto.ATIVO).build();
+
+    when(produtoRepository.buscaProdutoPorId(produtoId)).thenReturn(produto);
+    when(produtoRepository.salva(any(Produto.class))).thenReturn(produto);
+
+    assertDoesNotThrow(
+        () -> produtoApplicationService.alteraStatusProduto(produtoId, statusRequest));
+
+    assertEquals(StatusProduto.ATIVO, produto.getStatus());
+    verify(produtoRepository, times(1)).buscaProdutoPorId(produtoId);
+    verify(produtoRepository, times(1)).salva(any(Produto.class));
+  }
+
+  @Test
+  void deveLancarExcecaoQuandoProdutoNaoEncontradoParaAlterarStatus() {
+    ProdutoAlteraStatusRequest statusRequest =
+        ProdutoAlteraStatusRequest.builder().status(StatusProduto.INATIVO).build();
+
+    when(produtoRepository.buscaProdutoPorId(produtoId))
+        .thenThrow(
+            new APIException(HttpStatus.NOT_FOUND, ErrorCode.PRODUTO_NAO_ENCONTRADO, produtoId));
+
+    APIException exception =
+        assertThrows(
+            APIException.class,
+            () -> produtoApplicationService.alteraStatusProduto(produtoId, statusRequest));
+
+    assertEquals(ErrorCode.PRODUTO_NAO_ENCONTRADO, exception.getErrorCode());
+    verify(produtoRepository, times(1)).buscaProdutoPorId(produtoId);
+    verify(produtoRepository, never()).salva(any(Produto.class));
+  }
+
+  @Test
+  void deveAlterarStatusSemMotivo() {
+    Produto produto = new Produto(produtoRequest);
+    produto.setId(produtoId);
+
+    ProdutoAlteraStatusRequest statusRequest =
+        ProdutoAlteraStatusRequest.builder().status(StatusProduto.INATIVO).build();
+
+    when(produtoRepository.buscaProdutoPorId(produtoId)).thenReturn(produto);
+    when(produtoRepository.salva(any(Produto.class))).thenReturn(produto);
+
+    assertDoesNotThrow(
+        () -> produtoApplicationService.alteraStatusProduto(produtoId, statusRequest));
+
+    assertEquals(StatusProduto.INATIVO, produto.getStatus());
+    assertNull(produto.getMotivoAlteracao());
+    verify(produtoRepository, times(1)).buscaProdutoPorId(produtoId);
+    verify(produtoRepository, times(1)).salva(any(Produto.class));
   }
 }
