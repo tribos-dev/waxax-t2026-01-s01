@@ -8,10 +8,10 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.PositiveOrZero;
 
-import br.com.wakax.wakax_ecommerce.estoque.api.response.EstoqueResponse;
 import org.springframework.http.HttpStatus;
 
 import br.com.wakax.wakax_ecommerce.estoque.api.request.EstoqueRequest;
+import br.com.wakax.wakax_ecommerce.estoque.api.response.EstoqueResponse;
 import br.com.wakax.wakax_ecommerce.handler.APIException;
 import br.com.wakax.wakax_ecommerce.handler.ErrorCode;
 import br.com.wakax.wakax_ecommerce.produto.domain.Produto;
@@ -55,15 +55,22 @@ public class Estoque {
     this.custoTotal = request.getCustoTotal();
   }
 
-    public Estoque(UUID id, UUID idProduto, String descricaoProduto, Integer quantidadeDisponivel, BigDecimal custoMedio, BigDecimal custoTotal, BigDecimal precoVenda) {
-        this.id = id;
-        this.produto = produto;
-        this.quantidadeDisponivel = quantidadeDisponivel;
-        this.custoMedio = custoMedio;
-        this.custoTotal = custoTotal;
+  public Estoque(
+      UUID id,
+      UUID idProduto,
+      String descricaoProduto,
+      Integer quantidadeDisponivel,
+      BigDecimal custoMedio,
+      BigDecimal custoTotal,
+      BigDecimal precoVenda) {
+    this.id = id;
+    this.produto = produto;
+    this.quantidadeDisponivel = quantidadeDisponivel;
+    this.custoMedio = custoMedio;
+    this.custoTotal = custoTotal;
   }
 
-    public void adicionaQuantidade(Integer quantidade, BigDecimal custoUnitario) {
+  public void adicionaQuantidade(Integer quantidade, BigDecimal custoUnitario) {
     validaQuantidade(quantidade);
     validaCustoUnitario(custoUnitario);
 
@@ -133,14 +140,14 @@ public class Estoque {
     }
   }
 
-    public static Estoque fromResponse(EstoqueResponse response) {
-        return new Estoque(
-                response.getId(),
-                response.getIdProduto(),
-                response.getDescricaoProduto(),
-                response.getQuantidadeDisponivel(),
-                response.getCustoMedio(),
-                response.getCustoTotal(),
-                response.getPrecoVenda());
-    }
+  public static Estoque fromResponse(EstoqueResponse response) {
+    return new Estoque(
+        response.getId(),
+        response.getIdProduto(),
+        response.getDescricaoProduto(),
+        response.getQuantidadeDisponivel(),
+        response.getCustoMedio(),
+        response.getCustoTotal(),
+        response.getPrecoVenda());
+  }
 }

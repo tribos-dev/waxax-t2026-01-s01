@@ -3,9 +3,6 @@ package br.com.wakax.wakax_ecommerce.carrinho.application.service;
 import java.util.List;
 import java.util.UUID;
 
-import br.com.wakax.wakax_ecommerce.estoque.api.response.EstoqueResponse;
-import br.com.wakax.wakax_ecommerce.estoque.application.service.EstoqueService;
-import br.com.wakax.wakax_ecommerce.carrinho.api.request.AlteraQuantidadeDeItemRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,7 +19,8 @@ import br.com.wakax.wakax_ecommerce.carrinho.domain.Carrinho;
 import br.com.wakax.wakax_ecommerce.carrinho.domain.ItemCarrinho;
 import br.com.wakax.wakax_ecommerce.cliente.application.repository.ClienteRepository;
 import br.com.wakax.wakax_ecommerce.cliente.domain.Cliente;
-import br.com.wakax.wakax_ecommerce.estoque.application.repository.EstoqueRepository;
+import br.com.wakax.wakax_ecommerce.estoque.api.response.EstoqueResponse;
+import br.com.wakax.wakax_ecommerce.estoque.application.service.EstoqueService;
 import br.com.wakax.wakax_ecommerce.estoque.domain.Estoque;
 import br.com.wakax.wakax_ecommerce.handler.APIException;
 import br.com.wakax.wakax_ecommerce.handler.ErrorCode;
@@ -42,9 +40,9 @@ public class CarrinhoApplicationService implements CarrinhoService {
   private final ClienteRepository clienteRepository;
   private final ProcessadorEstoqueFactory processadorEstoqueFactory;
   private final TokenService tokenService;
-    private final EstoqueService estoqueService;
+  private final EstoqueService estoqueService;
 
-    @Override
+  @Override
   @Transactional
   public CarrinhoResponse adicionaItemNoCarrinho(
       UUID idCliente, ItemCarrinhoRequest itemCarrinhoRequest) {
@@ -129,8 +127,9 @@ public class CarrinhoApplicationService implements CarrinhoService {
   }
 
   @Override
-    public Estoque buscaEstoqueDoProduto(ItemCarrinho itemCarrinho) {
-        EstoqueResponse response = estoqueService.buscaEstoquePorIdProduto(itemCarrinho.getProduto().getId());
-        return Estoque.fromResponse(response);
-    }
+  public Estoque buscaEstoqueDoProduto(ItemCarrinho itemCarrinho) {
+    EstoqueResponse response =
+        estoqueService.buscaEstoquePorIdProduto(itemCarrinho.getProduto().getId());
+    return Estoque.fromResponse(response);
+  }
 }

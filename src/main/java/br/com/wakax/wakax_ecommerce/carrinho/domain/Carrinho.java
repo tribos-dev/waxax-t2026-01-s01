@@ -9,12 +9,8 @@ import java.util.UUID;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 
-import br.com.wakax.wakax_ecommerce.estoque.api.response.EstoqueResponse;
-import br.com.wakax.wakax_ecommerce.carrinho.api.request.AlteraQuantidadeDeItemRequest;
-import br.com.wakax.wakax_ecommerce.estoque.domain.Estoque;
 import org.springframework.http.HttpStatus;
 
-import br.com.wakax.wakax_ecommerce.carrinho.api.request.AlteraQuantidadeDeItemRequest;
 import br.com.wakax.wakax_ecommerce.carrinho.api.request.ItemCarrinhoRequest;
 import br.com.wakax.wakax_ecommerce.cliente.domain.Cliente;
 import br.com.wakax.wakax_ecommerce.estoque.domain.Estoque;
@@ -136,8 +132,7 @@ public class Carrinho {
     validaSeExisteQuantidadeEmEstoque(quantidade, estoque);
   }
 
-  private void validaSeExisteQuantidadeEmEstoque(
-      Integer quantidade, Estoque estoque) {
+  private void validaSeExisteQuantidadeEmEstoque(Integer quantidade, Estoque estoque) {
     if (!estoque.temQuantidadeDisponivel(quantidade)) {
       throw new APIException(HttpStatus.BAD_REQUEST, ErrorCode.QUANTIDADE_INSUFICIENTE_ESTOQUE);
     }
@@ -148,6 +143,4 @@ public class Carrinho {
       throw new APIException(HttpStatus.BAD_REQUEST, ErrorCode.QUANTIDADE_INVALIDA);
     }
   }
-
-
 }
