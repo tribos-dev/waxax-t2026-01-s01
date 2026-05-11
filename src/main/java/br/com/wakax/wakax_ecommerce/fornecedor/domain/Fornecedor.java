@@ -55,9 +55,7 @@ public class Fornecedor {
 
   @Enumerated(EnumType.STRING)
   @Column(nullable = false)
-  private StatusFornecedor status = StatusFornecedor.ATIVO;
-
-  ;
+  private StatusFornecedor status;
 
   @PrePersist
   protected void onCreate() {
@@ -76,6 +74,7 @@ public class Fornecedor {
     this.inscricaoEstadual = request.getInscricaoEstadual();
     this.razaoSocial = request.getRazaoSocial();
     this.nomeFantasia = request.getNomeFantasia();
+    this.status = StatusFornecedor.ATIVO;
   }
 
   public void atualizacaoFornecedor(FornecedorAtualizaRequest request) {

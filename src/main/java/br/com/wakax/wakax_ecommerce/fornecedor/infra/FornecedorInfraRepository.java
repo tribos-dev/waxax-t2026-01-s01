@@ -54,9 +54,10 @@ public class FornecedorInfraRepository implements FornecedorRepository {
   @Override
   public Page<Fornecedor> buscaFornecedoresComFiltro(StatusPessoa status, Pageable pageable) {
     log.debug("[start] FornecedorInfraRepository - buscaFornecedoresComFiltro");
+    StatusFornecedor statusFornecedorExcluido = StatusFornecedor.INATIVO;
     Page<Fornecedor> fornecedores =
         fornecedorJPARepository.buscaFornecedoresComFiltro(
-            status, StatusFornecedor.INATIVO, pageable);
+            status, statusFornecedorExcluido, pageable);
     log.debug("[finaliza] FornecedorInfraRepository - buscaFornecedoresComFiltro");
     return fornecedores;
   }

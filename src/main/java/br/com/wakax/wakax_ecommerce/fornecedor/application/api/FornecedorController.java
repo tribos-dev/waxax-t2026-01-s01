@@ -61,9 +61,7 @@ public class FornecedorController implements FornecedorAPI {
   @Override
   public void removerFornecedor(UUID idFornecedor) {
     log.debug("[start] FornecedorController - removerFornecedor");
-
     fornecedorService.removerFornecedor(idFornecedor);
-
     log.debug("[finish] FornecedorController - removerFornecedor");
   }
 }
