@@ -50,7 +50,8 @@ public enum ErrorCode {
   RELATORIO_DATA_OBRIGATORIA("relatorio.data.obrigatoria"),
   RELATORIO_DATA_INVALIDA("relatorio.data.invalida"),
   PRECO_NAO_ENCONTRADO("preco.nao.encontrado"),
-  PRECO_INVALIDO("preco.invalido");
+  PRECO_INVALIDO("preco.invalido"),
+  PRECO_JA_CADASTRADO("preco.ja.cadastrado");
   private final String code;
 
   ErrorCode(String code) {
