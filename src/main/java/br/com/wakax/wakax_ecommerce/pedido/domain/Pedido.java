@@ -146,4 +146,17 @@ public class Pedido {
       case ENTREGUE, CANCELADO -> false;
     };
   }
+
+  @PrePersist
+  public void prePersist() {
+    this.dataUltimaAtualizacao = LocalDateTime.now();
+    if (this.dataPedido == null) {
+      this.dataPedido = LocalDateTime.now();
+    }
+  }
+
+  @PreUpdate
+  public void preUpdate() {
+    this.dataUltimaAtualizacao = LocalDateTime.now();
+  }
 }
