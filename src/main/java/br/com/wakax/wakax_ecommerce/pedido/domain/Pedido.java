@@ -132,4 +132,29 @@ public class Pedido {
       case ENTREGUE, CANCELADO -> false;
     };
   }
+
+  public void alteraEnderecoDeEntrega(Endereco novoEndereco) {
+    validaSePedidoEstaCancelado();
+    validaSePedidoFoiEnviadoOuEntregue();
+    validaSeNovoEnderecoEhIgualAtual(novoEndereco.getId());
+    this.enderecoEntrega = novoEndereco;
+  }
+
+  private void validaSeNovoEnderecoEhIgualAtual(UUID idNovoEndereco) {
+    if (this.enderecoEntrega.getId().equals(idNovoEndereco)) {
+      throw new APIException(HttpStatus.CONFLICT, ErrorCode.PEDIDO_MESMO_ENDERECO);
+    }
+  }
+
+  private void validaSePedidoEstaCancelado() {
+    if (this.status.equals(StatusPedido.CANCELADO)) {
+      throw new APIException(HttpStatus.CONFLICT, ErrorCode.PEDIDO_JA_CANCELADO);
+    }
+  }
+
+  private void validaSePedidoFoiEnviadoOuEntregue() {
+    if (this.status.equals(StatusPedido.ENVIADO) || this.status.equals(StatusPedido.ENTREGUE)) {
+      throw new APIException(HttpStatus.BAD_REQUEST, ErrorCode.PEDIDO_JA_ENVIADO);
+    }
+  }
 }
