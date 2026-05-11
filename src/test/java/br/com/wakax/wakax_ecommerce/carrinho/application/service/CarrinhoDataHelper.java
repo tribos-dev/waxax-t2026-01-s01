@@ -180,12 +180,4 @@ public final class CarrinhoDataHelper {
     }
     return request;
   }
-
-  //    public static EstoqueResponse criaEstoqueResponse(ItemCarrinho itemCarrinho) {
-  //      return EstoqueResponse.builder()
-  //                .id(UUID.fromString("f47ac10b-58cc-4372-a567-0e02b2c3d479"))
-  //                .quantidadeDisponivel(40)
-  //              .idProduto(itemCarrinho.getProduto().getId())
-  //                .build();
-  //    }
 }
