@@ -34,4 +34,8 @@ public interface FornecedorAPI {
   FornecedorAtualizaResponse atualizarFornecedor(
       @PathVariable UUID idFornecedor,
       @Valid @RequestBody FornecedorAtualizaRequest atualizaFornecedor);
+
+  @PatchMapping("/{idFornecedor}/remover")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  void removerFornecedor(@PathVariable UUID idFornecedor);
 }
