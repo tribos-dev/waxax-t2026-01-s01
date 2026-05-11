@@ -121,8 +121,7 @@ public class CarrinhoApplicationService implements CarrinhoService {
     Carrinho carrinho = carrinhoRepository.buscaCarrinhoPorId(idCarrinho);
     ItemCarrinho itemCarrinho = carrinho.buscaItemPorId(idItem);
     Estoque estoque = buscaEstoqueDoProduto(itemCarrinho);
-    carrinho.validaAlteracaoDeQuantidadeDoItem(idCliente, idItem, request.getQuantidade(), estoque);
-    itemCarrinho.novaQuantidadeDoItem(request.getQuantidade());
+    carrinho.novaQuantidadeDoItem(idCliente, idItem, request.getQuantidade(), estoque);
     log.debug("[finish] CarrinhoApplicationService - alteraQuantidadeDeItem");
   }
 

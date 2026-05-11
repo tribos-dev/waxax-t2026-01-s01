@@ -115,23 +115,27 @@ public class Carrinho {
     this.statusCarrinho = StatusCarrinho.ATIVO;
   }
 
-    public void validaAlteracaoDeQuantidadeDoItem(UUID idCliente, UUID idItem, Integer quantidade, Estoque estoque) {
-      verificaSeCarrinhoPertenceAoCliente(idCliente);
-      verificaSeCarrinhoEstaAtivo();
-      buscaItemPorId(idItem);
-      validaQuantidade(quantidade, estoque);
+  public void novaQuantidadeDoItem(
+      UUID idCliente, UUID idItem, Integer quantidade, Estoque estoque) {
+    validaAlteracaoDeQuantidadeDoItem(idCliente, idItem, quantidade, estoque);
+    ItemCarrinho itemCarrinho = buscaItemPorId(idItem);
+    itemCarrinho.novaQuantidadeDoItem(quantidade);
   }
+
+    private void validaAlteracaoDeQuantidadeDoItem(
+            UUID idCliente, UUID idItem, Integer quantidade, Estoque estoque) {
+        verificaSeCarrinhoPertenceAoCliente(idCliente);
+        verificaSeCarrinhoEstaAtivo();
+        buscaItemPorId(idItem);
+        validaQuantidadeMinima(quantidade);
+        validaSeExisteQuantidadeEmEstoque(quantidade, estoque);
+    }
 
   private void verificaSeCarrinhoPertenceAoCliente(UUID idCliente) {
     if (cliente == null || !this.cliente.getId().equals(idCliente)) {
       throw new APIException(
           HttpStatus.FORBIDDEN, ErrorCode.CARRINHO_NAO_PERTENCE_AO_CLIENTE_AUTENTICADO);
     }
-  }
-
-  private void validaQuantidade(Integer quantidade, Estoque estoque) {
-    validaQuantidadeMinima(quantidade);
-    validaSeExisteQuantidadeEmEstoque(quantidade, estoque);
   }
 
   private void validaSeExisteQuantidadeEmEstoque(Integer quantidade, Estoque estoque) {
@@ -145,6 +149,4 @@ public class Carrinho {
       throw new APIException(HttpStatus.BAD_REQUEST, ErrorCode.QUANTIDADE_INVALIDA);
     }
   }
-
-
 }
