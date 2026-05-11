@@ -12,7 +12,10 @@ import br.com.wakax.wakax_ecommerce.pessoa.domain.StatusPessoa;
 public class FornecedorDataHelper {
 
   public static Fornecedor criarFornecedor(
-          String razaoSocial, String documento, StatusPessoa status, StatusFornecedor statusFornecedor) {
+      String razaoSocial,
+      String documento,
+      StatusPessoa status,
+      StatusFornecedor statusFornecedor) {
     Pessoa pessoa = new Pessoa();
     pessoa.setNome("Nome " + razaoSocial);
     pessoa.setCpfCnpj(documento);
@@ -35,19 +38,14 @@ public class FornecedorDataHelper {
 
   public static Fornecedor criarFornecedorAtivo() {
     return criarFornecedor(
-            "Empresa Ativa LTDA",
-            "11.111.111/0001-11",
-            StatusPessoa.ATIVO,
-            StatusFornecedor.ATIVO
-    );
+        "Empresa Ativa LTDA", "11.111.111/0001-11", StatusPessoa.ATIVO, StatusFornecedor.ATIVO);
   }
 
   public static Fornecedor criarFornecedorInativo() {
     return criarFornecedor(
-            "Empresa Inativa LTDA",
-            "22.222.222/0001-22",
-            StatusPessoa.INATIVO,
-            StatusFornecedor.INATIVO
-    );
+        "Empresa Inativa LTDA",
+        "22.222.222/0001-22",
+        StatusPessoa.INATIVO,
+        StatusFornecedor.INATIVO);
   }
 }

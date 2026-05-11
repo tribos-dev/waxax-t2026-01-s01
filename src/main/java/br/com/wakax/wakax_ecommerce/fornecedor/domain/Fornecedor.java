@@ -55,7 +55,9 @@ public class Fornecedor {
 
   @Enumerated(EnumType.STRING)
   @Column(nullable = false)
-  private StatusFornecedor status = StatusFornecedor.ATIVO;;
+  private StatusFornecedor status = StatusFornecedor.ATIVO;
+
+  ;
 
   @PrePersist
   protected void onCreate() {
