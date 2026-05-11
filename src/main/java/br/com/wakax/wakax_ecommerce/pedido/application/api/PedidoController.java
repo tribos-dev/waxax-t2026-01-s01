@@ -6,6 +6,7 @@ import javax.validation.Valid;
 
 import org.springframework.web.bind.annotation.RestController;
 
+import br.com.wakax.wakax_ecommerce.pedido.application.api.request.EnderecoEntregaRequest;
 import br.com.wakax.wakax_ecommerce.pedido.application.api.request.PedidoRequest;
 import br.com.wakax.wakax_ecommerce.pedido.application.api.request.StatusPedidoRequest;
 import br.com.wakax.wakax_ecommerce.pedido.application.api.response.PedidoResponse;
@@ -51,5 +52,12 @@ public class PedidoController implements PedidoAPI {
     log.debug("[start] PedidoController - atualizaStatus");
     pedidoService.atualizaStatusPedido(idPedido, statusPedidoRequest);
     log.debug("[finish] PedidoController - atualizaStatus");
+  }
+
+  @Override
+  public void alteraEnderecoEntrega(UUID idPedido, EnderecoEntregaRequest request) {
+    log.debug("[start] PedidoController - alteraEnderecoEntrega");
+    pedidoService.alteraEnderecoEntrega(idPedido, request);
+    log.debug("[finish] PedidoController - alteraEnderecoEntrega");
   }
 }
