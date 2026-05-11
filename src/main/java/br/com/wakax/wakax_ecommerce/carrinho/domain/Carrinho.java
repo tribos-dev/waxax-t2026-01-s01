@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.UUID;
 
 import javax.persistence.*;
-import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
 import org.springframework.http.HttpStatus;
@@ -122,14 +121,14 @@ public class Carrinho {
     itemCarrinho.novaQuantidadeDoItem(quantidade);
   }
 
-    private void validaAlteracaoDeQuantidadeDoItem(
-            UUID idCliente, UUID idItem, Integer quantidade, Estoque estoque) {
-        verificaSeCarrinhoPertenceAoCliente(idCliente);
-        verificaSeCarrinhoEstaAtivo();
-        buscaItemPorId(idItem);
-        validaQuantidadeMinima(quantidade);
-        validaSeExisteQuantidadeEmEstoque(quantidade, estoque);
-    }
+  private void validaAlteracaoDeQuantidadeDoItem(
+      UUID idCliente, UUID idItem, Integer quantidade, Estoque estoque) {
+    verificaSeCarrinhoPertenceAoCliente(idCliente);
+    verificaSeCarrinhoEstaAtivo();
+    buscaItemPorId(idItem);
+    validaQuantidadeMinima(quantidade);
+    validaSeExisteQuantidadeEmEstoque(quantidade, estoque);
+  }
 
   private void verificaSeCarrinhoPertenceAoCliente(UUID idCliente) {
     if (cliente == null || !this.cliente.getId().equals(idCliente)) {
