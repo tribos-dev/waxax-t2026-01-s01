@@ -54,6 +54,6 @@ public class ItemCarrinho {
   }
 
   public void novaQuantidadeTotal(Integer quantidade) {
-    this.quantidade += quantidade;
+    this.quantidade = quantidade;
   }
 }

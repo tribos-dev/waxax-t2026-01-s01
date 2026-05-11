@@ -7,18 +7,22 @@ import br.com.wakax.wakax_ecommerce.carrinho.api.request.AlteraQuantidadeDeItemR
 import br.com.wakax.wakax_ecommerce.carrinho.api.request.ItemCarrinhoRequest;
 import br.com.wakax.wakax_ecommerce.carrinho.api.response.CarrinhoResponse;
 import br.com.wakax.wakax_ecommerce.carrinho.api.response.CarrinhosListAllResponse;
+import br.com.wakax.wakax_ecommerce.carrinho.domain.ItemCarrinho;
+import br.com.wakax.wakax_ecommerce.estoque.domain.Estoque;
 
 public interface CarrinhoService {
-  CarrinhoResponse adicionaItemNoCarrinho(UUID idCliente, ItemCarrinhoRequest itemCarrinho);
+    CarrinhoResponse adicionaItemNoCarrinho(UUID idCliente, ItemCarrinhoRequest itemCarrinho);
 
-  CarrinhoResponse buscaCarrinhoPorId(UUID idCliente, UUID idCarrinho);
+    CarrinhoResponse buscaCarrinhoPorId(UUID idCliente, UUID idCarrinho);
 
-  List<CarrinhosListAllResponse> buscarTodosOsCarrinhos(UUID idCliente);
+    List<CarrinhosListAllResponse> buscarTodosOsCarrinhos(UUID idCliente);
 
-  void deletaItemDoCarrinho(String token, UUID idCarrinho, UUID idProduto);
+    void deletaItemDoCarrinho(String token, UUID idCarrinho, UUID idProduto);
 
-  void restaurarCarrinho(UUID id);
+    void restaurarCarrinho(UUID id);
 
-  void alteraQuantidadeDeItem(
-      UUID idCarrinho, UUID idItem, UUID idCliente, AlteraQuantidadeDeItemRequest request);
+    void alteraQuantidadeDeItem(
+            UUID idCarrinho, UUID idItem, UUID idCliente, AlteraQuantidadeDeItemRequest request);
+
+    Estoque buscaEstoqueDoProduto(ItemCarrinho itemCarrinho);
 }

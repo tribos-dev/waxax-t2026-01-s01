@@ -6,11 +6,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.UUID;
 
+import br.com.wakax.wakax_ecommerce.carrinho.api.request.AlteraQuantidadeDeItemRequest;
 import br.com.wakax.wakax_ecommerce.carrinho.api.request.ItemCarrinhoRequest;
 import br.com.wakax.wakax_ecommerce.carrinho.domain.Carrinho;
 import br.com.wakax.wakax_ecommerce.carrinho.domain.ItemCarrinho;
 import br.com.wakax.wakax_ecommerce.carrinho.domain.StatusCarrinho;
 import br.com.wakax.wakax_ecommerce.cliente.domain.Cliente;
+import br.com.wakax.wakax_ecommerce.estoque.api.response.EstoqueResponse;
 import br.com.wakax.wakax_ecommerce.estoque.domain.Estoque;
 import br.com.wakax.wakax_ecommerce.pessoa.domain.Pessoa;
 import br.com.wakax.wakax_ecommerce.pessoa.domain.StatusPessoa;
@@ -18,6 +20,7 @@ import br.com.wakax.wakax_ecommerce.produto.domain.Preco;
 import br.com.wakax.wakax_ecommerce.produto.domain.Produto;
 import br.com.wakax.wakax_ecommerce.produto.domain.StatusProduto;
 import br.com.wakax.wakax_ecommerce.produto.domain.TipoPreco;
+import lombok.Builder;
 
 public final class CarrinhoDataHelper {
 
@@ -159,11 +162,31 @@ public final class CarrinhoDataHelper {
     return carrinho;
   }
 
-  public static Estoque criaEstoque(){
+  public static Estoque criaEstoque(ItemCarrinho itemCarrinho){
       return Estoque.builder()
               .id(UUID.fromString("f47ac10b-58cc-4372-a567-0e02b2c3d479"))
               .quantidadeDisponivel(40)
-              .produto(criaProduto())
+              .produto(itemCarrinho.getProduto())
               .build();
   }
+
+    public static AlteraQuantidadeDeItemRequest criaAlteraQuantidadeDeItemRequest(Integer quantidade) {
+        AlteraQuantidadeDeItemRequest request = new AlteraQuantidadeDeItemRequest(quantidade);
+        try {
+            java.lang.reflect.Field fieldQtd = request.getClass().getDeclaredField("quantidade");
+            fieldQtd.setAccessible(true);
+            fieldQtd.set(request, quantidade);
+        } catch (Exception e) {
+            throw new RuntimeException("Falha ao criar AlteraQuantidadeDeItemRequest para teste", e);
+        }
+        return request;
+    }
+
+//    public static EstoqueResponse criaEstoqueResponse(ItemCarrinho itemCarrinho) {
+//      return EstoqueResponse.builder()
+//                .id(UUID.fromString("f47ac10b-58cc-4372-a567-0e02b2c3d479"))
+//                .quantidadeDisponivel(40)
+//              .idProduto(itemCarrinho.getProduto().getId())
+//                .build();
+//    }
 }

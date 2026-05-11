@@ -9,14 +9,11 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.time.LocalDateTime;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import br.com.wakax.wakax_ecommerce.carrinho.domain.ItemCarrinho;
-import br.com.wakax.wakax_ecommerce.estoque.application.service.EstoqueDataHelper;
-import br.com.wakax.wakax_ecommerce.estoque.domain.Estoque;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -24,6 +21,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 
+import br.com.wakax.wakax_ecommerce.carrinho.api.request.AlteraQuantidadeDeItemRequest;
 import br.com.wakax.wakax_ecommerce.carrinho.api.request.ItemCarrinhoRequest;
 import br.com.wakax.wakax_ecommerce.carrinho.api.response.CarrinhoResponse;
 import br.com.wakax.wakax_ecommerce.carrinho.api.response.CarrinhosListAllResponse;
@@ -31,10 +29,13 @@ import br.com.wakax.wakax_ecommerce.carrinho.application.factory.ProcessadorEsto
 import br.com.wakax.wakax_ecommerce.carrinho.application.repository.CarrinhoRepository;
 import br.com.wakax.wakax_ecommerce.carrinho.application.strategy.ProcessadorEstoque;
 import br.com.wakax.wakax_ecommerce.carrinho.domain.Carrinho;
+import br.com.wakax.wakax_ecommerce.carrinho.domain.ItemCarrinho;
 import br.com.wakax.wakax_ecommerce.carrinho.domain.StatusCarrinho;
 import br.com.wakax.wakax_ecommerce.cliente.application.repository.ClienteRepository;
 import br.com.wakax.wakax_ecommerce.cliente.domain.Cliente;
-import br.com.wakax.wakax_ecommerce.estoque.application.repository.EstoqueRepository;
+import br.com.wakax.wakax_ecommerce.estoque.api.response.EstoqueResponse;
+import br.com.wakax.wakax_ecommerce.estoque.application.service.EstoqueDataHelper;
+import br.com.wakax.wakax_ecommerce.estoque.application.service.EstoqueService;
 import br.com.wakax.wakax_ecommerce.handler.APIException;
 import br.com.wakax.wakax_ecommerce.handler.ErrorCode;
 import br.com.wakax.wakax_ecommerce.produto.application.repository.ProdutoRepository;
@@ -54,9 +55,9 @@ class CarrinhoApplicationServiceTest {
 
   @Mock ProcessadorEstoqueFactory processadorEstoqueFactory;
 
-  @Mock EstoqueRepository estoqueRepository;
-
   @Mock ProcessadorEstoque processadorEstoque;
+
+  @Mock EstoqueService estoqueService;
 
   @Test
   void deveAdicionarItemAUmCarrinhoAtivo() {
@@ -187,7 +188,6 @@ class CarrinhoApplicationServiceTest {
   @Test
   void deveRetornarTodosOsCarrinhosOrdenadosPelaData() {
     Cliente cliente = CarrinhoDataHelper.criaCliente();
-    LocalDateTime base = LocalDateTime.now();
 
     Carrinho carrinhoRecente = CarrinhoDataHelper.criaCarrinhoAtivoComUmItem(cliente);
     Carrinho carrinhoAntigo = CarrinhoDataHelper.criaCarrinhoFinalizadoDeOntem(cliente);
@@ -284,14 +284,136 @@ class CarrinhoApplicationServiceTest {
   }
 
   @Test
-    void DeveAlterarQuantidadeComSucesso(){
-      Cliente cliente = CarrinhoDataHelper.criaCliente();
-      Carrinho carrinho = CarrinhoDataHelper.criaCarrinhoAtivoComUmItem(cliente);
-      ItemCarrinho itemCarrinho =CarrinhoDataHelper.criaItemCarrinho();
-    Estoque estoque = CarrinhoDataHelper.criaEstoque();
+  void deveAlterarQuantidadeComSucesso() {
+    Cliente cliente = CarrinhoDataHelper.criaCliente();
+    Carrinho carrinho = CarrinhoDataHelper.criaCarrinhoAtivoComUmItem(cliente);
+    ItemCarrinho itemCarrinho = carrinho.getItensCarrinho().get(0);
+    int quantidadeAnterior = itemCarrinho.getQuantidade();
 
     when(carrinhoRepository.buscaCarrinhoPorId(carrinho.getId())).thenReturn(carrinho);
-    when(clienteRepository.buscaClientePorId(cliente.getId())).thenReturn(cliente);
-    when(carrinho.buscaItemPorId(itemCarrinho.getId())).thenReturn(itemCarrinho);
+    when(estoqueService.buscaEstoquePorIdProduto(itemCarrinho.getProduto().getId()))
+        .thenReturn(EstoqueDataHelper.criaEstoqueResponse(itemCarrinho));
+
+    int novaQuantidade = 10;
+    applicationService.alteraQuantidadeDeItem(
+        carrinho.getId(),
+        itemCarrinho.getId(),
+        cliente.getId(),
+        new AlteraQuantidadeDeItemRequest(novaQuantidade));
+
+    assertEquals(novaQuantidade, itemCarrinho.getQuantidade());
+    assertNotEquals(quantidadeAnterior, itemCarrinho.getQuantidade());
+
+    verify(estoqueService, times(1)).buscaEstoquePorIdProduto(itemCarrinho.getProduto().getId());
+  }
+
+  @Test
+  void naoDeveAlterarQuantidadeQuandoQuantidadeForInvalida() {
+    Cliente cliente = CarrinhoDataHelper.criaCliente();
+    Carrinho carrinho = CarrinhoDataHelper.criaCarrinhoAtivoComUmItem(cliente);
+    ItemCarrinho itemCarrinho = carrinho.getItensCarrinho().get(0);
+    int quantidadeOriginal = itemCarrinho.getQuantidade();
+
+    when(carrinhoRepository.buscaCarrinhoPorId(carrinho.getId())).thenReturn(carrinho);
+    when(estoqueService.buscaEstoquePorIdProduto(itemCarrinho.getProduto().getId()))
+        .thenReturn(EstoqueDataHelper.criaEstoqueResponse(itemCarrinho));
+
+    APIException ex =
+        assertThrows(
+            APIException.class,
+            () ->
+                applicationService.alteraQuantidadeDeItem(
+                    carrinho.getId(),
+                    itemCarrinho.getId(),
+                    cliente.getId(),
+                    new AlteraQuantidadeDeItemRequest(0)));
+
+    assertEquals(HttpStatus.BAD_REQUEST, ex.getStatusException());
+    assertEquals(ErrorCode.QUANTIDADE_INVALIDA, ex.getErrorCode());
+    assertEquals(quantidadeOriginal, itemCarrinho.getQuantidade());
+  }
+
+  @Test
+  void naoDeveAlterarQuantidadeQuandoEstoqueForInsuficiente() {
+    Cliente cliente = CarrinhoDataHelper.criaCliente();
+    Carrinho carrinho = CarrinhoDataHelper.criaCarrinhoAtivoComUmItem(cliente);
+    ItemCarrinho itemCarrinho = carrinho.getItensCarrinho().get(0);
+    int quantidadeOriginal = itemCarrinho.getQuantidade();
+
+    when(carrinhoRepository.buscaCarrinhoPorId(carrinho.getId())).thenReturn(carrinho);
+    when(estoqueService.buscaEstoquePorIdProduto(itemCarrinho.getProduto().getId()))
+        .thenReturn(
+            EstoqueResponse.builder()
+                .id(UUID.fromString("f47ac10b-58cc-4372-a567-0e02b2c3d479"))
+                .quantidadeDisponivel(5)
+                .idProduto(itemCarrinho.getProduto().getId())
+                .custoMedio(BigDecimal.ONE)
+                .custoTotal(BigDecimal.valueOf(5))
+                .build());
+
+    APIException ex =
+        assertThrows(
+            APIException.class,
+            () ->
+                applicationService.alteraQuantidadeDeItem(
+                    carrinho.getId(),
+                    itemCarrinho.getId(),
+                    cliente.getId(),
+                    new AlteraQuantidadeDeItemRequest(10)));
+
+    assertEquals(HttpStatus.BAD_REQUEST, ex.getStatusException());
+    assertEquals(ErrorCode.QUANTIDADE_INSUFICIENTE_ESTOQUE, ex.getErrorCode());
+    assertEquals(quantidadeOriginal, itemCarrinho.getQuantidade());
+  }
+
+  @Test
+  void naoDeveAlterarQuantidadeQuandoCarrinhoNaoEstiverAtivo() {
+    Cliente cliente = CarrinhoDataHelper.criaCliente();
+    Carrinho carrinho = CarrinhoDataHelper.criaCarrinhoFinalizadoComUmItem(cliente);
+    ItemCarrinho itemCarrinho = carrinho.getItensCarrinho().get(0);
+    int quantidadeOriginal = itemCarrinho.getQuantidade();
+
+    when(carrinhoRepository.buscaCarrinhoPorId(carrinho.getId())).thenReturn(carrinho);
+
+    APIException ex =
+        assertThrows(
+            APIException.class,
+            () ->
+                applicationService.alteraQuantidadeDeItem(
+                    carrinho.getId(),
+                    itemCarrinho.getId(),
+                    cliente.getId(),
+                    new AlteraQuantidadeDeItemRequest(3)));
+
+    assertEquals(HttpStatus.CONFLICT, ex.getStatusException());
+    assertEquals(ErrorCode.CARRINHO_NAO_ATIVO, ex.getErrorCode());
+    assertEquals(quantidadeOriginal, itemCarrinho.getQuantidade());
+    verify(estoqueService, never()).buscaEstoquePorIdProduto(any());
+  }
+
+  @Test
+  void naoDeveAlterarQuantidadeQuandoCarrinhoNaoPertencerAoCliente() {
+    Cliente cliente = CarrinhoDataHelper.criaCliente();
+    Carrinho carrinho = CarrinhoDataHelper.criaCarrinhoAtivoComUmItem(cliente);
+    ItemCarrinho itemCarrinho = carrinho.getItensCarrinho().get(0);
+    int quantidadeOriginal = itemCarrinho.getQuantidade();
+    UUID outroClienteId = UUID.fromString("b2b2b2b2-c3c3-d4d4-e5e5-f6f6f6f6f6f6");
+
+    when(carrinhoRepository.buscaCarrinhoPorId(carrinho.getId())).thenReturn(carrinho);
+
+    APIException ex =
+        assertThrows(
+            APIException.class,
+            () ->
+                applicationService.alteraQuantidadeDeItem(
+                    carrinho.getId(),
+                    itemCarrinho.getId(),
+                    outroClienteId,
+                    new AlteraQuantidadeDeItemRequest(3)));
+
+    assertEquals(HttpStatus.FORBIDDEN, ex.getStatusException());
+    assertEquals(ErrorCode.CARRINHO_NAO_PERTENCE_AO_CLIENTE_AUTENTICADO, ex.getErrorCode());
+    assertEquals(quantidadeOriginal, itemCarrinho.getQuantidade());
+    verify(estoqueService, never()).buscaEstoquePorIdProduto(any());
   }
 }
