@@ -6,8 +6,12 @@ import java.util.UUID;
 import javax.persistence.*;
 import javax.validation.constraints.*;
 
+import org.springframework.http.HttpStatus;
+
 import br.com.wakax.wakax_ecommerce.fornecedor.application.api.request.FornecedorAtualizaRequest;
 import br.com.wakax.wakax_ecommerce.fornecedor.application.api.request.FornecedorRequest;
+import br.com.wakax.wakax_ecommerce.handler.APIException;
+import br.com.wakax.wakax_ecommerce.handler.ErrorCode;
 import br.com.wakax.wakax_ecommerce.pessoa.domain.Pessoa;
 import lombok.*;
 
@@ -49,6 +53,10 @@ public class Fornecedor {
   @NotNull
   private LocalDateTime dataEdicao;
 
+  @Enumerated(EnumType.STRING)
+  @Column(nullable = false)
+  private StatusFornecedor status = StatusFornecedor.ATIVO;;
+
   @PrePersist
   protected void onCreate() {
     dataCriacao = LocalDateTime.now();
@@ -78,5 +86,20 @@ public class Fornecedor {
     this.pessoa.setTelefones(request.getTelefones());
     this.pessoa.setEnderecos(request.getEnderecos());
     this.dataEdicao = LocalDateTime.now();
+  }
+
+  public void removeFornecedor() {
+    validaSeFornecedorEstaAtivo();
+    this.status = StatusFornecedor.INATIVO;
+  }
+
+  public boolean isAtivo() {
+    return StatusFornecedor.ATIVO.equals(this.status);
+  }
+
+  public void validaSeFornecedorEstaAtivo() {
+    if (!this.isAtivo()) {
+      throw new APIException(HttpStatus.FORBIDDEN, ErrorCode.FORNECEDOR_INATIVO);
+    }
   }
 }
