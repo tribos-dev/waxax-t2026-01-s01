@@ -126,8 +126,7 @@ public class CarrinhoApplicationService implements CarrinhoService {
     log.debug("[finish] CarrinhoApplicationService - alteraQuantidadeDeItem");
   }
 
-  @Override
-  public Estoque buscaEstoqueDoProduto(ItemCarrinho itemCarrinho) {
+  private Estoque buscaEstoqueDoProduto(ItemCarrinho itemCarrinho) {
     EstoqueResponse response =
         estoqueService.buscaEstoquePorIdProduto(itemCarrinho.getProduto().getId());
     return Estoque.fromResponse(response);

@@ -23,6 +23,4 @@ public interface CarrinhoService {
 
   void alteraQuantidadeDeItem(
       UUID idCarrinho, UUID idItem, UUID idCliente, AlteraQuantidadeDeItemRequest request);
-
-  Estoque buscaEstoqueDoProduto(ItemCarrinho itemCarrinho);
 }
