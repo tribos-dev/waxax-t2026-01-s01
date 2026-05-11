@@ -20,6 +20,9 @@ import br.com.wakax.wakax_ecommerce.cliente.domain.Cliente;
 import br.com.wakax.wakax_ecommerce.estoque.application.service.EstoqueService;
 import br.com.wakax.wakax_ecommerce.handler.APIException;
 import br.com.wakax.wakax_ecommerce.handler.ErrorCode;
+import br.com.wakax.wakax_ecommerce.pagamento.application.api.request.EstornaPagamentoRequest;
+import br.com.wakax.wakax_ecommerce.pagamento.application.repository.PagamentoRepository;
+import br.com.wakax.wakax_ecommerce.pagamento.domain.StatusPagamento;
 import br.com.wakax.wakax_ecommerce.pedido.application.api.PedidoListResponse;
 import br.com.wakax.wakax_ecommerce.pedido.application.api.PedidoPageResponse;
 import br.com.wakax.wakax_ecommerce.pedido.application.api.request.CancelamentoPedidoRequest;
@@ -30,9 +33,6 @@ import br.com.wakax.wakax_ecommerce.pedido.application.api.response.ProdutoMaisV
 import br.com.wakax.wakax_ecommerce.pedido.application.repository.PedidoRepository;
 import br.com.wakax.wakax_ecommerce.pedido.domain.Pedido;
 import br.com.wakax.wakax_ecommerce.pedido.domain.StatusPedido;
-import br.com.wakax.wakax_ecommerce.pagamento.application.api.request.EstornaPagamentoRequest;
-import br.com.wakax.wakax_ecommerce.pagamento.application.repository.PagamentoRepository;
-import br.com.wakax.wakax_ecommerce.pagamento.domain.StatusPagamento;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 
@@ -112,7 +112,7 @@ public class PedidoApplicationService implements PedidoService {
 
   private void processaEstornoDePagamentoQuandoAplicavel(
       Pedido pedido, CancelamentoPedidoRequest cancelamentoPedidoRequest) {
-      pagamentoRepository
+    pagamentoRepository
         .buscaPagamentoPorPedidoId(pedido.getId())
         .filter(pagamento -> pagamento.getStatusPagamento() == StatusPagamento.PAGO)
         .ifPresent(

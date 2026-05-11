@@ -12,9 +12,6 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import br.com.wakax.wakax_ecommerce.pagamento.domain.Pagamento;
-import br.com.wakax.wakax_ecommerce.pagamento.domain.StatusPagamento;
-import br.com.wakax.wakax_ecommerce.pedido.application.api.request.CancelamentoPedidoRequest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -35,9 +32,12 @@ import br.com.wakax.wakax_ecommerce.cliente.domain.Cliente;
 import br.com.wakax.wakax_ecommerce.estoque.application.service.EstoqueService;
 import br.com.wakax.wakax_ecommerce.handler.APIException;
 import br.com.wakax.wakax_ecommerce.handler.ErrorCode;
-import br.com.wakax.wakax_ecommerce.pedido.application.api.PedidoPageResponse;
-import br.com.wakax.wakax_ecommerce.pedido.application.api.request.PedidoRequest;
 import br.com.wakax.wakax_ecommerce.pagamento.application.repository.PagamentoRepository;
+import br.com.wakax.wakax_ecommerce.pagamento.domain.Pagamento;
+import br.com.wakax.wakax_ecommerce.pagamento.domain.StatusPagamento;
+import br.com.wakax.wakax_ecommerce.pedido.application.api.PedidoPageResponse;
+import br.com.wakax.wakax_ecommerce.pedido.application.api.request.CancelamentoPedidoRequest;
+import br.com.wakax.wakax_ecommerce.pedido.application.api.request.PedidoRequest;
 import br.com.wakax.wakax_ecommerce.pedido.application.api.response.PedidoResponse;
 import br.com.wakax.wakax_ecommerce.pedido.application.repository.PedidoRepository;
 import br.com.wakax.wakax_ecommerce.pedido.domain.FormaPagamento;
@@ -59,7 +59,6 @@ class PedidoApplicationServiceTest {
   @Mock private PagamentoRepository pagamentoRepository;
 
   @InjectMocks private PedidoApplicationService applicationService;
-
 
   @Test
   void deveCadastrarPedidoComSucesso() {
@@ -471,16 +470,17 @@ class PedidoApplicationServiceTest {
     UUID idPedido = pedido.getId();
     CancelamentoPedidoRequest request = new CancelamentoPedidoRequest("Falha na entrega");
     Pagamento pagamento =
-            Pagamento.builder()
-                    .id(UUID.randomUUID())
-                    .pedido(pedido)
-                    .statusPagamento(StatusPagamento.PAGO)
-                    .dataPagamento(LocalDateTime.now())
-                    .valor(BigDecimal.TEN)
-                    .build();
+        Pagamento.builder()
+            .id(UUID.randomUUID())
+            .pedido(pedido)
+            .statusPagamento(StatusPagamento.PAGO)
+            .dataPagamento(LocalDateTime.now())
+            .valor(BigDecimal.TEN)
+            .build();
 
     when(pedidoRepository.buscaPedidoPorId(idPedido)).thenReturn(pedido);
-    when(pagamentoRepository.buscaPagamentoPorPedidoId(idPedido)).thenReturn(Optional.of(pagamento));
+    when(pagamentoRepository.buscaPagamentoPorPedidoId(idPedido))
+        .thenReturn(Optional.of(pagamento));
 
     applicationService.cancelarPedido(idPedido, request);
 
@@ -500,7 +500,9 @@ class PedidoApplicationServiceTest {
 
     when(pedidoRepository.buscaPedidoPorId(idPedido)).thenReturn(pedido);
 
-    APIException ex = assertThrows(APIException.class, () -> applicationService.cancelarPedido(idPedido, request));
+    APIException ex =
+        assertThrows(
+            APIException.class, () -> applicationService.cancelarPedido(idPedido, request));
 
     assertEquals(HttpStatus.BAD_REQUEST, ex.getStatusException());
     assertEquals(ErrorCode.TRANSICAO_STATUS_INVALIDA, ex.getErrorCode());
@@ -515,14 +517,16 @@ class PedidoApplicationServiceTest {
     CancelamentoPedidoRequest request = new CancelamentoPedidoRequest("Pedido nao encontrado");
 
     when(pedidoRepository.buscaPedidoPorId(idPedido))
-            .thenThrow(new APIException(HttpStatus.NOT_FOUND, ErrorCode.PEDIDO_NAO_ENCONTRADO, idPedido));
+        .thenThrow(
+            new APIException(HttpStatus.NOT_FOUND, ErrorCode.PEDIDO_NAO_ENCONTRADO, idPedido));
 
-    APIException ex = assertThrows(APIException.class, () -> applicationService.cancelarPedido(idPedido, request));
+    APIException ex =
+        assertThrows(
+            APIException.class, () -> applicationService.cancelarPedido(idPedido, request));
 
     assertEquals(HttpStatus.NOT_FOUND, ex.getStatusException());
     assertEquals(ErrorCode.PEDIDO_NAO_ENCONTRADO, ex.getErrorCode());
     verifyNoInteractions(estoqueService);
     verifyNoInteractions(pagamentoRepository);
   }
-
 }

@@ -32,20 +32,20 @@ public final class PedidoDataHelper {
     Endereco enderecoEntrega = Endereco.builder().id(UUID.randomUUID()).build();
     Produto produto = Produto.builder().id(UUID.randomUUID()).build();
     ItemPedido itemPedido =
-            ItemPedido.builder().produto(produto).quantidade(1).valorUnitario(BigDecimal.TEN).build();
+        ItemPedido.builder().produto(produto).quantidade(1).valorUnitario(BigDecimal.TEN).build();
 
     Pedido pedido =
-            Pedido.builder()
-                    .id(UUID.randomUUID())
-                    .cliente(cliente)
-                    .dataPedido(LocalDateTime.now())
-                    .status(statusPedido)
-                    .itensPedido(List.of(itemPedido))
-                    .valorTotal(BigDecimal.TEN)
-                    .formaPagamento(FormaPagamento.PIX)
-                    .enderecoEntrega(enderecoEntrega)
-                    .dataUltimaAtualizacao(LocalDateTime.now())
-                    .build();
+        Pedido.builder()
+            .id(UUID.randomUUID())
+            .cliente(cliente)
+            .dataPedido(LocalDateTime.now())
+            .status(statusPedido)
+            .itensPedido(List.of(itemPedido))
+            .valorTotal(BigDecimal.TEN)
+            .formaPagamento(FormaPagamento.PIX)
+            .enderecoEntrega(enderecoEntrega)
+            .dataUltimaAtualizacao(LocalDateTime.now())
+            .build();
     itemPedido.setPedido(pedido);
     return pedido;
   }
