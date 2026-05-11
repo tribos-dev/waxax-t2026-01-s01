@@ -7,6 +7,10 @@ import java.util.UUID;
 import javax.persistence.*;
 import javax.validation.constraints.*;
 
+import org.springframework.http.HttpStatus;
+
+import br.com.wakax.wakax_ecommerce.handler.APIException;
+import br.com.wakax.wakax_ecommerce.handler.ErrorCode;
 import lombok.*;
 
 @Entity
@@ -46,6 +50,11 @@ public class Preco {
   }
 
   public void atualizaValor(BigDecimal novoValor) {
+    if (this.valor.compareTo(novoValor) == 0) {
+      throw new APIException(
+          HttpStatus.BAD_REQUEST, ErrorCode.PRECO_JA_CADASTRADO, produto.getId());
+    }
+
     this.valor = novoValor;
   }
 
