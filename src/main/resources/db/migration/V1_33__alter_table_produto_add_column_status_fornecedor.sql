@@ -1,1 +1,2 @@
-ALTER TABLE produto ADD COLUMN data_de_atualizacao TIMESTAMP;
+ALTER TABLE fornecedor
+ADD COLUMN status VARCHAR(20) NOT NULL DEFAULT 'ATIVO';
