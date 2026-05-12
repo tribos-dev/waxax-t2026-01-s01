@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.com.wakax.wakax_ecommerce.auth.security.service.TokenService;
+import br.com.wakax.wakax_ecommerce.carrinho.api.request.AlteraQuantidadeDeItemRequest;
 import br.com.wakax.wakax_ecommerce.carrinho.api.request.ItemCarrinhoRequest;
 import br.com.wakax.wakax_ecommerce.carrinho.api.response.CarrinhoResponse;
 import br.com.wakax.wakax_ecommerce.carrinho.api.response.CarrinhosListAllResponse;
@@ -53,6 +54,14 @@ public class CarrinhoController implements CarrinhoAPI {
     String usuario = getUsuarioByToken(token);
     carrinhoService.deletaItemDoCarrinho(usuario, idCarrinho, idItem);
     log.info("[finish] CarrinhoController - deletaItemDoCarrinho");
+  }
+
+  @Override
+  public void alteraQuantidadeDeItem(
+      UUID idCarrinho, UUID idItem, UUID idCliente, AlteraQuantidadeDeItemRequest request) {
+    log.info("[start] CarrinhoController - alteraQuantidadeDeItem");
+    carrinhoService.alteraQuantidadeDeItem(idCarrinho, idItem, idCliente, request);
+    log.debug("[finish] CarrinhoController - alteraQuantidadeDeItem");
   }
 
   private String getUsuarioByToken(String token) {
