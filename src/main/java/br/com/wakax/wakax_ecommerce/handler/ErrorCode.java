@@ -47,7 +47,10 @@ public enum ErrorCode {
   PAGAMENTO_NAO_PODE_SER_ESTORNADO("pagamento.nao.pode.ser.estornado"),
   PRODUTO_JA_ATIVO("produto.ja.ativo"),
   PRODUTO_JA_INATIVO("produto.ja.inativo"),
-  CARRINHO_NAO_PERTENCE_AO_CLIENTE_AUTENTICADO("carrinho.nao.pertence.ao.cliente.autenticado");
+  CARRINHO_NAO_PERTENCE_AO_CLIENTE_AUTENTICADO("carrinho.nao.pertence.ao.cliente.autenticado"),
+  PRODUTO_JA_INATIVO("produto.ja.inativo"),
+  RELATORIO_DATA_OBRIGATORIA("relatorio.data.obrigatoria"),
+  RELATORIO_DATA_INVALIDA("relatorio.data.invalida");
 
   private final String code;
 
