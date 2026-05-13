@@ -13,11 +13,13 @@ import lombok.ToString;
 public class ClienteListResponse {
   private UUID id;
   private String nome;
+  private String cpfCnpj;
   private String email;
 
   public ClienteListResponse(Cliente cliente) {
     this.id = cliente.getId();
     this.nome = cliente.getPessoa().getNome();
+    this.cpfCnpj = cliente.getPessoa().getCpfCnpj();
     this.email =
         cliente.getPessoa().getEmails() != null
             ? cliente.getPessoa().getEmails().stream().findFirst().orElse(null)

@@ -1,8 +1,11 @@
 package br.com.wakax.wakax_ecommerce.cliente.application.service;
 
+import static org.apache.commons.lang3.StringUtils.isBlank;
+
 import java.util.UUID;
 
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -10,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import br.com.wakax.wakax_ecommerce.carrinho.application.service.CarrinhoService;
 import br.com.wakax.wakax_ecommerce.cliente.application.api.request.ClienteAtualizaRequest;
+import br.com.wakax.wakax_ecommerce.cliente.application.api.request.ClienteBuscaRequest;
 import br.com.wakax.wakax_ecommerce.cliente.application.api.request.ClienteRequest;
 import br.com.wakax.wakax_ecommerce.cliente.application.api.response.ClienteAtualizaResponse;
 import br.com.wakax.wakax_ecommerce.cliente.application.api.response.ClienteResponse;
@@ -101,5 +105,20 @@ public class ClienteApplicationService implements ClienteService {
     clienteRepository.salva(cliente);
     log.info("[finish] ClienteApplicationService - inativarCliente");
     return new ClienteResponse(cliente);
+  }
+
+  @Override
+  @Transactional(readOnly = true)
+  public Page<Cliente> buscarClientePorCriterios(ClienteBuscaRequest filtro) {
+    log.info("[start] ClienteApplicationService - buscarClientePorCriterios");
+    if (isBlank(filtro.getCpf()) && isBlank(filtro.getEmail()) && isBlank(filtro.getNome())) {
+      throw new APIException(HttpStatus.BAD_REQUEST, ErrorCode.CRITERIO_BUSCA_OBRIGATORIO);
+    }
+    Pageable pageable = PageRequest.of(filtro.getPage(), filtro.getSize());
+    Page<Cliente> clientes =
+        clienteRepository.buscarClientePorCriterios(
+            filtro.getCpf(), filtro.getEmail(), filtro.getNome(), pageable);
+    log.debug("[finish] ClienteApplicationService - buscarClientePorCriterios");
+    return clientes;
   }
 }

@@ -11,6 +11,7 @@ import javax.validation.constraints.PositiveOrZero;
 import org.springframework.http.HttpStatus;
 
 import br.com.wakax.wakax_ecommerce.estoque.api.request.EstoqueRequest;
+import br.com.wakax.wakax_ecommerce.estoque.api.response.EstoqueResponse;
 import br.com.wakax.wakax_ecommerce.handler.APIException;
 import br.com.wakax.wakax_ecommerce.handler.ErrorCode;
 import br.com.wakax.wakax_ecommerce.produto.domain.Produto;
@@ -52,6 +53,21 @@ public class Estoque {
     this.quantidadeDisponivel = request.getQuantidadeDisponivel();
     this.custoMedio = request.getCustoMedio();
     this.custoTotal = request.getCustoTotal();
+  }
+
+  public Estoque(
+      UUID id,
+      UUID idProduto,
+      String descricaoProduto,
+      Integer quantidadeDisponivel,
+      BigDecimal custoMedio,
+      BigDecimal custoTotal,
+      BigDecimal precoVenda) {
+    this.id = id;
+    this.produto = produto;
+    this.quantidadeDisponivel = quantidadeDisponivel;
+    this.custoMedio = custoMedio;
+    this.custoTotal = custoTotal;
   }
 
   public void adicionaQuantidade(Integer quantidade, BigDecimal custoUnitario) {
@@ -122,5 +138,16 @@ public class Estoque {
     if (quantidade == null || quantidade <= 0) {
       throw new APIException(HttpStatus.BAD_REQUEST, ErrorCode.QUANTIDADE_INVALIDA);
     }
+  }
+
+  public static Estoque fromResponse(EstoqueResponse response) {
+    return new Estoque(
+        response.getId(),
+        response.getIdProduto(),
+        response.getDescricaoProduto(),
+        response.getQuantidadeDisponivel(),
+        response.getCustoMedio(),
+        response.getCustoTotal(),
+        response.getPrecoVenda());
   }
 }
