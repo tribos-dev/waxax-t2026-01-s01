@@ -10,6 +10,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import br.com.wakax.wakax_ecommerce.pedido.application.api.request.CancelamentoPedidoRequest;
 import br.com.wakax.wakax_ecommerce.pedido.application.api.request.PedidoRequest;
 import br.com.wakax.wakax_ecommerce.pedido.application.api.request.StatusPedidoRequest;
 import br.com.wakax.wakax_ecommerce.pedido.application.api.response.PedidoResponse;
@@ -44,4 +45,10 @@ public interface PedidoAPI {
       @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime dataInicio,
       @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime dataFim,
       @RequestParam(defaultValue = "10") Integer limite);
+
+  @PatchMapping("/{idPedido}/cancelamento")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  void cancelaPedido(
+      @PathVariable UUID idPedido,
+      @Valid @RequestBody CancelamentoPedidoRequest cancelamentoPedidoRequest);
 }

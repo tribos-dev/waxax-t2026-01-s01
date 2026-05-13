@@ -43,6 +43,7 @@ public enum ErrorCode {
   CLIENTE_JA_INATIVO("cliente.ja.inativo"),
   CLIENTE_INATIVO("cliente.inativo"),
   TRANSICAO_STATUS_INVALIDA("transicao.status.invalida"),
+  MOTIVO_CANCELAMENTO_OBRIGATORIO("motivo.cancelamento.obrigatorio"),
   MOTIVO_ESTORNO_OBRIGATORIO("motivo.estorno.obrigatorio"),
   PAGAMENTO_NAO_PODE_SER_ESTORNADO("pagamento.nao.pode.ser.estornado"),
   PRODUTO_JA_ATIVO("produto.ja.ativo"),

@@ -8,6 +8,7 @@ import javax.validation.Valid;
 
 import org.springframework.web.bind.annotation.RestController;
 
+import br.com.wakax.wakax_ecommerce.pedido.application.api.request.CancelamentoPedidoRequest;
 import br.com.wakax.wakax_ecommerce.pedido.application.api.request.PedidoRequest;
 import br.com.wakax.wakax_ecommerce.pedido.application.api.request.StatusPedidoRequest;
 import br.com.wakax.wakax_ecommerce.pedido.application.api.response.PedidoResponse;
@@ -64,5 +65,12 @@ public class PedidoController implements PedidoAPI {
         pedidoService.geraRelatorioProdutosMaisVendidos(dataInicio, dataFim, limite);
     log.debug("[finish] PedidoController - geraRelatorioProdutosMaisVendidos");
     return response;
+  }
+
+  @Override
+  public void cancelaPedido(UUID idPedido, CancelamentoPedidoRequest cancelamentoPedidoRequest) {
+    log.debug("[start] PedidoController - cancelaPedido");
+    pedidoService.cancelarPedido(idPedido, cancelamentoPedidoRequest);
+    log.debug("[finish] PedidoController - cancelaPedido");
   }
 }

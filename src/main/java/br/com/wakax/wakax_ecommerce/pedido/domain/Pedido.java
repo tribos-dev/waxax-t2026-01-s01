@@ -68,6 +68,8 @@ public class Pedido {
   @NotNull
   private LocalDateTime dataUltimaAtualizacao;
 
+  @Column private String motivoCancelamento;
+
   public Pedido(PedidoRequest request, Carrinho carrinho) {
     this.cliente = carrinho.getCliente();
     this.dataPedido = LocalDateTime.now();
@@ -119,6 +121,18 @@ public class Pedido {
     }
     this.status = novoStatus;
     this.dataUltimaAtualizacao = LocalDateTime.now();
+  }
+
+  public void cancelar(String motivoCancelamento) {
+    validaMotivoCancelamento(motivoCancelamento);
+    atualizarStatus(StatusPedido.CANCELADO);
+    this.motivoCancelamento = motivoCancelamento;
+  }
+
+  private void validaMotivoCancelamento(String motivoCancelamento) {
+    if (motivoCancelamento == null || motivoCancelamento.isBlank()) {
+      throw new APIException(HttpStatus.BAD_REQUEST, ErrorCode.MOTIVO_CANCELAMENTO_OBRIGATORIO);
+    }
   }
 
   private boolean podeMudarPara(StatusPedido novoStatus) {
