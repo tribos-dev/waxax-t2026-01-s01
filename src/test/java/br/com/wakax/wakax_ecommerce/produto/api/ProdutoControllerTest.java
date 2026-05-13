@@ -20,13 +20,16 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import br.com.wakax.wakax_ecommerce.produto.api.request.PrecoRequest;
+import br.com.wakax.wakax_ecommerce.produto.api.request.ProdutoAtualizaPrecoRequest;
 import br.com.wakax.wakax_ecommerce.produto.api.request.ProdutoAtualizaRequest;
 import br.com.wakax.wakax_ecommerce.produto.api.request.ProdutoRequest;
+import br.com.wakax.wakax_ecommerce.produto.api.response.ProdutoAtualizaPrecoResponse;
 import br.com.wakax.wakax_ecommerce.produto.api.response.ProdutoAtualizaResponse;
 import br.com.wakax.wakax_ecommerce.produto.api.response.ProdutoListResponse;
 import br.com.wakax.wakax_ecommerce.produto.api.response.ProdutoListagemResponse;
 import br.com.wakax.wakax_ecommerce.produto.api.response.ProdutoResponse;
 import br.com.wakax.wakax_ecommerce.produto.application.service.ProdutoService;
+import br.com.wakax.wakax_ecommerce.produto.domain.TipoPreco;
 
 @ExtendWith(MockitoExtension.class)
 class ProdutoControllerTest {
@@ -106,6 +109,25 @@ class ProdutoControllerTest {
 
     assertNotNull(response);
     verify(produtoService, times(1)).atualizaProduto(produtoId, atualizaRequest);
+  }
+
+  @Test
+  void deveAtualizarPrecoComSucesso() {
+    ProdutoAtualizaPrecoRequest atualizaPrecoRequest =
+        ProdutoAtualizaPrecoRequest.builder()
+            .tipoPreco(TipoPreco.PADRAO)
+            .novoPreco(new BigDecimal("120.00"))
+            .motivo("Reajuste")
+            .build();
+
+    ProdutoAtualizaPrecoResponse precoResponse = mock(ProdutoAtualizaPrecoResponse.class);
+    when(produtoService.atualizaPreco(produtoId, atualizaPrecoRequest)).thenReturn(precoResponse);
+
+    ProdutoAtualizaPrecoResponse response =
+        produtoController.atualizaPreco(produtoId, atualizaPrecoRequest);
+
+    assertNotNull(response);
+    verify(produtoService, times(1)).atualizaPreco(produtoId, atualizaPrecoRequest);
   }
 
   @Test
