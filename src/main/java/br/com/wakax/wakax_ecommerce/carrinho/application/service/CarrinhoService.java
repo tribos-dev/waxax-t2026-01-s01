@@ -3,6 +3,7 @@ package br.com.wakax.wakax_ecommerce.carrinho.application.service;
 import java.util.List;
 import java.util.UUID;
 
+import br.com.wakax.wakax_ecommerce.carrinho.api.request.AlteraQuantidadeDeItemRequest;
 import br.com.wakax.wakax_ecommerce.carrinho.api.request.ItemCarrinhoRequest;
 import br.com.wakax.wakax_ecommerce.carrinho.api.response.CarrinhoResponse;
 import br.com.wakax.wakax_ecommerce.carrinho.api.response.CarrinhosListAllResponse;
@@ -17,4 +18,7 @@ public interface CarrinhoService {
   void deletaItemDoCarrinho(String token, UUID idCarrinho, UUID idProduto);
 
   void restaurarCarrinho(UUID id);
+
+  void alteraQuantidadeDeItem(
+      UUID idCarrinho, UUID idItem, UUID idCliente, AlteraQuantidadeDeItemRequest request);
 }

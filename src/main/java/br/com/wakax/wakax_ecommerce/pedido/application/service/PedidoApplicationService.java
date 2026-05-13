@@ -1,5 +1,6 @@
 package br.com.wakax.wakax_ecommerce.pedido.application.service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -9,6 +10,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import br.com.wakax.wakax_ecommerce.carrinho.application.repository.CarrinhoRepository;
@@ -16,11 +18,14 @@ import br.com.wakax.wakax_ecommerce.carrinho.domain.Carrinho;
 import br.com.wakax.wakax_ecommerce.cliente.application.service.ClienteService;
 import br.com.wakax.wakax_ecommerce.cliente.domain.Cliente;
 import br.com.wakax.wakax_ecommerce.estoque.application.service.EstoqueService;
+import br.com.wakax.wakax_ecommerce.handler.APIException;
+import br.com.wakax.wakax_ecommerce.handler.ErrorCode;
 import br.com.wakax.wakax_ecommerce.pedido.application.api.PedidoListResponse;
 import br.com.wakax.wakax_ecommerce.pedido.application.api.PedidoPageResponse;
 import br.com.wakax.wakax_ecommerce.pedido.application.api.request.PedidoRequest;
 import br.com.wakax.wakax_ecommerce.pedido.application.api.request.StatusPedidoRequest;
 import br.com.wakax.wakax_ecommerce.pedido.application.api.response.PedidoResponse;
+import br.com.wakax.wakax_ecommerce.pedido.application.api.response.ProdutoMaisVendidoResponse;
 import br.com.wakax.wakax_ecommerce.pedido.application.repository.PedidoRepository;
 import br.com.wakax.wakax_ecommerce.pedido.domain.Pedido;
 import br.com.wakax.wakax_ecommerce.pedido.domain.StatusPedido;
@@ -98,5 +103,33 @@ public class PedidoApplicationService implements PedidoService {
   private void liberaReservaDeProdutoNoEstoque(Pedido pedido) {
     log.debug("[estoque] Iniciando liberação de estoque para o pedido: {}", pedido.getId());
     estoqueService.liberaReservaDePedido(pedido.getItensPedido());
+  }
+
+  @Override
+  public List<ProdutoMaisVendidoResponse> geraRelatorioProdutosMaisVendidos(
+      LocalDateTime dataInicio, LocalDateTime dataFim, Integer limite) {
+    log.debug("[start] PedidoApplicationService - geraRelatorioProdutosMaisVendidos");
+    validarDatas(dataInicio, dataFim);
+    Integer limiteNormalizado = normalizarLimite(limite);
+    Pageable pageable = PageRequest.of(0, limiteNormalizado);
+    List<ProdutoMaisVendidoResponse> produtos =
+        pedidoRepository.buscaProdutosMaisVendidos(dataInicio, dataFim, pageable);
+    log.debug("[finish] PedidoApplicationService - geraRelatorioProdutosMaisVendidos");
+    return produtos;
+  }
+
+  private void validarDatas(LocalDateTime dataInicio, LocalDateTime dataFim) {
+    if (dataInicio == null || dataFim == null) {
+      throw new APIException(HttpStatus.BAD_REQUEST, ErrorCode.RELATORIO_DATA_OBRIGATORIA);
+    }
+    if (dataInicio.isAfter(dataFim)) {
+      throw new APIException(HttpStatus.BAD_REQUEST, ErrorCode.RELATORIO_DATA_INVALIDA);
+    }
+  }
+
+  private int normalizarLimite(Integer limite) {
+    if (limite == null || limite <= 0) return 10;
+    if (limite > 100) return 100;
+    return limite;
   }
 }
