@@ -7,6 +7,7 @@ import static org.mockito.Mockito.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -31,7 +32,11 @@ import br.com.wakax.wakax_ecommerce.cliente.domain.Cliente;
 import br.com.wakax.wakax_ecommerce.estoque.application.service.EstoqueService;
 import br.com.wakax.wakax_ecommerce.handler.APIException;
 import br.com.wakax.wakax_ecommerce.handler.ErrorCode;
+import br.com.wakax.wakax_ecommerce.pagamento.application.repository.PagamentoRepository;
+import br.com.wakax.wakax_ecommerce.pagamento.domain.Pagamento;
+import br.com.wakax.wakax_ecommerce.pagamento.domain.StatusPagamento;
 import br.com.wakax.wakax_ecommerce.pedido.application.api.PedidoPageResponse;
+import br.com.wakax.wakax_ecommerce.pedido.application.api.request.CancelamentoPedidoRequest;
 import br.com.wakax.wakax_ecommerce.pedido.application.api.request.EnderecoEntregaRequest;
 import br.com.wakax.wakax_ecommerce.pedido.application.api.request.PedidoRequest;
 import br.com.wakax.wakax_ecommerce.pedido.application.api.response.PedidoResponse;
@@ -52,6 +57,7 @@ class PedidoApplicationServiceTest {
   @Mock private CarrinhoRepository carrinhoRepository;
   @Mock private ClienteService clienteService;
   @Mock private EstoqueService estoqueService;
+  @Mock private PagamentoRepository pagamentoRepository;
 
   @InjectMocks private PedidoApplicationService applicationService;
 
@@ -439,6 +445,90 @@ class PedidoApplicationServiceTest {
     verify(clienteService).buscaClienteEspecifico(idCliente);
     verify(pedidoRepository)
         .buscaPedidosDoClientePaginado(eq(idCliente), eq(statusFiltro), any(Pageable.class));
+  }
+
+  @Test
+  void deveCancelarPedidoElegivelComSucesso() {
+    Pedido pedido = PedidoDataHelper.criarPedido(StatusPedido.AGUARDANDO_PAGAMENTO);
+    UUID idPedido = pedido.getId();
+    CancelamentoPedidoRequest request = new CancelamentoPedidoRequest("Cliente desistiu da compra");
+
+    when(pedidoRepository.buscaPedidoPorId(idPedido)).thenReturn(pedido);
+    when(pagamentoRepository.buscaPagamentoPorPedidoId(idPedido)).thenReturn(Optional.empty());
+
+    applicationService.cancelarPedido(idPedido, request);
+
+    assertEquals(StatusPedido.CANCELADO, pedido.getStatus());
+    assertEquals(request.getMotivoCancelamento(), pedido.getMotivoCancelamento());
+    verify(estoqueService).liberaReservaDePedido(pedido.getItensPedido());
+    verify(pedidoRepository).salva(pedido);
+    verify(pagamentoRepository, never()).salva(org.mockito.ArgumentMatchers.any(Pagamento.class));
+  }
+
+  @Test
+  void deveEstornarPagamentoQuandoPedidoCanceladoEstiverPago() {
+    Pedido pedido = PedidoDataHelper.criarPedido(StatusPedido.PAGO);
+    UUID idPedido = pedido.getId();
+    CancelamentoPedidoRequest request = new CancelamentoPedidoRequest("Falha na entrega");
+    Pagamento pagamento =
+        Pagamento.builder()
+            .id(UUID.randomUUID())
+            .pedido(pedido)
+            .statusPagamento(StatusPagamento.PAGO)
+            .dataPagamento(LocalDateTime.now())
+            .valor(BigDecimal.TEN)
+            .build();
+
+    when(pedidoRepository.buscaPedidoPorId(idPedido)).thenReturn(pedido);
+    when(pagamentoRepository.buscaPagamentoPorPedidoId(idPedido))
+        .thenReturn(Optional.of(pagamento));
+
+    applicationService.cancelarPedido(idPedido, request);
+
+    assertEquals(StatusPedido.CANCELADO, pedido.getStatus());
+    assertEquals(StatusPagamento.ESTORNADO, pagamento.getStatusPagamento());
+    assertEquals(request.getMotivoCancelamento(), pagamento.getMotivoEstorno());
+    verify(pagamentoRepository).salva(pagamento);
+    verify(estoqueService).liberaReservaDePedido(pedido.getItensPedido());
+    verify(pedidoRepository).salva(pedido);
+  }
+
+  @Test
+  void deveFalharAoCancelarPedidoNaoElegivelESemAlteracoes() {
+    UUID idPedido = UUID.randomUUID();
+    Pedido pedido = PedidoDataHelper.criarPedido(StatusPedido.ENVIADO);
+    CancelamentoPedidoRequest request = new CancelamentoPedidoRequest("Mudanca de plano");
+
+    when(pedidoRepository.buscaPedidoPorId(idPedido)).thenReturn(pedido);
+
+    APIException ex =
+        assertThrows(
+            APIException.class, () -> applicationService.cancelarPedido(idPedido, request));
+
+    assertEquals(HttpStatus.BAD_REQUEST, ex.getStatusException());
+    assertEquals(ErrorCode.TRANSICAO_STATUS_INVALIDA, ex.getErrorCode());
+    verify(pedidoRepository, never()).salva(pedido);
+    verifyNoInteractions(estoqueService);
+    verify(pagamentoRepository, never()).salva(any(Pagamento.class));
+  }
+
+  @Test
+  void deveFalharAoCancelarPedidoInexistente() {
+    UUID idPedido = UUID.randomUUID();
+    CancelamentoPedidoRequest request = new CancelamentoPedidoRequest("Pedido nao encontrado");
+
+    when(pedidoRepository.buscaPedidoPorId(idPedido))
+        .thenThrow(
+            new APIException(HttpStatus.NOT_FOUND, ErrorCode.PEDIDO_NAO_ENCONTRADO, idPedido));
+
+    APIException ex =
+        assertThrows(
+            APIException.class, () -> applicationService.cancelarPedido(idPedido, request));
+
+    assertEquals(HttpStatus.NOT_FOUND, ex.getStatusException());
+    assertEquals(ErrorCode.PEDIDO_NAO_ENCONTRADO, ex.getErrorCode());
+    verifyNoInteractions(estoqueService);
+    verifyNoInteractions(pagamentoRepository);
   }
 
   @Test

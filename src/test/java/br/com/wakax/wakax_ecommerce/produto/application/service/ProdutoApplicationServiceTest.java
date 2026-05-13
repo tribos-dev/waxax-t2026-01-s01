@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
@@ -24,8 +25,10 @@ import br.com.wakax.wakax_ecommerce.auth.usuario.domain.Usuario;
 import br.com.wakax.wakax_ecommerce.handler.APIException;
 import br.com.wakax.wakax_ecommerce.handler.ErrorCode;
 import br.com.wakax.wakax_ecommerce.produto.api.ProdutoAlteraStatusRequest;
+import br.com.wakax.wakax_ecommerce.produto.api.request.ProdutoAtualizaPrecoRequest;
 import br.com.wakax.wakax_ecommerce.produto.api.request.ProdutoAtualizaRequest;
 import br.com.wakax.wakax_ecommerce.produto.api.request.ProdutoRequest;
+import br.com.wakax.wakax_ecommerce.produto.api.response.ProdutoAtualizaPrecoResponse;
 import br.com.wakax.wakax_ecommerce.produto.api.response.ProdutoAtualizaResponse;
 import br.com.wakax.wakax_ecommerce.produto.api.response.ProdutoListResponse;
 import br.com.wakax.wakax_ecommerce.produto.api.response.ProdutoListagemResponse;
@@ -33,8 +36,10 @@ import br.com.wakax.wakax_ecommerce.produto.api.response.ProdutoResponse;
 import br.com.wakax.wakax_ecommerce.produto.application.repository.HistoricoAtualizacaoProdutoRepository;
 import br.com.wakax.wakax_ecommerce.produto.application.repository.ProdutoRepository;
 import br.com.wakax.wakax_ecommerce.produto.domain.HistoricoAtualizacaoProduto;
+import br.com.wakax.wakax_ecommerce.produto.domain.Preco;
 import br.com.wakax.wakax_ecommerce.produto.domain.Produto;
 import br.com.wakax.wakax_ecommerce.produto.domain.StatusProduto;
+import br.com.wakax.wakax_ecommerce.produto.domain.TipoPreco;
 
 @ExtendWith(MockitoExtension.class)
 class ProdutoApplicationServiceTest {
@@ -411,6 +416,185 @@ class ProdutoApplicationServiceTest {
     assertEquals(ErrorCode.PRODUTO_NAO_ENCONTRADO, exception.getErrorCode());
     verify(produtoRepository, times(1)).buscaProdutoPorId(produtoId);
     verify(produtoRepository, never()).salva(any(Produto.class));
+  }
+
+  @Test
+  void deveAtualizarPrecoComSucesso() {
+    Produto produtoExistente = new Produto(produtoRequest);
+    produtoExistente.setId(produtoId);
+
+    produtoExistente.setPrecos(
+        new ArrayList<>(
+            List.of(new Preco(TipoPreco.PADRAO, new BigDecimal("100.00"), produtoExistente))));
+
+    Usuario usuarioLogado = mock(Usuario.class);
+
+    when(produtoRepository.buscaProdutoPorId(produtoId)).thenReturn(produtoExistente);
+
+    ProdutoApplicationService spyService = Mockito.spy(produtoApplicationService);
+
+    doReturn(usuarioLogado).when(spyService).buscaUsuarioLogado();
+
+    ProdutoAtualizaPrecoRequest request =
+        ProdutoAtualizaPrecoRequest.builder()
+            .tipoPreco(TipoPreco.PADRAO)
+            .novoPreco(new BigDecimal("120.00"))
+            .motivo("Reajuste de mercado")
+            .build();
+
+    ProdutoAtualizaPrecoResponse response = spyService.atualizaPreco(produtoId, request);
+
+    assertNotNull(response);
+    assertEquals(produtoId, response.getIdProduto());
+    assertEquals(TipoPreco.PADRAO, response.getTipoPreco());
+    assertEquals(new BigDecimal("120.00"), response.getNovoPreco());
+
+    verify(produtoRepository, times(1)).salva(produtoExistente);
+
+    verify(historicoAtualizacaoProdutoRepository, times(1))
+        .salva(any(HistoricoAtualizacaoProduto.class));
+  }
+
+  @Test
+  void deveSalvarHistoricoAoAtualizarPreco() {
+    Produto produtoExistente = new Produto(produtoRequest);
+    produtoExistente.setId(produtoId);
+    produtoExistente.setPrecos(
+        new ArrayList<>(
+            List.of(new Preco(TipoPreco.PADRAO, new BigDecimal("100.00"), produtoExistente))));
+    Usuario usuarioLogado = mock(Usuario.class);
+
+    when(produtoRepository.buscaProdutoPorId(produtoId)).thenReturn(produtoExistente);
+
+    ProdutoApplicationService spyService = Mockito.spy(produtoApplicationService);
+    doReturn(usuarioLogado).when(spyService).buscaUsuarioLogado();
+
+    ProdutoAtualizaPrecoRequest request =
+        ProdutoAtualizaPrecoRequest.builder()
+            .tipoPreco(TipoPreco.PADRAO)
+            .novoPreco(new BigDecimal("120.00"))
+            .motivo("Promoção")
+            .build();
+
+    spyService.atualizaPreco(produtoId, request);
+
+    ArgumentCaptor<HistoricoAtualizacaoProduto> captor =
+        ArgumentCaptor.forClass(HistoricoAtualizacaoProduto.class);
+    verify(historicoAtualizacaoProdutoRepository, times(1)).salva(captor.capture());
+
+    HistoricoAtualizacaoProduto historico = captor.getValue();
+    assertEquals(produtoExistente, historico.getProduto());
+    assertEquals(usuarioLogado, historico.getUsuario());
+    assertEquals(TipoPreco.PADRAO, historico.getTipoPreco());
+    assertEquals(new BigDecimal("100.00"), historico.getValorAnterior());
+    assertEquals(new BigDecimal("120.00"), historico.getValorNovo());
+    assertEquals("Promoção", historico.getMotivo());
+    assertNotNull(historico.getDataHora());
+  }
+
+  @Test
+  void deveLancarExcecaoAoAtualizarPrecoDePrecoInexistente() {
+    Produto produtoExistente = new Produto(produtoRequest);
+    produtoExistente.setId(produtoId);
+    produtoExistente.setPrecos(
+        new ArrayList<>(
+            List.of(new Preco(TipoPreco.PADRAO, new BigDecimal("100.00"), produtoExistente))));
+
+    when(produtoRepository.buscaProdutoPorId(produtoId)).thenReturn(produtoExistente);
+
+    ProdutoAtualizaPrecoRequest request =
+        ProdutoAtualizaPrecoRequest.builder()
+            .tipoPreco(TipoPreco.PROMOCIONAL)
+            .novoPreco(new BigDecimal("80.00"))
+            .motivo("Teste")
+            .build();
+
+    APIException exception =
+        assertThrows(
+            APIException.class, () -> produtoApplicationService.atualizaPreco(produtoId, request));
+
+    assertEquals(ErrorCode.PRECO_NAO_ENCONTRADO, exception.getErrorCode());
+    verify(produtoRepository, never()).salva(any(Produto.class));
+    verify(historicoAtualizacaoProdutoRepository, never())
+        .salva(any(HistoricoAtualizacaoProduto.class));
+  }
+
+  @Test
+  void deveLancarExcecaoAoAtualizarPrecoDeProdutoInexistente() {
+    when(produtoRepository.buscaProdutoPorId(produtoId))
+        .thenThrow(
+            new APIException(HttpStatus.NOT_FOUND, ErrorCode.PRODUTO_NAO_ENCONTRADO, produtoId));
+
+    ProdutoAtualizaPrecoRequest request =
+        ProdutoAtualizaPrecoRequest.builder()
+            .tipoPreco(TipoPreco.PADRAO)
+            .novoPreco(new BigDecimal("120.00"))
+            .motivo("Teste")
+            .build();
+
+    APIException exception =
+        assertThrows(
+            APIException.class, () -> produtoApplicationService.atualizaPreco(produtoId, request));
+
+    assertEquals(ErrorCode.PRODUTO_NAO_ENCONTRADO, exception.getErrorCode());
+    verify(produtoRepository, never()).salva(any(Produto.class));
+  }
+
+  @Test
+  void deveAtualizarPrecoPromocionalComSucesso() {
+    Produto produtoExistente = new Produto(produtoRequest);
+    produtoExistente.setId(produtoId);
+    produtoExistente.setPrecos(
+        new ArrayList<>(
+            List.of(
+                new Preco(TipoPreco.PADRAO, new BigDecimal("100.00"), produtoExistente),
+                new Preco(TipoPreco.PROMOCIONAL, new BigDecimal("80.00"), produtoExistente))));
+    Usuario usuarioLogado = mock(Usuario.class);
+
+    when(produtoRepository.buscaProdutoPorId(produtoId)).thenReturn(produtoExistente);
+
+    ProdutoApplicationService spyService = Mockito.spy(produtoApplicationService);
+    doReturn(usuarioLogado).when(spyService).buscaUsuarioLogado();
+
+    ProdutoAtualizaPrecoRequest request =
+        ProdutoAtualizaPrecoRequest.builder()
+            .tipoPreco(TipoPreco.PROMOCIONAL)
+            .novoPreco(new BigDecimal("60.00"))
+            .motivo("Black Friday")
+            .build();
+
+    ProdutoAtualizaPrecoResponse response = spyService.atualizaPreco(produtoId, request);
+
+    assertNotNull(response);
+    assertEquals(TipoPreco.PROMOCIONAL, response.getTipoPreco());
+    assertEquals(new BigDecimal("60.00"), response.getNovoPreco());
+  }
+
+  @Test
+  void deveLancarExcecaoAoAtualizarPrecoComMesmoValor() {
+    Produto produtoExistente = new Produto(produtoRequest);
+    produtoExistente.setId(produtoId);
+    produtoExistente.setPrecos(
+        new ArrayList<>(
+            List.of(new Preco(TipoPreco.PADRAO, new BigDecimal("100.00"), produtoExistente))));
+
+    when(produtoRepository.buscaProdutoPorId(produtoId)).thenReturn(produtoExistente);
+
+    ProdutoAtualizaPrecoRequest request =
+        ProdutoAtualizaPrecoRequest.builder()
+            .tipoPreco(TipoPreco.PADRAO)
+            .novoPreco(new BigDecimal("100.00"))
+            .motivo("Tentativa com mesmo valor")
+            .build();
+
+    APIException exception =
+        assertThrows(
+            APIException.class, () -> produtoApplicationService.atualizaPreco(produtoId, request));
+
+    assertEquals(ErrorCode.PRECO_JA_CADASTRADO, exception.getErrorCode());
+    verify(produtoRepository, never()).salva(any(Produto.class));
+    verify(historicoAtualizacaoProdutoRepository, never())
+        .salva(any(HistoricoAtualizacaoProduto.class));
   }
 
   @Test

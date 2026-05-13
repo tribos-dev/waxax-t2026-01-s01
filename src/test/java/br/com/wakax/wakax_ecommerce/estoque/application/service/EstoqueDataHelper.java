@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
+import br.com.wakax.wakax_ecommerce.carrinho.domain.ItemCarrinho;
 import br.com.wakax.wakax_ecommerce.estoque.api.request.AdicionaQuantidadeRequest;
 import br.com.wakax.wakax_ecommerce.estoque.api.request.RemoveEstoqueRequest;
 import br.com.wakax.wakax_ecommerce.estoque.api.response.EstoqueListagemResponse;
@@ -101,6 +102,14 @@ public class EstoqueDataHelper {
     return AdicionaQuantidadeRequest.builder()
         .quantidade(5)
         .custoUnitario(BigDecimal.valueOf(-60.00))
+        .build();
+  }
+
+  public static EstoqueResponse criaEstoqueResponse(ItemCarrinho itemCarrinho) {
+    return EstoqueResponse.builder()
+        .id(UUID.fromString("f47ac10b-58cc-4372-a567-0e02b2c3d479"))
+        .quantidadeDisponivel(40)
+        .idProduto(itemCarrinho.getProduto().getId())
         .build();
   }
 }

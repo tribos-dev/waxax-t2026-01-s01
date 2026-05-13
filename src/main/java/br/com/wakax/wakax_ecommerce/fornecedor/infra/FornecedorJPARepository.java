@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import br.com.wakax.wakax_ecommerce.fornecedor.domain.Fornecedor;
+import br.com.wakax.wakax_ecommerce.fornecedor.domain.StatusFornecedor;
 import br.com.wakax.wakax_ecommerce.pessoa.domain.StatusPessoa;
 
 public interface FornecedorJPARepository extends JpaRepository<Fornecedor, UUID> {
@@ -17,7 +18,15 @@ public interface FornecedorJPARepository extends JpaRepository<Fornecedor, UUID>
 
   Page<Fornecedor> findAllByPessoaStatus(StatusPessoa status, Pageable pageable);
 
-  @Query("SELECT f FROM Fornecedor f WHERE :status IS NULL OR f.pessoa.status = :status")
+  @Query(
+      """
+    SELECT f
+    FROM Fornecedor f
+    WHERE (:status IS NULL OR f.pessoa.status = :status)
+      AND f.status <> :statusFornecedor
+""")
   Page<Fornecedor> buscaFornecedoresComFiltro(
-      @Param("status") StatusPessoa status, Pageable pageable);
+      @Param("status") StatusPessoa status,
+      @Param("statusFornecedor") StatusFornecedor statusFornecedor,
+      Pageable pageable);
 }
