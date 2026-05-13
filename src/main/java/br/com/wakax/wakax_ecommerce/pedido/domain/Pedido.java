@@ -7,7 +7,8 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import javax.persistence.*;
-import javax.validation.constraints.*;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.PositiveOrZero;
 
 import org.springframework.http.HttpStatus;
 
@@ -18,7 +19,10 @@ import br.com.wakax.wakax_ecommerce.handler.APIException;
 import br.com.wakax.wakax_ecommerce.handler.ErrorCode;
 import br.com.wakax.wakax_ecommerce.pedido.application.api.request.PedidoRequest;
 import br.com.wakax.wakax_ecommerce.pessoa.domain.Endereco;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Data
@@ -161,6 +165,7 @@ public class Pedido {
   }
 
   public void alteraEnderecoDeEntrega(Endereco novoEndereco) {
+    novoEndereco.validaSeEhCompleto();
     validaSePedidoEstaCancelado();
     validaSePedidoFoiEnviadoOuEntregue();
     validaSeNovoEnderecoEhIgualAtual(novoEndereco.getId());

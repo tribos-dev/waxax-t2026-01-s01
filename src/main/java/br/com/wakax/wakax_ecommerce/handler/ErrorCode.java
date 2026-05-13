@@ -59,6 +59,7 @@ public enum ErrorCode {
   PEDIDO_JA_ENVIADO("pedido.ja.enviado"),
   PEDIDO_JA_CANCELADO("pedido.ja.cancelado"),
   ENDERECO_NAO_ENCONTRADO("endereco.nao.encontrado"),
+  ENDERECO_INCOMPLETO("endereco.incompleto"),
   PEDIDO_MESMO_ENDERECO("pedido.mesmo.endereco");
 
   private final String code;
