@@ -553,6 +553,29 @@ class PedidoApplicationServiceTest {
   }
 
   @Test
+  void deveLancarExcecaoQuandoEnderecoForIncompleto() {
+    UUID idEnderecoNovo = UUID.randomUUID();
+    EnderecoEntregaRequest request = PedidoDataHelper.criaEnderecoEntregaRequest(idEnderecoNovo);
+
+    Cliente cliente = mock(Cliente.class);
+    Endereco enderecoAtual = PedidoDataHelper.criaEndereco(UUID.randomUUID());
+    Endereco enderecoNovo = PedidoDataHelper.criaEnderecoIncompleto(idEnderecoNovo);
+
+    Pedido pedido = PedidoDataHelper.criaPedido(StatusPedido.CRIADO, cliente, enderecoAtual);
+    UUID idPedido = pedido.getId();
+
+    when(pedidoRepository.buscaPedidoPorId(idPedido)).thenReturn(pedido);
+    when(cliente.buscaEnderecoEspecifico(idEnderecoNovo)).thenReturn(enderecoNovo);
+
+    APIException ex =
+        assertThrows(
+            APIException.class, () -> applicationService.alteraEnderecoEntrega(idPedido, request));
+    assertEquals(HttpStatus.BAD_REQUEST, ex.getStatusException());
+    assertEquals(ErrorCode.ENDERECO_INCOMPLETO, ex.getErrorCode());
+    verify(pedidoRepository, never()).salva(any());
+  }
+
+  @Test
   void deveLancarExcecaoQuandoNovoEnderecoForIgualAtual() {
     UUID idEnderecoAtual = UUID.randomUUID();
     EnderecoEntregaRequest request = PedidoDataHelper.criaEnderecoEntregaRequest(idEnderecoAtual);

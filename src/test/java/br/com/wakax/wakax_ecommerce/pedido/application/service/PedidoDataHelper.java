@@ -64,6 +64,15 @@ public final class PedidoDataHelper {
         .build();
   }
 
+  public static Endereco criaEnderecoIncompleto(UUID idEndereco) {
+    return Endereco.builder()
+        .id(idEndereco)
+        .cidade("São Paulo")
+        .estado("SP")
+        .principal(true)
+        .build();
+  }
+
   public static EnderecoEntregaRequest criaEnderecoEntregaRequest(UUID idEndereco) {
     return EnderecoEntregaRequest.builder().idEnderecoEntrega(idEndereco).build();
   }
