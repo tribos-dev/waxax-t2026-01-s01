@@ -5,13 +5,17 @@ import java.util.List;
 import java.util.UUID;
 
 import br.com.wakax.wakax_ecommerce.fornecedor.domain.Fornecedor;
+import br.com.wakax.wakax_ecommerce.fornecedor.domain.StatusFornecedor;
 import br.com.wakax.wakax_ecommerce.pessoa.domain.Pessoa;
 import br.com.wakax.wakax_ecommerce.pessoa.domain.StatusPessoa;
 
 public class FornecedorDataHelper {
 
   public static Fornecedor criarFornecedor(
-      String razaoSocial, String documento, StatusPessoa status) {
+      String razaoSocial,
+      String documento,
+      StatusPessoa status,
+      StatusFornecedor statusFornecedor) {
     Pessoa pessoa = new Pessoa();
     pessoa.setNome("Nome " + razaoSocial);
     pessoa.setCpfCnpj(documento);
@@ -28,14 +32,20 @@ public class FornecedorDataHelper {
         .inscricaoEstadual("123.456.789")
         .dataCriacao(LocalDateTime.now())
         .dataEdicao(LocalDateTime.now())
+        .status(statusFornecedor)
         .build();
   }
 
   public static Fornecedor criarFornecedorAtivo() {
-    return criarFornecedor("Empresa Ativa LTDA", "11.111.111/0001-11", StatusPessoa.ATIVO);
+    return criarFornecedor(
+        "Empresa Ativa LTDA", "11.111.111/0001-11", StatusPessoa.ATIVO, StatusFornecedor.ATIVO);
   }
 
   public static Fornecedor criarFornecedorInativo() {
-    return criarFornecedor("Empresa Inativa LTDA", "22.222.222/0001-22", StatusPessoa.INATIVO);
+    return criarFornecedor(
+        "Empresa Inativa LTDA",
+        "22.222.222/0001-22",
+        StatusPessoa.INATIVO,
+        StatusFornecedor.INATIVO);
   }
 }

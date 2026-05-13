@@ -60,4 +60,13 @@ public class FornecedorApplicationService implements FornecedorService {
     log.debug("[finish] FornecedorApplicationService - atualizarFornecedor");
     return new FornecedorAtualizaResponse(fornecedor);
   }
+
+  @Override
+  public void removerFornecedor(UUID idFornecedor) {
+    log.debug("[start] FornecedorApplicationService - removerFornecedor");
+    Fornecedor fornecedor = fornecedorRepository.buscaFornecedorPorId(idFornecedor);
+    fornecedor.removeFornecedor();
+    fornecedorRepository.atualiza(fornecedor);
+    log.debug("[finish] FornecedorApplicationService - removerFornecedor");
+  }
 }

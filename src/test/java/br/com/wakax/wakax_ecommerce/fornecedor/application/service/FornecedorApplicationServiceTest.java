@@ -6,6 +6,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -17,10 +18,14 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 
 import br.com.wakax.wakax_ecommerce.fornecedor.application.api.response.FornecedorPageResponse;
 import br.com.wakax.wakax_ecommerce.fornecedor.application.repository.FornecedorRepository;
 import br.com.wakax.wakax_ecommerce.fornecedor.domain.Fornecedor;
+import br.com.wakax.wakax_ecommerce.fornecedor.domain.StatusFornecedor;
+import br.com.wakax.wakax_ecommerce.handler.APIException;
+import br.com.wakax.wakax_ecommerce.handler.ErrorCode;
 import br.com.wakax.wakax_ecommerce.pessoa.domain.StatusPessoa;
 
 @ExtendWith(MockitoExtension.class)
@@ -132,7 +137,10 @@ public class FornecedorApplicationServiceTest {
 
     Fornecedor fornecedor =
         FornecedorDataHelper.criarFornecedor(
-            "Silva Comercio LTDA", "12.345.678/0001-90", StatusPessoa.ATIVO);
+            "Silva Comercio LTDA",
+            "12.345.678/0001-90",
+            StatusPessoa.ATIVO,
+            StatusFornecedor.ATIVO);
 
     Page<Fornecedor> pageMock = new PageImpl<>(List.of(fornecedor));
 
@@ -171,5 +179,70 @@ public class FornecedorApplicationServiceTest {
         });
 
     verifyNoInteractions(fornecedorRepository);
+  }
+
+  @Test
+  void deveRemoverFornecedorComSucesso() {
+
+    UUID idFornecedor = UUID.randomUUID();
+
+    Fornecedor fornecedor = FornecedorDataHelper.criarFornecedorAtivo();
+
+    when(fornecedorRepository.buscaFornecedorPorId(idFornecedor)).thenReturn(fornecedor);
+
+    fornecedorApplicationService.removerFornecedor(idFornecedor);
+
+    assertEquals(StatusFornecedor.INATIVO, fornecedor.getStatus());
+
+    verify(fornecedorRepository).buscaFornecedorPorId(idFornecedor);
+    verify(fornecedorRepository).atualiza(fornecedor);
+
+    verifyNoMoreInteractions(fornecedorRepository);
+  }
+
+  @Test
+  void naoDeveRemoverFornecedorJaInativo() {
+
+    UUID idFornecedor = UUID.randomUUID();
+
+    Fornecedor fornecedor = FornecedorDataHelper.criarFornecedorAtivo();
+    fornecedor.removeFornecedor();
+
+    when(fornecedorRepository.buscaFornecedorPorId(idFornecedor)).thenReturn(fornecedor);
+
+    APIException exception =
+        assertThrows(
+            APIException.class, () -> fornecedorApplicationService.removerFornecedor(idFornecedor));
+
+    assertEquals(HttpStatus.FORBIDDEN, exception.getStatusException());
+    assertEquals(ErrorCode.FORNECEDOR_INATIVO, exception.getErrorCode());
+
+    verify(fornecedorRepository).buscaFornecedorPorId(idFornecedor);
+
+    verify(fornecedorRepository, never()).atualiza(any());
+
+    verifyNoMoreInteractions(fornecedorRepository);
+  }
+
+  @Test
+  void deveLancarExcecaoQuandoFornecedorNaoExistir() {
+
+    UUID idFornecedor = UUID.randomUUID();
+
+    when(fornecedorRepository.buscaFornecedorPorId(idFornecedor))
+        .thenThrow(new APIException(HttpStatus.NOT_FOUND, ErrorCode.FORNECEDOR_NAO_ENCONTRADO));
+
+    APIException exception =
+        assertThrows(
+            APIException.class, () -> fornecedorApplicationService.removerFornecedor(idFornecedor));
+
+    assertEquals(HttpStatus.NOT_FOUND, exception.getStatusException());
+    assertEquals(ErrorCode.FORNECEDOR_NAO_ENCONTRADO, exception.getErrorCode());
+
+    verify(fornecedorRepository).buscaFornecedorPorId(idFornecedor);
+
+    verify(fornecedorRepository, never()).atualiza(any());
+
+    verifyNoMoreInteractions(fornecedorRepository);
   }
 }
