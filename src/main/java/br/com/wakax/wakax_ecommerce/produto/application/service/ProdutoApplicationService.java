@@ -1,6 +1,6 @@
 package br.com.wakax.wakax_ecommerce.produto.application.service;
 
-import java.time.LocalDateTime;
+import java.math.BigDecimal;
 import java.util.UUID;
 
 import org.springframework.data.domain.Page;
@@ -14,8 +14,10 @@ import org.springframework.transaction.annotation.Transactional;
 import br.com.wakax.wakax_ecommerce.auth.credencial.domain.Credencial;
 import br.com.wakax.wakax_ecommerce.auth.usuario.domain.Usuario;
 import br.com.wakax.wakax_ecommerce.produto.api.ProdutoAlteraStatusRequest;
+import br.com.wakax.wakax_ecommerce.produto.api.request.ProdutoAtualizaPrecoRequest;
 import br.com.wakax.wakax_ecommerce.produto.api.request.ProdutoAtualizaRequest;
 import br.com.wakax.wakax_ecommerce.produto.api.request.ProdutoRequest;
+import br.com.wakax.wakax_ecommerce.produto.api.response.ProdutoAtualizaPrecoResponse;
 import br.com.wakax.wakax_ecommerce.produto.api.response.ProdutoAtualizaResponse;
 import br.com.wakax.wakax_ecommerce.produto.api.response.ProdutoListResponse;
 import br.com.wakax.wakax_ecommerce.produto.api.response.ProdutoListagemResponse;
@@ -23,6 +25,7 @@ import br.com.wakax.wakax_ecommerce.produto.api.response.ProdutoResponse;
 import br.com.wakax.wakax_ecommerce.produto.application.repository.HistoricoAtualizacaoProdutoRepository;
 import br.com.wakax.wakax_ecommerce.produto.application.repository.ProdutoRepository;
 import br.com.wakax.wakax_ecommerce.produto.domain.HistoricoAtualizacaoProduto;
+import br.com.wakax.wakax_ecommerce.produto.domain.Preco;
 import br.com.wakax.wakax_ecommerce.produto.domain.Produto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -69,18 +72,13 @@ public class ProdutoApplicationService implements ProdutoService {
     Produto produto = produtoRepository.buscaProdutoPorId(idProduto);
     produto.atualiza(atualizaRequest);
     produtoRepository.salva(produto);
-    HistoricoAtualizacaoProduto historico =
-        HistoricoAtualizacaoProduto.builder()
-            .produto(produto)
-            .usuario(buscaUsuarioLogado())
-            .dataHora(LocalDateTime.now())
-            .build();
-    historicoAtualizacaoProdutoRepository.salva(historico);
+    historicoAtualizacaoProdutoRepository.salva(
+        HistoricoAtualizacaoProduto.deAtualizacao(produto, buscaUsuarioLogado()));
     log.debug("[finish] ProdutoApplicationService - atualizaProduto");
     return new ProdutoAtualizaResponse(produto);
   }
 
-  public Usuario buscaUsuarioLogado() {
+  Usuario buscaUsuarioLogado() {
     Credencial credencial =
         (Credencial) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     return credencial.getUser();
@@ -103,5 +101,27 @@ public class ProdutoApplicationService implements ProdutoService {
     produto.alteraStatus(statusRequest.getStatus(), statusRequest.getMotivo());
     produtoRepository.salva(produto);
     log.debug("[finish] ProdutoApplicationService - alteraStatusProduto");
+  }
+
+  @Override
+  @Transactional
+  public ProdutoAtualizaPrecoResponse atualizaPreco(
+      UUID idProduto, ProdutoAtualizaPrecoRequest request) {
+    log.debug("[start] ProdutoApplicationService - atualizaPreco");
+    Produto produto = produtoRepository.buscaProdutoPorId(idProduto);
+    Preco preco = produto.buscaPrecoPorTipo(request.getTipoPreco());
+    BigDecimal valorAnterior = preco.getValor();
+    preco.atualizaValor(request.getNovoPreco());
+    produtoRepository.salva(produto);
+    historicoAtualizacaoProdutoRepository.salva(
+        HistoricoAtualizacaoProduto.deAtualizacaoPreco(
+            produto,
+            buscaUsuarioLogado(),
+            request.getTipoPreco(),
+            valorAnterior,
+            request.getNovoPreco(),
+            request.getMotivo()));
+    log.debug("[finish] ProdutoApplicationService - atualizaPreco");
+    return new ProdutoAtualizaPrecoResponse(preco);
   }
 }

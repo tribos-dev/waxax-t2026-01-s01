@@ -51,7 +51,10 @@ public enum ErrorCode {
   RELATORIO_DATA_OBRIGATORIA("relatorio.data.obrigatoria"),
   RELATORIO_DATA_INVALIDA("relatorio.data.invalida"),
   CRITERIO_BUSCA_OBRIGATORIO("criterio.busca.obrigatorio"),
-  FORNECEDOR_INATIVO("fornecedor.inativo");
+  FORNECEDOR_INATIVO("fornecedor.inativo"),
+  PRECO_NAO_ENCONTRADO("preco.nao.encontrado"),
+  PRECO_INVALIDO("preco.invalido"),
+  PRECO_JA_CADASTRADO("preco.ja.cadastrado");
 
   private final String code;
 

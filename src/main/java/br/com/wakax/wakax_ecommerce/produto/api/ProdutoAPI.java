@@ -7,8 +7,10 @@ import javax.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import br.com.wakax.wakax_ecommerce.produto.api.request.ProdutoAtualizaPrecoRequest;
 import br.com.wakax.wakax_ecommerce.produto.api.request.ProdutoAtualizaRequest;
 import br.com.wakax.wakax_ecommerce.produto.api.request.ProdutoRequest;
+import br.com.wakax.wakax_ecommerce.produto.api.response.ProdutoAtualizaPrecoResponse;
 import br.com.wakax.wakax_ecommerce.produto.api.response.ProdutoAtualizaResponse;
 import br.com.wakax.wakax_ecommerce.produto.api.response.ProdutoListResponse;
 import br.com.wakax.wakax_ecommerce.produto.api.response.ProdutoListagemResponse;
@@ -42,4 +44,10 @@ public interface ProdutoAPI {
   @ResponseStatus(HttpStatus.NO_CONTENT)
   void alteraStatusProduto(
       @PathVariable UUID idProduto, @RequestBody ProdutoAlteraStatusRequest statusRequest);
+
+  @PatchMapping("/{idProduto}/preco")
+  @ResponseStatus(HttpStatus.OK)
+  ProdutoAtualizaPrecoResponse atualizaPreco(
+      @PathVariable UUID idProduto,
+      @RequestBody @Valid ProdutoAtualizaPrecoRequest atualizaRequest);
 }

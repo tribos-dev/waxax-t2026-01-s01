@@ -180,4 +180,11 @@ public class Produto {
       throw new APIException(HttpStatus.UNPROCESSABLE_ENTITY, ErrorCode.PRODUTO_INATIVO);
     }
   }
+
+  public Preco buscaPrecoPorTipo(TipoPreco tipo) {
+    return this.precos.stream()
+        .filter(p -> p.getTipo().equals(tipo))
+        .findFirst()
+        .orElseThrow(() -> new APIException(HttpStatus.NOT_FOUND, ErrorCode.PRECO_NAO_ENCONTRADO));
+  }
 }

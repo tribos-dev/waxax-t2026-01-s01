@@ -4,8 +4,10 @@ import java.util.UUID;
 
 import org.springframework.web.bind.annotation.RestController;
 
+import br.com.wakax.wakax_ecommerce.produto.api.request.ProdutoAtualizaPrecoRequest;
 import br.com.wakax.wakax_ecommerce.produto.api.request.ProdutoAtualizaRequest;
 import br.com.wakax.wakax_ecommerce.produto.api.request.ProdutoRequest;
+import br.com.wakax.wakax_ecommerce.produto.api.response.ProdutoAtualizaPrecoResponse;
 import br.com.wakax.wakax_ecommerce.produto.api.response.ProdutoAtualizaResponse;
 import br.com.wakax.wakax_ecommerce.produto.api.response.ProdutoListResponse;
 import br.com.wakax.wakax_ecommerce.produto.api.response.ProdutoListagemResponse;
@@ -66,5 +68,15 @@ public class ProdutoController implements ProdutoAPI {
     log.debug("[start] ProdutoController - alterarStatusProduto");
     produtoService.alteraStatusProduto(idProduto, statusRequest);
     log.debug("[finish] ProdutoController - alterarStatusProduto");
+  }
+
+  @Override
+  public ProdutoAtualizaPrecoResponse atualizaPreco(
+      UUID idProduto, ProdutoAtualizaPrecoRequest atualizaRequest) {
+    log.debug("[start] ProdutoController - atualizaPreco");
+    ProdutoAtualizaPrecoResponse response =
+        produtoService.atualizaPreco(idProduto, atualizaRequest);
+    log.debug("[finish] ProdutoController - atualizaPreco");
+    return response;
   }
 }

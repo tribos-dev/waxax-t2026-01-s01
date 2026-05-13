@@ -40,8 +40,7 @@ public final class CarrinhoDataHelper {
             .precos(new ArrayList<>())
             .build();
 
-    Preco preco =
-        new Preco(UUID.randomUUID(), TipoPreco.PADRAO, new BigDecimal("15000.00"), produto);
+    Preco preco = new Preco(TipoPreco.PADRAO, new BigDecimal("15000.00"), produto);
     produto.getPrecos().add(preco);
     return produto;
   }
@@ -59,8 +58,7 @@ public final class CarrinhoDataHelper {
             .precos(new ArrayList<>())
             .build();
 
-    Preco preco =
-        new Preco(UUID.randomUUID(), TipoPreco.PADRAO, new BigDecimal("4500.50"), produto);
+    Preco preco = new Preco(TipoPreco.PADRAO, new BigDecimal("4500.50"), produto);
     produto.getPrecos().add(preco);
     return produto;
   }
