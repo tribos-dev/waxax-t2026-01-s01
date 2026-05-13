@@ -37,6 +37,7 @@ import br.com.wakax.wakax_ecommerce.pagamento.domain.Pagamento;
 import br.com.wakax.wakax_ecommerce.pagamento.domain.StatusPagamento;
 import br.com.wakax.wakax_ecommerce.pedido.application.api.PedidoPageResponse;
 import br.com.wakax.wakax_ecommerce.pedido.application.api.request.CancelamentoPedidoRequest;
+import br.com.wakax.wakax_ecommerce.pedido.application.api.request.EnderecoEntregaRequest;
 import br.com.wakax.wakax_ecommerce.pedido.application.api.request.PedidoRequest;
 import br.com.wakax.wakax_ecommerce.pedido.application.api.response.PedidoResponse;
 import br.com.wakax.wakax_ecommerce.pedido.application.repository.PedidoRepository;
@@ -528,5 +529,140 @@ class PedidoApplicationServiceTest {
     assertEquals(ErrorCode.PEDIDO_NAO_ENCONTRADO, ex.getErrorCode());
     verifyNoInteractions(estoqueService);
     verifyNoInteractions(pagamentoRepository);
+  }
+
+  @Test
+  void deveAlterarEnderecoComSucesso() {
+    UUID idEnderecoNovo = UUID.randomUUID();
+    EnderecoEntregaRequest request = PedidoDataHelper.criaEnderecoEntregaRequest(idEnderecoNovo);
+
+    Cliente cliente = mock(Cliente.class);
+    Endereco enderecoAtual = PedidoDataHelper.criaEndereco(UUID.randomUUID());
+    Endereco enderecoNovo = PedidoDataHelper.criaEndereco(idEnderecoNovo);
+
+    Pedido pedido = PedidoDataHelper.criaPedido(StatusPedido.CRIADO, cliente, enderecoAtual);
+    UUID idPedido = pedido.getId();
+
+    when(pedidoRepository.buscaPedidoPorId(idPedido)).thenReturn(pedido);
+    when(cliente.buscaEnderecoEspecifico(idEnderecoNovo)).thenReturn(enderecoNovo);
+
+    applicationService.alteraEnderecoEntrega(idPedido, request);
+
+    assertEquals(enderecoNovo, pedido.getEnderecoEntrega());
+    verify(pedidoRepository, times(1)).salva(pedido);
+  }
+
+  @Test
+  void deveLancarExcecaoQuandoEnderecoForIncompleto() {
+    UUID idEnderecoNovo = UUID.randomUUID();
+    EnderecoEntregaRequest request = PedidoDataHelper.criaEnderecoEntregaRequest(idEnderecoNovo);
+
+    Cliente cliente = mock(Cliente.class);
+    Endereco enderecoAtual = PedidoDataHelper.criaEndereco(UUID.randomUUID());
+    Endereco enderecoNovo = PedidoDataHelper.criaEnderecoIncompleto(idEnderecoNovo);
+
+    Pedido pedido = PedidoDataHelper.criaPedido(StatusPedido.CRIADO, cliente, enderecoAtual);
+    UUID idPedido = pedido.getId();
+
+    when(pedidoRepository.buscaPedidoPorId(idPedido)).thenReturn(pedido);
+    when(cliente.buscaEnderecoEspecifico(idEnderecoNovo)).thenReturn(enderecoNovo);
+
+    APIException ex =
+        assertThrows(
+            APIException.class, () -> applicationService.alteraEnderecoEntrega(idPedido, request));
+    assertEquals(HttpStatus.BAD_REQUEST, ex.getStatusException());
+    assertEquals(ErrorCode.ENDERECO_INCOMPLETO, ex.getErrorCode());
+    verify(pedidoRepository, never()).salva(any());
+  }
+
+  @Test
+  void deveLancarExcecaoQuandoNovoEnderecoForIgualAtual() {
+    UUID idEnderecoAtual = UUID.randomUUID();
+    EnderecoEntregaRequest request = PedidoDataHelper.criaEnderecoEntregaRequest(idEnderecoAtual);
+
+    Cliente cliente = mock(Cliente.class);
+    Endereco enderecoAtual = PedidoDataHelper.criaEndereco(idEnderecoAtual);
+
+    Pedido pedido = PedidoDataHelper.criaPedido(StatusPedido.CRIADO, cliente, enderecoAtual);
+    UUID idPedido = pedido.getId();
+
+    when(pedidoRepository.buscaPedidoPorId(idPedido)).thenReturn(pedido);
+    when(cliente.buscaEnderecoEspecifico(idEnderecoAtual)).thenReturn(enderecoAtual);
+
+    APIException ex =
+        assertThrows(
+            APIException.class, () -> applicationService.alteraEnderecoEntrega(idPedido, request));
+    assertEquals(HttpStatus.CONFLICT, ex.getStatusException());
+    assertEquals(ErrorCode.PEDIDO_MESMO_ENDERECO, ex.getErrorCode());
+    verify(pedidoRepository, never()).salva(any());
+  }
+
+  @Test
+  void deveLancarExcecaoQuandoPedidoEstiverCancelado() {
+    UUID idEnderecoNovo = UUID.randomUUID();
+    EnderecoEntregaRequest request = PedidoDataHelper.criaEnderecoEntregaRequest(idEnderecoNovo);
+
+    Cliente cliente = mock(Cliente.class);
+    Endereco enderecoAtual = PedidoDataHelper.criaEndereco(UUID.randomUUID());
+    Endereco enderecoNovo = PedidoDataHelper.criaEndereco(idEnderecoNovo);
+
+    Pedido pedido = PedidoDataHelper.criaPedido(StatusPedido.CANCELADO, cliente, enderecoAtual);
+    UUID idPedido = pedido.getId();
+
+    when(pedidoRepository.buscaPedidoPorId(idPedido)).thenReturn(pedido);
+    when(cliente.buscaEnderecoEspecifico(idEnderecoNovo)).thenReturn(enderecoNovo);
+
+    APIException ex =
+        assertThrows(
+            APIException.class, () -> applicationService.alteraEnderecoEntrega(idPedido, request));
+    assertEquals(HttpStatus.CONFLICT, ex.getStatusException());
+    assertEquals(ErrorCode.PEDIDO_JA_CANCELADO, ex.getErrorCode());
+    verify(pedidoRepository, never()).salva(any());
+  }
+
+  @Test
+  void deveLancarExcecaoQuandoPedidoEstiverEnviadoOuEntregue() {
+    UUID idEnderecoNovo = UUID.randomUUID();
+    EnderecoEntregaRequest request = PedidoDataHelper.criaEnderecoEntregaRequest(idEnderecoNovo);
+
+    Cliente cliente = mock(Cliente.class);
+    Endereco enderecoAtual = PedidoDataHelper.criaEndereco(UUID.randomUUID());
+    Endereco enderecoNovo = PedidoDataHelper.criaEndereco(idEnderecoNovo);
+
+    Pedido pedido = PedidoDataHelper.criaPedido(StatusPedido.ENVIADO, cliente, enderecoAtual);
+    UUID idPedido = pedido.getId();
+
+    when(pedidoRepository.buscaPedidoPorId(idPedido)).thenReturn(pedido);
+    when(cliente.buscaEnderecoEspecifico(idEnderecoNovo)).thenReturn(enderecoNovo);
+
+    APIException ex =
+        assertThrows(
+            APIException.class, () -> applicationService.alteraEnderecoEntrega(idPedido, request));
+    assertEquals(HttpStatus.BAD_REQUEST, ex.getStatusException());
+    assertEquals(ErrorCode.PEDIDO_JA_ENVIADO, ex.getErrorCode());
+    verify(pedidoRepository, never()).salva(any());
+  }
+
+  @Test
+  void deveLancarExcecaoQuandoEnderecoNaoEncontradoNaListaDoCliente() {
+    UUID idEnderecoNovo = UUID.randomUUID();
+    EnderecoEntregaRequest request = PedidoDataHelper.criaEnderecoEntregaRequest(idEnderecoNovo);
+
+    Cliente cliente = mock(Cliente.class);
+    Endereco enderecoAtual = PedidoDataHelper.criaEndereco(UUID.randomUUID());
+
+    Pedido pedido = PedidoDataHelper.criaPedido(StatusPedido.CRIADO, cliente, enderecoAtual);
+    UUID idPedido = pedido.getId();
+
+    when(pedidoRepository.buscaPedidoPorId(idPedido)).thenReturn(pedido);
+    when(cliente.buscaEnderecoEspecifico(idEnderecoNovo))
+        .thenThrow(new APIException(HttpStatus.NOT_FOUND, ErrorCode.ENDERECO_NAO_ENCONTRADO));
+
+    APIException ex =
+        assertThrows(
+            APIException.class, () -> applicationService.alteraEnderecoEntrega(idPedido, request));
+    assertEquals(HttpStatus.NOT_FOUND, ex.getStatusException());
+    assertEquals(ErrorCode.ENDERECO_NAO_ENCONTRADO, ex.getErrorCode());
+    verify(pedidoRepository, never()).salva(any());
   }
 }

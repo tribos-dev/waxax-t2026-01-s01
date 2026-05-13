@@ -6,6 +6,7 @@ import java.util.UUID;
 
 import br.com.wakax.wakax_ecommerce.pedido.application.api.PedidoPageResponse;
 import br.com.wakax.wakax_ecommerce.pedido.application.api.request.CancelamentoPedidoRequest;
+import br.com.wakax.wakax_ecommerce.pedido.application.api.request.EnderecoEntregaRequest;
 import br.com.wakax.wakax_ecommerce.pedido.application.api.request.PedidoRequest;
 import br.com.wakax.wakax_ecommerce.pedido.application.api.request.StatusPedidoRequest;
 import br.com.wakax.wakax_ecommerce.pedido.application.api.response.PedidoResponse;
@@ -27,4 +28,6 @@ public interface PedidoService {
 
   List<ProdutoMaisVendidoResponse> geraRelatorioProdutosMaisVendidos(
       LocalDateTime dataInicio, LocalDateTime dataFim, Integer limite);
+
+  void alteraEnderecoEntrega(UUID idPedido, EnderecoEntregaRequest request);
 }

@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.UUID;
 
 import br.com.wakax.wakax_ecommerce.cliente.domain.Cliente;
+import br.com.wakax.wakax_ecommerce.pedido.application.api.request.EnderecoEntregaRequest;
 import br.com.wakax.wakax_ecommerce.pedido.domain.FormaPagamento;
 import br.com.wakax.wakax_ecommerce.pedido.domain.ItemPedido;
 import br.com.wakax.wakax_ecommerce.pedido.domain.Pedido;
@@ -48,5 +49,40 @@ public final class PedidoDataHelper {
             .build();
     itemPedido.setPedido(pedido);
     return pedido;
+  }
+
+  public static Endereco criaEndereco(UUID idEndereco) {
+    return Endereco.builder()
+        .id(idEndereco)
+        .logradouro("Rua Teste")
+        .numero("123")
+        .bairro("Centro")
+        .cidade("São Paulo")
+        .estado("SP")
+        .cep("01000-000")
+        .principal(true)
+        .build();
+  }
+
+  public static Endereco criaEnderecoIncompleto(UUID idEndereco) {
+    return Endereco.builder()
+        .id(idEndereco)
+        .cidade("São Paulo")
+        .estado("SP")
+        .principal(true)
+        .build();
+  }
+
+  public static EnderecoEntregaRequest criaEnderecoEntregaRequest(UUID idEndereco) {
+    return EnderecoEntregaRequest.builder().idEnderecoEntrega(idEndereco).build();
+  }
+
+  public static Pedido criaPedido(StatusPedido status, Cliente cliente, Endereco enderecoAtual) {
+    return Pedido.builder()
+        .id(UUID.randomUUID())
+        .status(status)
+        .cliente(cliente)
+        .enderecoEntrega(enderecoAtual)
+        .build();
   }
 }

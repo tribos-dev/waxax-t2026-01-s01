@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import br.com.wakax.wakax_ecommerce.pedido.application.api.request.CancelamentoPedidoRequest;
+import br.com.wakax.wakax_ecommerce.pedido.application.api.request.EnderecoEntregaRequest;
 import br.com.wakax.wakax_ecommerce.pedido.application.api.request.PedidoRequest;
 import br.com.wakax.wakax_ecommerce.pedido.application.api.request.StatusPedidoRequest;
 import br.com.wakax.wakax_ecommerce.pedido.application.api.response.PedidoResponse;
@@ -51,4 +52,9 @@ public interface PedidoAPI {
   void cancelaPedido(
       @PathVariable UUID idPedido,
       @Valid @RequestBody CancelamentoPedidoRequest cancelamentoPedidoRequest);
+
+  @PatchMapping("/{idPedido}/endereco-entrega")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  void alteraEnderecoEntrega(
+      @PathVariable UUID idPedido, @Valid @RequestBody EnderecoEntregaRequest request);
 }

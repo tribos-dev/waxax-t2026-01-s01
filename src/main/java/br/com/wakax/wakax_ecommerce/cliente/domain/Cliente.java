@@ -12,6 +12,7 @@ import br.com.wakax.wakax_ecommerce.cliente.application.api.request.ClienteAtual
 import br.com.wakax.wakax_ecommerce.cliente.application.api.request.ClienteRequest;
 import br.com.wakax.wakax_ecommerce.handler.APIException;
 import br.com.wakax.wakax_ecommerce.handler.ErrorCode;
+import br.com.wakax.wakax_ecommerce.pessoa.domain.Endereco;
 import br.com.wakax.wakax_ecommerce.pessoa.domain.Pessoa;
 import br.com.wakax.wakax_ecommerce.pessoa.domain.StatusPessoa;
 import lombok.AllArgsConstructor;
@@ -103,5 +104,13 @@ public class Cliente {
     if (!this.isAtivo()) {
       throw new APIException(HttpStatus.FORBIDDEN, ErrorCode.CLIENTE_INATIVO);
     }
+  }
+
+  public Endereco buscaEnderecoEspecifico(UUID idEnderecoEntrega) {
+    return this.pessoa.getEnderecos().stream()
+        .filter(e -> e.getId().equals(idEnderecoEntrega))
+        .findFirst()
+        .orElseThrow(
+            () -> new APIException(HttpStatus.NOT_FOUND, ErrorCode.ENDERECO_NAO_ENCONTRADO));
   }
 }

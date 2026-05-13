@@ -7,7 +7,8 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import javax.persistence.*;
-import javax.validation.constraints.*;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.PositiveOrZero;
 
 import org.springframework.http.HttpStatus;
 
@@ -18,7 +19,10 @@ import br.com.wakax.wakax_ecommerce.handler.APIException;
 import br.com.wakax.wakax_ecommerce.handler.ErrorCode;
 import br.com.wakax.wakax_ecommerce.pedido.application.api.request.PedidoRequest;
 import br.com.wakax.wakax_ecommerce.pessoa.domain.Endereco;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Data
@@ -79,6 +83,19 @@ public class Pedido {
     this.enderecoEntrega = carrinho.getCliente().getPessoa().getEnderecos().get(0);
     this.itensPedido = mapearItensCarrinhoParaPedido(carrinho.getItensCarrinho());
     this.valorTotal = calcularValorTotal();
+  }
+
+  @PrePersist
+  public void prePersist() {
+    this.dataUltimaAtualizacao = LocalDateTime.now();
+    if (this.dataPedido == null) {
+      this.dataPedido = LocalDateTime.now();
+    }
+  }
+
+  @PreUpdate
+  public void preUpdate() {
+    this.dataUltimaAtualizacao = LocalDateTime.now();
   }
 
   public void mudaStatusAguardandoPagamento() {
@@ -147,16 +164,29 @@ public class Pedido {
     };
   }
 
-  @PrePersist
-  public void prePersist() {
-    this.dataUltimaAtualizacao = LocalDateTime.now();
-    if (this.dataPedido == null) {
-      this.dataPedido = LocalDateTime.now();
+  public void alteraEnderecoDeEntrega(Endereco novoEndereco) {
+    novoEndereco.validaSeEhCompleto();
+    validaSePedidoEstaCancelado();
+    validaSePedidoFoiEnviadoOuEntregue();
+    validaSeNovoEnderecoEhIgualAtual(novoEndereco.getId());
+    this.enderecoEntrega = novoEndereco;
+  }
+
+  private void validaSeNovoEnderecoEhIgualAtual(UUID idNovoEndereco) {
+    if (this.enderecoEntrega.getId().equals(idNovoEndereco)) {
+      throw new APIException(HttpStatus.CONFLICT, ErrorCode.PEDIDO_MESMO_ENDERECO);
     }
   }
 
-  @PreUpdate
-  public void preUpdate() {
-    this.dataUltimaAtualizacao = LocalDateTime.now();
+  private void validaSePedidoEstaCancelado() {
+    if (this.status.equals(StatusPedido.CANCELADO)) {
+      throw new APIException(HttpStatus.CONFLICT, ErrorCode.PEDIDO_JA_CANCELADO);
+    }
+  }
+
+  private void validaSePedidoFoiEnviadoOuEntregue() {
+    if (this.status.equals(StatusPedido.ENVIADO) || this.status.equals(StatusPedido.ENTREGUE)) {
+      throw new APIException(HttpStatus.BAD_REQUEST, ErrorCode.PEDIDO_JA_ENVIADO);
+    }
   }
 }
