@@ -1,6 +1,7 @@
 package br.com.wakax.wakax_ecommerce.pedido.infra;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -43,11 +44,14 @@ public interface PedidoJPARepository extends JpaRepository<Pedido, UUID> {
           JOIN ip.produto p
           JOIN ip.pedido ped
           WHERE ped.dataPedido BETWEEN :dataInicio AND :dataFim
+            AND ped.status IN (br.com.wakax.wakax_ecommerce.pedido.domain.StatusPedido.PAGO,
+                               br.com.wakax.wakax_ecommerce.pedido.domain.StatusPedido.ENVIADO,
+                               br.com.wakax.wakax_ecommerce.pedido.domain.StatusPedido.ENTREGUE)
           GROUP BY p.id, p.descricao
           ORDER BY SUM(ip.quantidade) DESC
           """)
-  Page<ProdutoMaisVendidoProjection> findProdutosMaisVendidos(
+  List<ProdutoMaisVendidoProjection> findProdutosMaisVendidos(
       @Param("dataInicio") LocalDateTime dataInicio,
       @Param("dataFim") LocalDateTime dataFim,
-      Pageable pageable);
+      Pageable limite);
 }

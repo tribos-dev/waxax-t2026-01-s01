@@ -111,9 +111,8 @@ public class PedidoApplicationService implements PedidoService {
     log.debug("[start] PedidoApplicationService - geraRelatorioProdutosMaisVendidos");
     validarDatas(dataInicio, dataFim);
     Integer limiteNormalizado = normalizarLimite(limite);
-    Pageable pageable = PageRequest.of(0, limiteNormalizado);
     List<ProdutoMaisVendidoResponse> produtos =
-        pedidoRepository.buscaProdutosMaisVendidos(dataInicio, dataFim, pageable);
+        pedidoRepository.buscaProdutosMaisVendidos(dataInicio, dataFim, limiteNormalizado);
     log.debug("[finish] PedidoApplicationService - geraRelatorioProdutosMaisVendidos");
     return produtos;
   }

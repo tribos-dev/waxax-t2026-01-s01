@@ -21,5 +21,5 @@ public interface PedidoRepository {
       UUID idCliente, StatusPedido statusPedido, Pageable pageable);
 
   List<ProdutoMaisVendidoResponse> buscaProdutosMaisVendidos(
-      LocalDateTime dataInicio, LocalDateTime dataFim, Pageable limite);
+      LocalDateTime dataInicio, LocalDateTime dataFim, int limite);
 }

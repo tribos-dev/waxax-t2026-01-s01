@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.UUID;
 
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Repository;
@@ -59,12 +60,11 @@ public class PedidoInfraRepository implements PedidoRepository {
 
   @Override
   public List<ProdutoMaisVendidoResponse> buscaProdutosMaisVendidos(
-      LocalDateTime dataInicio, LocalDateTime dataFim, Pageable limite) {
+      LocalDateTime dataInicio, LocalDateTime dataFim, int limite) {
     log.debug("[start] PedidoInfraRepository - buscaProdutosMaisVendidos");
     List<ProdutoMaisVendidoResponse> produtos =
         pedidoJPARepository
-            .findProdutosMaisVendidos(dataInicio, dataFim, limite)
-            .getContent()
+            .findProdutosMaisVendidos(dataInicio, dataFim, PageRequest.of(0, limite))
             .stream()
             .map(
                 p ->
