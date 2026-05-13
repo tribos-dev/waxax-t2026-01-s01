@@ -3,10 +3,12 @@ package br.com.wakax.wakax_ecommerce.cliente.infra;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.hibernate.Hibernate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import br.com.wakax.wakax_ecommerce.cliente.application.repository.ClienteRepository;
 import br.com.wakax.wakax_ecommerce.cliente.domain.Cliente;
@@ -53,5 +55,18 @@ public class ClienteInfraRepository implements ClienteRepository {
   @Override
   public Optional<Cliente> findById(UUID idCliente) {
     return clienteSpringDataJpaRepository.findById(idCliente);
+  }
+
+  @Override
+  @Transactional(readOnly = true)
+  public Page<Cliente> buscarClientePorCriterios(
+      String cpf, String email, String nome, Pageable pageable) {
+    log.info("[start] ClienteInfraRepository - buscarClientePorCriterios");
+    Page<Cliente> clientes =
+        clienteSpringDataJpaRepository.findAll(
+            ClienteSpecification.comFiltros(cpf, email, nome), pageable);
+    clientes.forEach(c -> Hibernate.initialize(c.getPessoa().getEmails()));
+    log.debug("[finish] ClienteInfraRepository - buscarClientePorCriterios");
+    return clientes;
   }
 }

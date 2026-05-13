@@ -49,7 +49,8 @@ public enum ErrorCode {
   PRODUTO_JA_INATIVO("produto.ja.inativo"),
   CARRINHO_NAO_PERTENCE_AO_CLIENTE_AUTENTICADO("carrinho.nao.pertence.ao.cliente.autenticado"),
   RELATORIO_DATA_OBRIGATORIA("relatorio.data.obrigatoria"),
-  RELATORIO_DATA_INVALIDA("relatorio.data.invalida");
+  RELATORIO_DATA_INVALIDA("relatorio.data.invalida"),
+  CRITERIO_BUSCA_OBRIGATORIO("criterio.busca.obrigatorio");
 
   private final String code;
 

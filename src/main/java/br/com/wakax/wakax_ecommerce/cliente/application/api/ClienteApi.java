@@ -8,11 +8,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import br.com.wakax.wakax_ecommerce.cliente.application.api.request.ClienteAtualizaRequest;
+import br.com.wakax.wakax_ecommerce.cliente.application.api.request.ClienteBuscaRequest;
 import br.com.wakax.wakax_ecommerce.cliente.application.api.request.ClienteRequest;
-import br.com.wakax.wakax_ecommerce.cliente.application.api.response.ClienteAtualizaResponse;
-import br.com.wakax.wakax_ecommerce.cliente.application.api.response.ClienteListAllResponse;
-import br.com.wakax.wakax_ecommerce.cliente.application.api.response.ClienteResponse;
-import br.com.wakax.wakax_ecommerce.cliente.application.api.response.PageResponse;
+import br.com.wakax.wakax_ecommerce.cliente.application.api.response.*;
 
 @RestController
 @RequestMapping("/cliente")
@@ -44,4 +42,9 @@ public interface ClienteApi {
   @PatchMapping("/{idCliente}/inativar")
   @ResponseStatus(HttpStatus.OK)
   ClienteResponse inativarCliente(@PathVariable UUID idCliente);
+
+  @GetMapping("/busca")
+  @ResponseStatus(HttpStatus.OK)
+  PageResponse<ClienteListResponse> buscarClientePorCriterios(
+      @ModelAttribute @Valid ClienteBuscaRequest filtro);
 }
